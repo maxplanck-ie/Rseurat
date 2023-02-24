@@ -111,5 +111,6 @@ sessionInfo()
 ```
 
 ## Citations
-```{r}
+```{r citations}
+
 ```
