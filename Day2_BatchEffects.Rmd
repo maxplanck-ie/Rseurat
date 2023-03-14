@@ -17,8 +17,9 @@ output: ioslides_presentation
 ## Setup
 
 ```{r, setup, include=FALSE}
+library(formatR)
 knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE) 
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
 ```
 
 ```{r seuratVersion,warning=FALSE,message=FALSE}
@@ -64,13 +65,42 @@ panc <- RunUMAP(panc, dims = 1:15)
 
 ## What does the data look like out of the box?
 
-```{r out_of_the_box_umap, out.width="50%",out.height="20%",fig.cap="caption",fig.show='hold',fig.align='center'}
+```{r out_of_the_box_umap, echo = FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
 DimPlot(panc, reduction = "umap",label=TRUE)
 ggplot2::ggsave("panc.bytech.png")
 DimPlot(panc, reduction = "umap",group.by="celltype")
 ggplot2::ggsave("panc.bycelltype.png")
 
 knitr::include_graphics(c("panc.bytech.png","panc.bycelltype.png"))
+```
+
+## Subset dataset 
+
+```{r subset}
+panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
+table(panc_sub$dataset)
+```
+
+## Redo normalization
+
+```{r norm_sub}
+panc_sub <- NormalizeData(panc_sub)
+panc_sub <- FindVariableFeatures(panc_sub, selection.method = "vst", nfeatures = 2000)
+all.genes <- rownames(panc_sub)
+panc_sub <- ScaleData(panc_sub, features = all.genes)
+panc_sub <- RunPCA(panc_sub, features = VariableFeatures(object = panc_sub))
+panc_sub <- RunUMAP(panc_sub, dims = 1:15)
+```
+
+## Revisit UMAP
+
+```{r umap_sub, echo=FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+DimPlot(panc_sub, reduction = "umap",label=TRUE)
+ggplot2::ggsave("panc_sub.bytech.png")
+DimPlot(panc_sub, reduction = "umap",group.by="celltype")
+ggplot2::ggsave("panc_sub.bycelltype.png")
+
+knitr::include_graphics(c("panc_sub.bytech.png","panc_sub.bycelltype.png"))
 ```
 
 ## How do we measure batch effects?
@@ -81,18 +111,19 @@ We can see various amounts of batch effect by eye. Let's try to calculate some m
 devtools::install_github('theislab/kBET')
 library(kBET)
 library(ggplot2)
-#downsample to 3000 cells to speed up computations
-panc_3000 <- panc[, sample(colnames(panc), size = 3000, replace=F)]
-d<-t(as.matrix(GetAssayData(panc_3000,slot="data",assay="RNA")))
-b<-as.vector(t(panc_3000[["dataset"]]))
-start_time <- Sys.time()
+
+d<-t(as.matrix(GetAssayData(panc_sub,slot="data",assay="RNA")))
+b<-as.vector(t(panc_sub[["dataset"]]))
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE)
-end_time <- Sys.time()
-end_time - start_time
 plot.data <- data.frame(class=rep(c('observed', 'expected'), 
                                   each=length(batch.estimate$stats$kBET.observed)), 
                         data =  c(batch.estimate$stats$kBET.observed,
                                   batch.estimate$stats$kBET.expected))
+```
+
+## Plot the rejection rate
+
+```{r kBET1_plot,fig.width=4, fig.height=3}
 g <- ggplot(plot.data, aes(class, data)) + geom_boxplot() + 
   labs(x='Test', y='Rejection rate',title='kBET test results') +
   theme_bw() +  
@@ -116,9 +147,21 @@ batch.pca <- pcRegression(pca.data, b)
 z<-batch.pca["r2"]
 z$r2[which.max(z$r2[,"R.squared"]),]
 
-which.max(z$r2[,"R.squared"])
+```
 
-FeaturePlot(panc,features="PC_13")
+
+## Inspect the result
+
+```{r kBET3_head}
+
+head(z$r2)
+which.max(z$r2[,"R.squared"])
+```
+
+## Inspect the result
+
+```{r kBET3_plot}
+FeaturePlot(panc,features="PC_1")
 
 ```
 
@@ -133,16 +176,20 @@ FeaturePlot(panc,features="PC_13")
 
 ## Seurat Integrate
 
-```{r seurat_integrate}
+```{r seurat_integrate1}
 # split the dataset into a list of two seurat objects (stim and CTRL)
-panc.list <- SplitObject(panc, split.by = "dataset")
+panc.list <- SplitObject(panc_sub, split.by = "dataset")
 
 # normalize and identify variable features for each dataset independently
 panc.list <- lapply(X = panc.list, FUN = function(x) {
     x <- NormalizeData(x)
     x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
 })
+```
 
+## Seurat Integrate
+
+```{r seurat_integrate2}
 # select features that are repeatedly variable across datasets for integration
 features <- SelectIntegrationFeatures(object.list = panc.list)
 
@@ -169,7 +216,7 @@ panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 
 ## What does the data look like after the integration?
 
-```{r integrated_umap, out.width="50%",out.height="20%",fig.cap="caption",fig.show='hold',fig.align='center'}
+```{r integrated_umap, echo=FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
 DimPlot(panc.combined, reduction = "umap",label=TRUE)
 ggplot2::ggsave("panc.combined.bytech.png")
 DimPlot(panc.combined, reduction = "umap",group.by="celltype")
@@ -184,18 +231,21 @@ We can see that the cells from different datasets overlap, and there appears to 
 
 ```{r integrated_kBET1}
 #downsample to 3000 cells to speed up computations
-panc.combined_3000 <- panc.combined[, sample(colnames(panc.combined), size = 3000, replace=F)]
-d<-t(as.matrix(GetAssayData(panc.combined_3000,slot="scale.data",assay="integrated")))
-b<-as.vector(t(panc.combined_3000[["dataset"]]))
-start_time <- Sys.time()
+d<-t(as.matrix(GetAssayData(panc.combined,slot="scale.data",assay="integrated")))
+b<-as.vector(t(panc.combined[["dataset"]]))
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE)
-end_time <- Sys.time()
-end_time - start_time
+
 plot.data <- data.frame(class=rep(c('observed', 'expected'), 
                                   each=length(batch.estimate$stats$kBET.observed)), 
                         data =  c(batch.estimate$stats$kBET.observed,
                                   batch.estimate$stats$kBET.expected))
-g <- ggplot(plot.data, aes(class, data)) + geom_boxplot() + 
+```
+
+
+## Inspect the result
+
+```{r integrated_kBET1_plot,fig.width=4, fig.height=3}
+  g <- ggplot(plot.data, aes(class, data)) + geom_boxplot() + 
   labs(x='Test', y='Rejection rate',title='kBET test results') +
   theme_bw() +  
   scale_y_continuous(limits=c(0,1))
@@ -217,10 +267,26 @@ pca.data <- prcomp(d, center=TRUE)
 batch.pca <- pcRegression(pca.data, b)
 z<-batch.pca["r2"]
 z$r2[which.max(z$r2[,"R.squared"]),]
-
-which.max(z$r2[,"R.squared"])
-
-FeaturePlot(panc.combined,features="PC_6")
-
 ```
 
+## Inspect the result
+
+```{r integrated_kBET3_inspect}
+head(z$r2)
+which.max(z$r2[,"R.squared"])
+```
+
+## Outlook
+
+- Verify that expected marker genes are expressed per cell population
+
+## SessionInfo
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+## Citations
+```{r citations}
+
+```
