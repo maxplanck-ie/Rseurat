@@ -128,7 +128,7 @@ We will be analyzing the a dataset of Peripheral Blood Mononuclear Cells (PBMC) 
 The values in the **count matrix** represent the number of molecules for each feature (i.e. gene; row) that are detected in each cell (column).
 
 ```{r}
-pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
 Lets examine a few genes in the first thirty cells:
@@ -417,7 +417,7 @@ Hint: `gsub(' ','_',gsub(':','-', date())` will get you the date in the format w
 
 Hint, here's the YAML element to add in your `Rmd` header:
 
-```{yaml}
+```{r}
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding,
   output_file = file.path(getwd(),
@@ -429,7 +429,7 @@ knit: (function(inputFile, encoding) {
 
 Hint, here's a `my.file.name` variable to get you inspired:
 
-```{yaml}
+```{r}
 my.file.name <- paste(params$root_name,
                       gsub(' ','_',gsub(':','-',date())),
                       params$significant_components,
