@@ -1,0 +1,84 @@
+---
+title: "Differential Expression Analyses"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+
+output:
+  bookdown::html_document2:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+
+params:
+  seed:
+    label: 'Random seed:'
+    value: 8211673
+---
+
+
+# Setup
+
+```{r}
+timestamp()
+```
+
+```{r}
+getwd()
+```
+
+
+```{r}
+print(params)
+```
+
+```{r}
+my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
+  installed_pkgs <- installed.packages()
+  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
+  lapply(c(coreLibraries, packagesToLoad),
+         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
+  lapply(packagesToLoad, function(pkg) {
+    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
+  })
+  TRUE
+}
+
+my_load_namespaces(
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "enrichR"),
+  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
+)
+```
+
+```{r}
+stopifnot(suppressMessages(BiocManager::valid()))
+
+set.seed(params$seed)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Data
+
+We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:
+
+```{r}
+pbmc <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/") %>%
+  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
+
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+
+pbmc <- NormalizeData(pbmc, verbose = FALSE)
+
+pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
+
+pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
+
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+```
+
+# DESeq2
+
