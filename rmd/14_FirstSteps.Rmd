@@ -403,17 +403,17 @@ timestamp()
 
 ## HOMEWORK:
 
-This is not mandatory, and barely related to scRNAseq... we hope it will add to your working with RMarkdown skills.
+This is not mandatory, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills.
 
 - Save all your R session details (a.k.a. environment specification) using the function `sessioninfo::session_info()` and its `to_file` argument.
 
-- Did you just use a string to hardcode the path? How about adding the date inside the filename? E.g. `./RseuratCourseRootDir/config/Session_Tue_Mar__7_13-58-08_2023.log`
+- Did you just use a string to hardcode the path? How about adding the date inside the filename? E.g. `./RseuratCourseRootDir/config/Session_Tue_Mar__7_13-58-08_2023.log`... hardcoding this would be cumbersome and error-prone!
 
-Hint: `gsub(' ','_',gsub(':','-', date())` will get you the date in the format we just showed, using dashes and underscores for safety (POSIX principles?). Also, be sure to use `file.path()`, `getwd()`, `paste0()`, etc. to make it look fancy, and get around all the awkwardness and rough edges... e.g. Does `file.path` add or lack a trailing `/`? If we use `getwd` but this is run inside the notebook subfolder `./rmd/`, don't we need to append a `..`? Check the output of `getwd()` interactively and on the rendered markdown document (we did run this command as the 2nd code block in this document just for this very reason :P)
+Hint: `gsub(' ','_',gsub(':','-', date())` will get you the date in the format we just showed, using dashes and underscores for safety (POSIX principles?). Also, be sure to use `file.path()`, `getwd()`, `paste0()`, etc. to make it look fancy, and get around all the awkwardness and rough edges... e.g. Does `file.path` add or lack a trailing `/`? If we use `getwd` but this is run inside the notebook subfolder `./rmd/`, don't we need to append a `..`? Check the output of `getwd()` interactively and on the rendered markdown document (in fact, we added this command as the 2nd code block in this document just for this very reason :P)
 
 - Implement remaining params: dimensionality of the dataset, and cluster resolution.
 
-- Implement an overwrite of the knit function so that you save the HTML report somewhere else in the project folder.
+- Implement an overwrite of the knit function so that you save the HTML report somewhere else in the project folder, like a `lectures/` subfolder.
 
 Hint, here's the YAML element to add in your `Rmd` header:
 
@@ -421,9 +421,11 @@ Hint, here's the YAML element to add in your `Rmd` header:
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding,
   output_file = file.path(getwd(),
-  '../reports', paste0(gsub(' ','_',gsub(':','-',
+  '../lectures', paste0(gsub(' ','_',gsub(':','-',
   date())), '_results.html')))})
 ```
+
+NOTE: trailing slash in 'lectures' subfolder is implicit by the usage of multiple arguments within the call to `file.path()`...
 
 - Implement a save function that writes your `SeuratObject` to an RDS file, and name it with all the parameters in use.
 
