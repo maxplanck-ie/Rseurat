@@ -16,6 +16,12 @@ params:
   seed:
     label: 'Random seed:'
     value: 8211673
+  dimensionality:
+    label: 'Dimensionality of single-cell dataset:'
+    value: 10
+  cluster_resolution:
+    label: 'Parameter for clustering algorithm:'
+    value: 0.5
 ---
 
 
@@ -47,8 +53,8 @@ my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
 }
 
 my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "enrichR"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat"),
+  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "enrichR", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
 )
 ```
 
@@ -78,7 +84,55 @@ pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
 pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality))
+
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution)
 ```
 
-# UMAP
+# Manifolds
+
+These are the elephants in the room, the 'manifold' concept comes from either Geometry or Physics. Basically, **a manifold is every "space" with this property: locally, it looks like a Euclidean plane**. For example, if you draw a triangle on the surface of a ball, the sum of the angles is not 180. So, it's not euclidean. Yet, if the triangle is small, and uses a small surface, it would behave approximately as euclidean. This portion of space would be a manifold.
+
+## The Problem:
+
+How can we visualize all our points (cells) across multiple dimensions (principal components)? Can we reduce 10 PCs into a 2D cartesian plane? Turns out we can, and there are two solutions that were developed in recent years. In these, the concept of manifold is key, in the sense that on our end result, the distance between points has lower error when these points are close enough. This suits our case, since we want to plot clusters of cells that are from a same cell type.
+
+### t-distributed stochastic neighbor embedding (t-SNE)
+
+The t-SNE algorithm that uses the Gaussian probability function to calculate how likely a point (cell) will pick another one as its neighbor, and repeats this step for all points. In the low dimension space, cells are rearranged according to these distances, creating the t-SNE plot. While the original algorithm uses the Euclidean distance between objects as the base of its similarity metric, this can be changed.
+
+t-SNE has been used for visualization in a wide range of applications.
+
+For further details, see the [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
+
+### Uniform Manifold Approximation and Projection (UMAP)
+
+UMAP, in a more clever way, creates a fuzzy graph that accurately reflects the topology (a.k.a shape) of the true high dimensional graph, calculates the weight for edges of this graph, then builds the low dimensional graph mimicking the fuzzy graph. Since its development came 10 years later, it adds a bunch of advantages.
+
+For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) from 2018.
+
+### Take Away
+
+- t-SNE and UMAP are both non-linear, graph-based methods for dimensionality reduction in scRNA-seq analysis.
+- t-SNE and UMAP are both for data visualization. They are not meant to tell you about clustering or variation as much as methods like PCA do. 
+- t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure.
+- t-SNE moves the high dimensional graph to a lower dimensional space points by points. UMAP compresses that graph.
+- Key parameters for t-SNE and UMAP are the perplexity and number of neighbors, respectively. 
+- UMAP is more time-saving due to the clever solution in creating a rough estimation of the high dimensional graph instead of measuring every point.
+- UMAP gives a better balance between local versus global structure, thus overall gives a more accurate presentation of the global structure. This will come in handy in trajectory analysis. 
+
+# Plotting High-Dimensional Data
+
+Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. The goal of these algorithms is to learn the underlying manifold of the data in order to place similar cells together in low-dimensional space. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we use the dimensionality of our dataset (e.g. same PCs as input to clustering).
+
+Due to the mathematical difference, each method has different parameters to control this. For t-SNE, it’s the perplexity. For UMAP, it’s the number of neighbors (n_neighbor). The two parameters are what we should take care of when optimizing our data visualization. 
+
+```{r}
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality))
+```
+
+```{r}
+DimPlot(pbmc, reduction = "umap")
+```
 
