@@ -36,29 +36,6 @@ params:
 
 <!-- https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html -->
 
-```{r pre-setup, include=FALSE, eval=FALSE}
-# Needs to be run only once.
-# If asked to update packages, answer 'none'. We take care of it later.
-installed_pkgs <- installed.packages()
-if (! "markdown" %in% installed_pkgs) install.packages("markdown") 
-if (! "remotes" %in% installed_pkgs) install.packages("remotes") 
-if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-# if (! "circlize" %in% installed_pkgs) install.packages("circlize")
-# if (! "janitor" %in% installed_pkgs) install.packages("janitor")
-# if (! "scCustomize" %in% installed_pkgs) remotes::install_github('samuel-marsh/scCustomize')
-# if (! "glmGamPoi" %in% installed_pkgs) BiocManager::install("glmGamPoi")
-```
-
-<!--
-    Import data
-        Read10X
-    Basic QC
-        iSEE and/ or scCustomize
-        shiny brushedplot
-    Normalization
-    Clustering + cluster QC
--->
-
 # Setup
 
 ```{r}
