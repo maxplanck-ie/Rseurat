@@ -74,11 +74,6 @@ getwd()
 print(params)
 ```
 
-```{r setup, include=FALSE}
-set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r}
 my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
   # coreLibraries = not explicitly loaded, but required anyway (e.g. dependencies)
@@ -113,6 +108,9 @@ my_load_namespaces(
 ```
 
 ```{r}
+set.seed(params$seed)
+knitr::opts_chunk$set(echo = TRUE)
+
 options(parallelly.fork.enable = params$fork,
         future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
 
