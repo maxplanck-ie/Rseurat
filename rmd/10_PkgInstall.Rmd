@@ -43,6 +43,13 @@ BiocManager::install(version='3.14')
 >     spatial, survival
 > ```
 
+R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Before proceeding with the installation of other packages, let's get a dataset:
+
+```{r}
+if (! "SeuratData" %in% installed_pkgs) remotes::install_github('satijalab/seurat-data')
+if (! "panc8.SeuratData" %in% installed_pkgs) SeuratData::InstallData("panc8")
+```
+
 The next code block defines `my_load_namespaces` function that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
 
 ```{r}

@@ -1,0 +1,213 @@
+---
+title: "Functional Analyses"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+
+output:
+  bookdown::html_document2:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+
+params:
+  seed:
+    label: 'Random seed:'
+    value: 8211673
+---
+
+
+# Setup
+
+```{r}
+timestamp()
+```
+
+```{r}
+getwd()
+```
+
+
+```{r}
+print(params)
+```
+
+```{r}
+my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
+  installed_pkgs <- installed.packages()
+  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
+  lapply(c(coreLibraries, packagesToLoad),
+         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
+  lapply(packagesToLoad, function(pkg) {
+    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
+  })
+  TRUE
+}
+
+my_load_namespaces(
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "enrichR"),
+  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
+)
+```
+
+```{r}
+stopifnot(suppressMessages(BiocManager::valid()))
+
+set.seed(params$seed)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Data
+
+We'll be working with the data from our past notebook (`14_FirstSteps.Rmd`), let's quickly re-load and re-process again:
+
+```{r}
+pbmc <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/") %>%
+  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
+
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+
+pbmc <- NormalizeData(pbmc, verbose = FALSE)
+
+pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
+
+pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
+
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+```
+
+# Gene Set Enrichment Analysis (GSEA)
+
+These methods started with the results obtained from microarrays, and nowadays are usually in use to draw conclusions from the differential expression results after any RNA sequencing experiment (be it single cell or not). Also, there are plenty of databases that can be used in this groups of methods, so... just be aware that this task in itself could be addressed in a whole course or even a book... as [this one](https://yulab-smu.top/biomedical-knowledge-mining-book). We'll just scratch the surface, and see the most usual approach.
+
+A gene set is an unordered collection of genes that are functionally related. A pathway can be interpreted as a gene set by ignoring functional relationships among genes.
+
+**GSEA** aggregates the per gene statistics across genes within a set, therefore making it possible to detect situations where all genes in a predefined set change in a small but coordinated way. This is important since it is likely that many relevant phenotypic differences are manifested by small but consistent changes in a set of genes.
+
+> We need to define the 'sets' of genes that we want to test. Recall the PC Loadings? How about testing if any of our first PCs are enriched in genes that are associated to a common functionality?
+
+The PCA results are ready, let's make a dataframe with their first 9 components; and look at their first 20 rows:
+
+```{r}
+pca <- as.data.frame(Loadings(pbmc[["pca"]])[,1:9])
+head(pca, 20)
+```
+
+We'd want the top 50 genes from each component, let's just do it with the first component for now. In general, is easier to handle tasks in these modular form, and later expand to whole datasets.
+
+```{r}
+gene.set.1 <- arrange(pca, -PC_1) %>% head(50) %>% rownames()
+```
+
+
+HOMEWORK: Wrap this into a function that takes 3 inputs: PCA converted to data frame, desired PC number, and a number of  'top' gene names to extract. Such function should return a vector name of appropriate length with these gene names. <!-- You may probably need the injection operator (`!!`) to convert this function second argument into something that can go directly into `dplyr::arrange()`. -->
+
+
+## Gene Ontology
+
+[GO Terms](http://www.geneontology.org/) are semantic representations in a curated database that defines concepts/classes used to describe gene function, and relationships between these concepts. GO terms are organized in a directed acyclic graph, where edges between terms represent parent-child relationship. It classifies functions along three aspects:
+
+- MF: Molecular Function, molecular activities of gene products
+- CC: Cellular Compartment, where gene products are active
+- BP: Biological Processes, pathways and larger processes made up of the activities of multiple gene products
+
+## enrichR
+
+The package is already loaded. But we need to connect to the databases that we'll be using.
+
+```{r}
+dbs <- c('GO_Biological_Process_2021',
+         'GO_Cellular_Component_2021',
+         'GO_Molecular_Function_2021')
+```
+
+
+```{r}
+result.1 <- enrichr(gene.set.1, dbs)
+```
+
+Currently, `result.1` is a list object (analogous to a python dictionary), with three dataframes as elements, each corresponding to one of the databases. The `enrichR` library provides functions to explore these. For example:
+
+```{r, eval=FALSE}
+plotEnrich(result.1[[1]], showTerms = 20, numChar = 40, y = "Count", orderBy = "P.value")
+```
+
+
+Instead of copying and pasting, and customizing each of the calls to `plotEnrichr()` is easier to encapsulate functionality into function wrappers that are then copied over each time you want to call your customized plot or table, for example:
+
+```{r}
+retrieve_clean_title <- function(dbs, N) {
+  gsub('^.{3}(.*).{5}$', '\\1', dbs[N])
+}
+
+filter_enrichment_results <- function(enriched, N) {
+  enriched[[dbs[N]]] %>%
+    filter(Adjusted.P.value < 5e-2,
+    Odds.Ratio != 1) %>%
+    arrange(-Combined.Score)
+}
+
+enrichment_as_print_df <- function(enriched, N) {
+  df <- data.frame(filter_enrichment_results(enriched, N)[ ,
+                   c("Term", "Overlap", "Odds.Ratio", "Adjusted.P.value")])
+  row.names(df) <- df$Term
+  df$Term <- NULL
+  df
+}
+
+my_plot_enrich <- function(enriched, dbs, N) {
+  df <- filter_enrichment_results(enriched, N)
+  if (dim(df)[1] > 0) {
+    plotEnrich(df, showTerms = 25, numChar = 75,
+               title = retrieve_clean_title(dbs, N))
+  } else {
+    print("No pathway was enriched.")
+  }
+}
+```
+
+HOMEWORK: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same ouput types?
+
+### Plots
+
+Then you only need to repeat the call to wrappers that do all the 'heavy' lifting...
+
+#### Biological Process
+
+```{r}
+my_plot_enrich(result.1, dbs, 1)
+```
+
+```{r}
+enrichment_as_print_df(result.1, 1) %>% DT::datatable()
+```
+
+#### Cellular Component
+
+```{r}
+my_plot_enrich(result.1, dbs, 2)
+```
+
+```{r}
+enrichment_as_print_df(result.1, 2) %>% DT::datatable()
+```
+
+#### Molecular Function
+
+```{r}
+my_plot_enrich(result.1, dbs, 3)
+```
+
+```{r}
+enrichment_as_print_df(result.1, 3) %>% DT::datatable()
+```
+
+# End
+
+HOMEWORK: Explore all first 9 PCs using `my_plot_enrich` and `enrichment_as_print_df`.
+
+<!-- https://yulab-smu.top/biomedical-knowledge-mining-book/clusterProfiler-dplyr.html -->
