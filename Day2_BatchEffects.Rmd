@@ -77,6 +77,10 @@ knitr::include_graphics(c("panc.bytech.png","panc.bycelltype.png"))
 ## Subset dataset 
 
 ```{r subset}
+#ifnb.list <- SplitObject(ifnb, split.by = "stim")
+
+#ctrl <- ifnb.list[["CTRL"]]
+#stim <- ifnb.list[["STIM"]]
 panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
 table(panc_sub$dataset)
 ```
