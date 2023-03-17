@@ -1,0 +1,81 @@
+---
+title: "Package Installation"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(eval=FALSE)
+```
+
+
+First, ensure you're running R `4.1.3`.
+
+The next code block only needs to be run **once**. If asked to update packages, answer 'none'. We take care of it later.
+
+```{r}
+installed_pkgs <- installed.packages()
+
+if (! "markdown" %in% installed_pkgs) install.packages("markdown") 
+
+if (! "remotes" %in% installed_pkgs) install.packages("remotes") 
+
+if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
+```
+
+With `BiocManager`, we can install Bioconductor `3.14`.
+
+```{r}
+BiocManager::install(version='3.14')
+```
+
+> You can ignore the message:
+> 
+> ```
+> Bioconductor version 3.14 (BiocManager
+>   1.30.20), R 4.1.3 (2022-03-10)
+> Installation paths not writeable, unable to
+>   update packages
+>   path: /opt/R/4.1.3/lib/R/library
+>   packages:
+>     boot, class, cluster, codetools, foreign,
+>     MASS, Matrix, mgcv, nlme, nnet, rpart,
+>     spatial, survival
+> ```
+
+The next code block defines `my_load_namespaces` function that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
+
+```{r}
+my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
+  
+  installed_pkgs <- installed.packages()
+  
+  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
+  
+  lapply(c(coreLibraries, packagesToLoad),
+         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
+  
+  lapply(packagesToLoad, function(pkg) {
+    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
+  })
+  
+  TRUE
+}
+```
+
+Let's use it! The whole process is going to take a couple of minutes...
+
+```{r}
+my_load_namespaces(
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future"),
+  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "remotes", "bookdown")
+)
+```
+
+Finally, we want our installation to be coherent:
+
+```{r}
+stopifnot(suppressMessages(BiocManager::valid()))
+```
+
+If the above code block didn't return `TRUE`, then you should run the mentioned command. IF needed, retry `BiocManager::valid()` on the console as many times as it's required.

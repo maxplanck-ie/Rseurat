@@ -1,5 +1,5 @@
 ---
-title: "Analysis"
+title: "First Steps into a Regular Analysis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
