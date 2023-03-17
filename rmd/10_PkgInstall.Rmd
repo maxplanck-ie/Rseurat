@@ -72,10 +72,12 @@ my_load_namespaces(
 )
 ```
 
+Sometimes, there are errors while installing packages in bulk that are easily solved by re-iterating the command. These error messages are difficult to track, since we get so much output from the ongoing process in bulk, and also because of all the dependencies. This is specially true for first-comers, because their library of packages is empty. Anyhow, just re-run the previous code block 2-3 times until its only output is: `TRUE`.
+
 Finally, we want our installation to be coherent:
 
 ```{r}
-stopifnot(suppressMessages(BiocManager::valid()))
+stopifnot(BiocManager::valid())
 ```
 
-If the above code block didn't return `TRUE`, then you should run the mentioned command. IF needed, retry `BiocManager::valid()` on the console as many times as it's required.
+If the above code block fails, is because according to BiocManager our current state is not valid (so, it didn't return `TRUE` to `stopifnot`). To correct this, you should run the `BiocManager::install()` command as it's stated by `BiocManager::valid()`.

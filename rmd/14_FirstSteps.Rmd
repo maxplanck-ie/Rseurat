@@ -81,10 +81,8 @@ my_load_namespaces(
 ```
 
 ```{r}
-# stopifnot(suppressMessages(BiocManager::valid()))
-```
+stopifnot(suppressMessages(BiocManager::valid()))
 
-```{r}
 set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE)
 
