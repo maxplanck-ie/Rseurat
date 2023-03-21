@@ -85,14 +85,14 @@ pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
 
-pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality))
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
 
-pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution)
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
 ```
 
 # Manifolds
 
-These are the elephants in the room, the 'manifold' concept comes from either Geometry or Physics. Basically, **a manifold is every "space" with this property: locally, it looks like a Euclidean plane**. For example, if you draw a triangle on the surface of a ball, the sum of the angles is not 180. So, it's not euclidean. Yet, if the triangle is small, and uses a small surface, it would behave approximately as euclidean. This portion of space would be a manifold.
+This abstract concept comes from either Geometry or Physics. Basically, **a manifold is every "space" with this property: locally, it looks like a Euclidean plane**. For example, if you draw a triangle on the surface of a ball, the sum of the angles is not 180. So, it's not euclidean. Yet, if the triangle is small, and uses a small surface, it would behave approximately as euclidean. This portion of space would be a manifold.
 
 ## The Problem:
 
@@ -126,13 +126,19 @@ For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) 
 
 Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. The goal of these algorithms is to learn the underlying manifold of the data in order to place similar cells together in low-dimensional space. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we use the dimensionality of our dataset (e.g. same PCs as input to clustering).
 
-Due to the mathematical difference, each method has different parameters to control this. For t-SNE, it’s the perplexity. For UMAP, it’s the number of neighbors (n_neighbor). The two parameters are what we should take care of when optimizing our data visualization. 
+Due to the mathematical difference, each method has different parameters to control this. For t-SNE, it’s the perplexity. For UMAP, it’s the number of neighbors. The two parameters are what we should take care of when optimizing our data visualization. 
+
+```{r}
+pbmc <- RunTSNE(pbmc, dims = seq_len(params$dimensionality))
+```
 
 ```{r}
 pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality))
 ```
 
 ```{r}
-DimPlot(pbmc, reduction = "umap")
+DimPlot(pbmc, reduction = "umap") + NoLegend() |
+  DimPlot(pbmc, reduction = "tsne") + NoLegend()
 ```
 
+POLL: Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would it then be better, worse, or neutral?
