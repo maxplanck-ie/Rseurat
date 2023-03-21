@@ -74,10 +74,6 @@ my_load_namespaces(
   packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future"),
   coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "remotes", "bookdown")
 )
-
-# Cleared out: "SeuratDisk", "LoomExperiment", "MAST", "glmGamPoi", "scCustomize", "Nebulosa"
-
-#reticulate::use_virtualenv(params$pyvenv_umap)
 ```
 
 ```{r}
@@ -368,6 +364,8 @@ The clusters can be found using the `Idents()` function. Here, for example we ca
 ```{r}
 head(Idents(pbmc), 5)
 ```
+
+POLL: How many clusters did we find?
 
 # End
 
