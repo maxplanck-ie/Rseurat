@@ -16,6 +16,12 @@ params:
   seed:
     label: 'Random seed:'
     value: 8211673
+  dimensionality:
+    label: 'Dimensionality of single-cell dataset:'
+    value: 10
+  cluster_resolution:
+    label: 'Parameter for clustering algorithm:'
+    value: 0.5
 ---
 
 
@@ -47,8 +53,8 @@ my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
 }
 
 my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "enrichR"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat"),
+  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "enrichR", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData", "scCustomize", "Nebulosa")
 )
 ```
 
@@ -78,6 +84,17 @@ pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
 pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
 ```
 
 # scCustomize

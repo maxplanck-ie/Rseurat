@@ -16,6 +16,12 @@ params:
   seed:
     label: 'Random seed:'
     value: 8211673
+  dimensionality:
+    label: 'Dimensionality of single-cell dataset:'
+    value: 10
+  cluster_resolution:
+    label: 'Parameter for clustering algorithm:'
+    value: 0.5
 ---
 
 
@@ -47,8 +53,8 @@ my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
 }
 
 my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "enrichR"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat"),
+  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "enrichR", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData", "MAST", "glmGamPoi")
 )
 ```
 
@@ -78,7 +84,69 @@ pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
 pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
 ```
 
-# DESeq2
+# Markers
 
+Seurat has different functions that do all Differential Expression (DE) tests for you. The main one is `FindMarkers()`. Between other arguments, it accepts "identities" to establish --via metadata-- which groups of cells you're comparing. Another important argument is `test.use`, which allows you to select from a wide range of statistical models and/ or methodologies. We'll be using `MAST`, this is the best candidate for Single Cell data.
+
+Let's do a comparison between cells in clusters 2 versus 5.
+
+```{r}
+markers2 <- FindMarkers(object = pbmc,
+                        test.use = "MAST",
+                        ident.1 = 2,
+                        ident.2 = 5,
+                        verbose = FALSE)
+```
+
+The resulting object is a data frame with the following columns:
+
+- p_val: p-value (unadjusted!)
+- avg_log2FC : log fold-change of the average expression between the two groups. Positive values indicate that the feature is more highly expressed in the first group.
+- pct.1: The percentage of cells where the feature is detected in the first group
+- pct.2: The percentage of cells where the feature is detected in the second group
+- p_val_adj: Adjusted p-value, based on Bonferroni correction using all features in the dataset.
+
+You may inspect the results with either `View()` or `DT::datatable()`, according to your situation (e.g. working interactively at RStudio IDE or, rendering an HTML Report).
+
+**If the `ident.2` parameter is omitted or set to `NULL`, `FindMarkers()` will test for differentially expressed features between the group specified by `ident.1` and all other cells.** You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all these cells pooled together.
+
+To increase the speed of marker discovery, particularly for large datasets, Seurat allows for pre-filtering of features or cells. For example, features that are very infrequently detected in either group of cells, or features that are expressed at similar average levels, are unlikely to be differentially expressed.
+
+Last, but not least, you may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
+
+For example, to take all cells in cluster 2, and find markers that separate cells in the 'g1' group (metadata variable 'group'):
+
+```{r, eval=FALSE}
+markers <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', subset.ident = "2")
+```
+
+## Graphical Exploration
+
+Seurat includes several tools for visualizing marker expression. `VlnPlot()` shows expression probability distributions across clusters, and `FeaturePlot()` visualizes feature expression on a tSNE or PCA plot. There's also `RidgePlot()`, `CellScatter()`, and `DotPlot()` as additional methods to view your dataset.
+
+```{r}
+VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
+```
+
+```{r}
+FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP",
+    "CD8A"))
+```
+
+
+# End
+
+HOMEWORK: Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>

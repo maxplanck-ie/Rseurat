@@ -142,3 +142,19 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 ```
 
 POLL: Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would it then be better, worse, or neutral?
+
+## Annotation
+
+Fortunately in the case of this dataset, we can use canonical markers to easily match the clusters to known cell types.
+
+```{r}
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono",
+    "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+```
+
+```{r}
+DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+```
+
