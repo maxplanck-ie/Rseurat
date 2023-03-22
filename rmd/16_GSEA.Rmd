@@ -141,6 +141,7 @@ Instead of copying and pasting, and customizing each of the calls to `plotEnrich
 
 ```{r}
 retrieve_clean_title <- function(dbs, N) {
+  # https://regexr.com/
   gsub('^.{3}(.*).{5}$', '\\1', dbs[N])
 }
 
@@ -170,7 +171,9 @@ my_plot_enrich <- function(enriched, dbs, N) {
 }
 ```
 
-HOMEWORK: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same ouput types?
+HOMEWORK: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same output types?
+
+> Only showing enrichments with odds ratio &ne; `1` & p-value < `0.05` (fdr). Tables are complete full list, and plots only show the top 25 pathways with biggest odds ratio, and color coding follows p-value (fdr). The combined score is computed as `ln(p)*z`, and is used to arrange values in the tables.
 
 ### Plots
 
