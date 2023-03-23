@@ -334,8 +334,6 @@ HOMEWORK:
 
 - Add a fake 'treatment' metadata column using `sample(x=c("KO","WT"))` and evaluate a pair of 'Within Clusters' code blocks in the same way as we did at 'Per Cluster (between)' but using `markers_within_clusters` function.
 
-- Try the `markers_within_clusters()` function with the above.
-
 - Explore the number of cells from each treatment level in each cluster? Do we have underrepresented classes in any of these? Would it affect our downstream DE analyses? Hint: use a code block with this one-liner: `DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters, treatment))`
 
 - Add a `root_name` parameter of type `input: text`, and implement the following `save_XLSX()` to save all your DE tests results in a XLSX file:
