@@ -13,6 +13,22 @@ output:
     df_print: paged
 
 params:
+  Nthreads:
+    label: 'Number of Threads:'
+    value: 8
+    input: slider
+    min: 4
+    max: 96
+  Nmemgb:
+    label: 'Gigabytes of Memory per Thread:'
+    value: 8
+    input: slider
+    min: 4
+    max: 16
+  fork:
+    label: 'Fork processes (not GUI)'
+    value: FALSE
+    input: checkbox
   seed:
     label: 'Random seed:'
     value: 8211673
@@ -63,6 +79,15 @@ stopifnot(suppressMessages(BiocManager::valid()))
 
 set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE)
+
+options(parallelly.fork.enable = params$fork,
+        future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
+
+plan("multicore", workers = params$Nthreads)
+
+myFlappy <- function(x, ...) {
+  future.apply::future_lapply(x, ..., future.seed = TRUE)
+}
 ```
 
 ## Load Data
