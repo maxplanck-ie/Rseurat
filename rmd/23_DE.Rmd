@@ -126,14 +126,14 @@ rm(new.cluster.ids)
 
 Seurat has different functions that do all Differential Expression (DE) tests for you. The main one is `FindMarkers()`. Between other arguments, it accepts "identities" to establish --via metadata-- which groups of cells you're comparing. Another important argument is `test.use`, which allows you to select from a wide range of statistical models and/ or methodologies. We'll be using `MAST`, this is the best candidate for Single Cell data.
 
-Let's do a comparison between cells in clusters 2 versus 5.
+Let's do a comparison between cells in clusters 1 (Naive CD4 T) and 2 (CD14+ Mono).
 
 ```{r}
-markers2 <- FindMarkers(object = pbmc,
-                        test.use = "MAST",
-                        ident.1 = 2,
-                        ident.2 = 5,
-                        verbose = FALSE)
+markers2v5 <- FindMarkers(object = pbmc,
+                          test.use = "MAST",
+                          ident.1 = "Naive CD4 T",
+                          ident.2 = "CD14+ Mono",
+                          verbose = FALSE)
 ```
 
 The resulting object is a data frame with the following columns:
@@ -146,17 +146,27 @@ The resulting object is a data frame with the following columns:
 
 You may inspect the results with either `View()` or `DT::datatable()`, according to your situation (e.g. working interactively at RStudio IDE or, rendering an HTML Report).
 
+POLL: What would happen if we used `ident.1 = "CD14+ Mono"`, and `ident.2 = "Naive CD4 T"` instead?
+
 **If the `ident.2` parameter is omitted or set to `NULL`, `FindMarkers()` will test for differentially expressed features between the group specified by `ident.1` and all other cells.** You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all these cells pooled together.
 
 To increase the speed of marker discovery, particularly for large datasets, Seurat allows for pre-filtering of features or cells. For example, features that are very infrequently detected in either group of cells, or features that are expressed at similar average levels, are unlikely to be differentially expressed.
 
-Last, but not least, you may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
+<!-- Last, but not least, you may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
 
 For example, to take all cells in cluster 2, and find markers that separate cells in the 'g1' group (metadata variable 'group'):
 
-```{r, eval=FALSE}
-markers <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', subset.ident = "2")
-```
+``{r, eval=FALSE}
+markers.2.g1 <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', subset.ident = "2")
+`` -->
+
+Anyhow, there are different `Find*` functions. **It's important to get to know them!**
+
+- `FindMarkers` will find markers between two different identity groups - you have to specify both identity groups. This is useful for comparing the differences between two specific groups.
+
+- `FindAllMarkers` will find markers differentially expressed in each identity group by comparing it to all of the others - you don't have to manually define anything. Note that markers may bleed over between closely-related groups - they are not forced to be specific to only one group. 
+
+- `FindConservedMarkers` will find markers that are conserved between two groups - this can be useful if you want to find markers that are conserved between a treated and untreated condition, for a specific cell type or group of cells. It means they are differentially expressed compared to other groups, but have similar expression between the two groups you're actually comparing.
 
 ## Graphical Exploration
 
@@ -171,7 +181,213 @@ FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3
     "CD8A"))
 ```
 
+Usually, we'd be getting top DE genes to draw these plots, and to drive GSEA.
+
+# DE Testing
+
+Next, we'll define three function wrappers that should be helpful to further refine this downstream analysis.
+
+- get_cell_ids: returns a vector of cell IDs after filtering seurat object with metadata. You'd need to adapt this to your needs in your own analyses, in this case we assumed 'treatment' meta.data is actually the `orig.ident`! ...we'll be using it in the next functions.
+- find_markers: wrapper around `FindMarkers` that allows definition of arguments. Nothing extraordinary, just the DRY principle application.
+- find_all_markers: idem, with `FindAllMarkers`.
+- find_conserved_markers: idem, with `FindConservedMarkers`, it also does some pre-processing of the resulting table, adding a column with the cluster number, this way we can call the function with 'apply' or 'map' and get a table with all the results.
+- markers_within_clusters: uses `find_markers()` to compare inside a cluster, cells IDs (defined with `get_cell_ids()`) from some grouping metadata with two levels. For example, we can survey markers after a treatment (say, KO and WT) inside each cluster.
+- process_markers: arrange columns, adjust p-values with better approach, convert cluster column (if there is one) to character instead of factor, etc.
+
+This functions are only to be used 'as is' (verbatim), if they serve your own purposes. Likely, this is not the case. But the idea is to equip you with the skill set to adjust and further develop your toolbox. Our first function is the greatest candidate to be further customized. If you keep its logic, and the type of the output is the same, your customized version will work flawlessly with the other functions.<!--(which then can be further customized themselves, of course, but that's beyond the point).-->
+
+```{r}
+get_cell_ids <- function(obj, treatment=NULL, cluster=NULL, phase=NULL, group=NULL) {
+  cell_ids <- colnames(obj)
+  if (! is.null(treatment)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, orig.ident == treatment)@meta.data))
+  }
+  if (! is.null(group)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, groups == group)@meta.data))
+  }
+  if (! is.null(phase)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, Phase == phase)@meta.data))
+  }
+  if (! is.null(cluster)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, seurat_clusters == cluster)@meta.data))
+  }
+  stopifnot(length(cell_ids) >= 1)
+  cell_ids
+}
+
+find_markers <- function(obj, ...) {
+  suppressMessages(FindMarkers(obj,
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...))
+}
+
+find_all_markers <- function(obj, ...) {
+  suppressMessages(FindAllMarkers(obj,
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...))
+}
+
+find_conserved_markers <- function(cluster, ...) {
+  suppressMessages(FindConservedMarkers(combined,
+    ident.1 = cluster,
+    grouping.var = "treatment",
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...) %>%
+      tibble::rownames_to_column(var = "gene") %>%
+      cbind(cluster_id = cluster, .))
+}
+
+markers_within_clusters <- function(obj, totalNumberOfClusters,
+                                    cells_1, cells_2) {
+  result <- data.frame()
+  for (i in seq_len(totalNumberOfClusters)) {
+    thisCluster_cells <- get_cell_ids(obj, cluster = i)
+    cells__1 <- intersect(cells_1, thisCluster_cells)
+    cells__2 <- intersect(cells_2, thisCluster_cells)
+    # cells_N, variable name with double underscore,
+    # are only used internally!!
+    markers <- find_markers(obj,
+                            ident.1 = cells__1,
+                            ident.2 = cells__2)
+    if (nrow(markers) > 0) {
+      markers %<>% cbind(cluster = rep(i, nrow(.)))
+      markers$gene <- rownames(markers)
+      result %<>% rbind(markers, make.row.names = FALSE)
+    }
+  }
+  result
+}
+
+process_markers <- function(markers) {
+  x <- markers$p_val == 0
+  if (any(x)) {
+    markers[x, ]$p_val <- .Machine$double.xmin
+  }
+  markers$Adjusted.P.value <- p.adjust(markers$p_val)
+  stopifnot(all(markers$Adjusted.P.value != 0))
+  if (not("gene" %in% colnames(markers))) {
+    markers$gene <- rownames(markers)
+  }
+  markers %<>% filter(Adjusted.P.value < 5e-2)
+  if ("cluster" %in% colnames(markers)) {
+    markers$cluster <- as.numeric(as.character(markers$cluster))
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2)
+  } else {
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2)
+  }
+  markers
+}
+```
+
+For these functions, we need `totalNumberOfClusters` variable to be defined, let's do it and use it also as an excuse to have a 🌈 colorful plot too:
+
+```{r, fig.asp=0.1}
+totalNumberOfClusters <- length(levels(Idents(pbmc)))
+my_cols = brewer.pal(totalNumberOfClusters, "Set1")
+ggplot(data.frame(x=1:totalNumberOfClusters, type=1:totalNumberOfClusters), aes(x=x, fill=factor(type))) + geom_bar() + scale_fill_manual(values = my_cols) + theme_void() + NoLegend()
+```
+
+```{r}
+DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters))
+```
+
+
+## Per Cluster (between)
+
+What are the differences between clusters? disregarding any metadata (cell-cycle, treatments, groups, etc). Let's compare 1 vs all, 2 vs all, ... etc.
+
+In this case, we'll use `pbmc_small` which is a down sampled PBMC3K data set bundled with Seurat. (Yes, it won't appear in your Global Environment.)
+
+```{r}
+markers.between.clusters <- find_all_markers(pbmc_small)
+```
+
+```{r}
+if ("Adjusted.P.value" %in% names(markers.between.clusters)) {
+  print("Already processed.")
+} else {
+  markers.between.clusters %<>% process_markers()
+}
+```
+
+Since `process_markers` is not **idempontent**, running the above codeblock would be troublesome if it weren't for the conditional (`if-else`) in place. Since we may sometime re-run cells as part of using the button left to the green triangle at each block... this structure can save us some headaches.<!-- If we were to move this 'logic' into our function, we'd need to use the `<<-` assignment operator to modify our object in the parent, and instead always return a null or a print statement-->
 
 # End
 
-HOMEWORK: Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
+HOMEWORK:
+
+- Use `str()` over three different syntaxes of accessors to meta data data frame columns: `pbmc@meta.data[["orig.ident"]]`, `pbmc@meta.data["orig.ident"]`, and `pbmc@meta.data$orig.ident`; Which one of these is useless if we were to add a new column (granted, replacing `orig.ident` with our column name)? Could we just use `cbind`, how would that be?
+
+- Add a fake 'treatment' metadata column using `sample(x=c("KO","WT"))` and evaluate a pair of 'Within Clusters' code blocks in the same way as we did at 'Per Cluster (between)' but using `markers_within_clusters` function.
+
+- Try the `markers_within_clusters()` function with the above.
+
+- Explore the number of cells from each treatment level in each cluster? Do we have underrepresented classes in any of these? Would it affect our downstream DE analyses? Hint: use a code block with this one-liner: `DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters, treatment))`
+
+- Add a `root_name` parameter of type `input: text`, and implement the following `save_XLSX()` to save all your DE tests results in a XLSX file:
+
+```{r, eval=FALSE}
+my.file.name <- paste(params$root_name,
+                      gsub(' ','_',gsub(':','-',date())),
+                      sep="_")
+
+#' Export Data Frames to a Microsoft Excel File
+#'
+#' Creates a workbook with different sheets, each corresponding to a data frame that was passed in the first argument. This would also split by clusters to different sheets, if this column is found.
+#' @param dfl A list of data frames, like the ones returned by your DE testing.
+#' @param filename A file.path with the extension XLSX.
+#' @return No return, just the side-effect of writing data to disk in the appropriate format to be shared with colleagues.
+#' @examples
+#' save_XLSX(list(PerCluster=markers.between.clusters, WithinClusters=markers.within.clusters), file.path(getwd(), paste0("../results/", my.file.name, ".xlsx")))
+save_XLSX <- function(dfl, filename) {
+  wb <- createWorkbook()
+  options(openxlsx.borderColour = "#4F80BD")
+  options(openxlsx.borderStyle = "thin")
+  modifyBaseFont(wb, fontSize = 14, fontName = "Arial Narrow")
+  for (df_id in names(dfl)) {
+    if ("cluster" %in% colnames(dfl[[df_id]])) {
+      for (cluster_n in seq_len(max(dfl[[df_id]]$cluster))) {
+        sheet_name <- paste(df_id, cluster_n, sep="_")
+        my_data <- dfl[[df_id]][dfl[[df_id]]$cluster == cluster_n, ]
+        my_data$gene <- sub(
+          '\\(.*\\)\\.[0-9]', '\1',
+          my_data$gene
+          )
+        my_data$cluster <- NULL
+        addWorksheet(wb, sheetName = sheet_name, gridLines = FALSE)
+        writeDataTable(wb, sheet = sheet_name,
+                       x = my_data,
+                       colNames = TRUE, rowNames = FALSE,
+                       tableStyle = "TableStyleLight9")
+      }
+    } else {
+      addWorksheet(wb, sheetName = df_id, gridLines = FALSE)
+      writeDataTable(wb, sheet = df_id,
+                     x = dfl[[df_id]],
+                     colNames = TRUE, rowNames = FALSE,
+                     tableStyle = "TableStyleLight9")
+    }
+  }
+  saveWorkbook(wb, filename, overwrite = TRUE)
+}
+```
+
+- How about rewriting the 'treatment' metadata, but ensuring there's a 1:1 relationship between treatments in each of the clusters? Hint: you'd need to apply `sample` for each cluster as a subset. This exercise is not purely theoretical, having the skillset to test your assumptions with code is one of the greatest strengths you can come by.
+
+- Re-do with a 1:20 relationship, and run downstream 'Within Clusters' DE analyses. How are the results affected?
+
+- Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
