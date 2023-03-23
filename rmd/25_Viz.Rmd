@@ -99,34 +99,68 @@ pbmc <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
-
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
-
 pbmc <- NormalizeData(pbmc, verbose = FALSE)
-
 pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
-
 pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
-
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
-
 pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
-
 pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
-
 pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
 
 new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
 names(new.cluster.ids) <- levels(pbmc)
 pbmc <- RenameIdents(pbmc, new.cluster.ids)
 rm(new.cluster.ids)
+
+# Marker Expression
+
+Visualize single cell expression distributions in each cluster. We'll pick some genes for this:
+
+```{r}
+features <- c("LYZ", "CCL5", "IL32", "PTPRCAP", "FCGR3A", "PF4")
+```
+
+## Ridge plots
+
+```{r}
+RidgePlot(pbmc3k.final, features = features, ncol = 2)
+```
+
+## Violin plot
+
+```{r}
+VlnPlot(pbmc3k.final, features = features)
+```
+
+## Feature plot
+
+```{r}
+FeaturePlot(pbmc3k.final, features = features)
+```
+
+## Dot plots
+
+The size of the dot corresponds to the percentage of cells expressing the feature in each cluster. The color represents the average expression level.
+
+```{r}
+DotPlot(pbmc3k.final, features = features) + RotatedAxis()
+```
+
+## Heatmap of feature expression
+
+```{r}
+DoHeatmap(subset(pbmc3k.final, downsample = 100), features = features, size = 3)
 ```
 
 # scCustomize
 
-https://satijalab.org/seurat/articles/visualization_vignette.html
+This library provides with extra arguments, functions, and behaviours over the default Seurat.
 
+> Do we need all this extra stuff? Fair question. One could naively assume the answer is: No, this only "adds" extra boilerplate code, and deviates from the 'standard'.
+
+In reality, it just makes life easier; and it keeps us from reinventing the wheel. For example: Extracting the top 10 (or whatever `N`) genes per identity after running `Seurat::FindAllMarkers()` is very common and `scCustomize` provides `Extract_Top_Markers()` function to this end.
 
 # End
 
-HOMEWORK: Install python-umap in a VENV, and re-run the algorithm using this implementation rather than the UWOT. Are there any differences in the results? If so, did you reset the seed in between runs? What about the time it takes? You can measure with `microbenchmark` package.
+HOMEWORK: Install python-umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Are there any differences in the results? If so, did you reset the seed in between runs? What about the time it takes? You can measure with `microbenchmark` package. Hint: slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course
