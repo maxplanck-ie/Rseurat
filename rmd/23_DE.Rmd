@@ -386,8 +386,4 @@ save_XLSX <- function(dfl, filename) {
 }
 ```
 
-- How about rewriting the 'treatment' metadata, but ensuring there's a 1:1 relationship between treatments in each of the clusters? Hint: you'd need to apply `sample` for each cluster as a subset. This exercise is not purely theoretical, having the skillset to test your assumptions with code is one of the greatest strengths you can come by.
-
-- Re-do with a 1:20 relationship, and run downstream 'Within Clusters' DE analyses. How are the results affected?
-
 - Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
