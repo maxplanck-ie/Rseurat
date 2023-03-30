@@ -53,7 +53,7 @@ getwd()
 
 
 ```{r}
-print(params)
+cbind(params)
 ```
 
 ```{r}
