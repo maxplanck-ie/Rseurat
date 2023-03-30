@@ -328,7 +328,7 @@ Since `process_markers` is not **idempontent**, running the above codeblock woul
 
 # End
 
-HOMEWORK:
+EXERCISE:
 
 - Use `str()` over three different syntaxes of accessors to meta data data frame columns: `pbmc@meta.data[["orig.ident"]]`, `pbmc@meta.data["orig.ident"]`, and `pbmc@meta.data$orig.ident`; Which one of these is useless if we were to add a new column (granted, replacing `orig.ident` with our column name)? Could we just use `cbind`, how would that be?
 

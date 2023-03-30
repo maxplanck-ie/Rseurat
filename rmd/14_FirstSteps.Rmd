@@ -270,7 +270,7 @@ Next we perform PCA on the scaled data. By default, only the previously determin
 pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
 ```
 
-HOMEWORK: check [StatQuest with Josh Starmer video](https://youtu.be/FgakZw6K1QQ) explaining PCA by SVD step by step! (duration: 20 minutes)
+EXERCISE: check [StatQuest with Josh Starmer video](https://youtu.be/FgakZw6K1QQ) explaining PCA by SVD step by step! (duration: 20 minutes)
 
 Examine and visualize PCA results a few different ways:
 
@@ -304,7 +304,7 @@ ElbowPlot(pbmc)
 
 Another one, is using the JackStraw procedure: We randomly permute a subset of the data (1% by default) and rerun PCA, constructing a ‘null distribution’ of feature scores, and repeat this procedure. We identify ‘significant’ PCs as those who have a strong enrichment of low p-value features.
 
-> HOMEWORK: check this beautiful explanation of permutations explained in the context of statistical testing (constructing a 'null distribution'): <https://www.jwilber.me/permutationtest/>
+> EXERCISE: check this beautiful explanation of permutations explained in the context of statistical testing (constructing a 'null distribution'): <https://www.jwilber.me/permutationtest/>
 
 ```{r}
 # NOTE: This process can take a long time for big datasets,
@@ -324,7 +324,7 @@ Anything between 7-12 would be acceptable, and **it's better to err on the highe
 
 ```{r}
 Ndim=10
-# HOMEWORK: comment this line and convert this into a parameter of the current Rmarkdown document.
+# EXERCISE: comment this line and convert this into a parameter of the current Rmarkdown document.
 ```
 
 # Clustering
@@ -376,7 +376,7 @@ timestamp()
 # sessioninfo::session_info(to_file = file.path(getwd(), paste0("../config/session_", my.file.name, ".log")))
 ```
 
-## HOMEWORK:
+## EXERCISE:
 
 This is not mandatory, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills.
 

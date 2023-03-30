@@ -104,7 +104,7 @@ gene.set.1 <- arrange(pca, -PC_1) %>% head(50) %>% rownames()
 ```
 
 
-HOMEWORK: Wrap this into a function that takes 3 inputs: PCA converted to data frame, desired PC number, and a number of  'top' gene names to extract. Such function should return a vector name of appropriate length with these gene names. <!-- You may probably need the injection operator (`!!`) to convert this function second argument into something that can go directly into `dplyr::arrange()`. -->
+EXERCISE: Wrap this into a function that takes 3 inputs: PCA converted to data frame, desired PC number, and a number of  'top' gene names to extract. Such function should return a vector name of appropriate length with these gene names. <!-- You may probably need the injection operator (`!!`) to convert this function second argument into something that can go directly into `dplyr::arrange()`. -->
 
 
 ## Gene Ontology
@@ -171,7 +171,7 @@ my_plot_enrich <- function(enriched, dbs, N) {
 }
 ```
 
-HOMEWORK: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same output types?
+EXERCISE: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same output types?
 
 > Only showing enrichments with odds ratio &ne; `1` & p-value < `0.05` (fdr). Tables are complete full list, and plots only show the top 25 pathways with biggest odds ratio, and color coding follows p-value (fdr). The combined score is computed as `ln(p)*z`, and is used to arrange values in the tables.
 
@@ -211,6 +211,6 @@ enrichment_as_print_df(result.1, 3) %>% DT::datatable()
 
 # End
 
-HOMEWORK: Explore all first 9 PCs using `my_plot_enrich` and `enrichment_as_print_df`.
+EXERCISE: Explore all first 9 PCs using `my_plot_enrich` and `enrichment_as_print_df`.
 
 <!-- https://yulab-smu.top/biomedical-knowledge-mining-book/clusterProfiler-dplyr.html -->
