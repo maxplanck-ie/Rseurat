@@ -1,0 +1,149 @@
+---
+title: "Day4_CellAnnotation"
+author: "Katarzyna Sikora"
+date: "2/24/2023"
+output: ioslides_presentation
+---
+
+
+## Outline
+
+- Setup
+- Dataset
+- SingleR
+- Seurat Label Transfer
+- SessionInfo
+
+## Setup
+
+```{r, setup, include=FALSE}
+.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+library(formatR)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
+```
+
+```{r loadLibs,warning=FALSE,message=FALSE}
+library(SingleCellExperiment)
+library(Seurat)
+library(SingleR)
+library(scater)
+library(scran)
+```
+
+
+
+## Preprocess reference dataset.
+
+```{r ref_data}
+#pbmc_ref<-readRDS("pbmc_sorted_norm.rds")
+#pbmc_ref_meta<-readRDS("pbmc_sorted_meta.rds")
+#pbmc_ref_sce<-SingleCellExperiment(list(counts=pbmc_ref),colData=DataFrame(label=pbmc_ref_meta$id_extract))
+#pbmc_ref_sce<-logNormCounts(pbmc_ref_sce)
+#saveRDS(pbmc_ref_sce,"pbmc_ref_sce.RDS")
+pbmc_ref_sce<-readRDS("pbmc_ref_sce.RDS")
+```
+
+## Load query dataset.
+
+```{r seurat_to_sce}
+library(SeuratData)
+InstallData("pbmc3k")
+data("pbmc3k")
+pbmc<-pbmc3k.final
+sce <- as.SingleCellExperiment(DietSeurat(pbmc))
+```
+
+## Run SingleR to predict cell labels
+
+The package was developed under the assumption that ref containts bulk data. For use with scRNAseq ref data, set de.method to wilcox or t.
+
+```{r process_ref_sce}
+#set seed for the aggregation to be reproducible
+#set.seed(123)
+#ref.labels <- SingleR(test = sce,assay.type.test = "logcounts",ref = pbmc_ref_sce,labels = pbmc_ref_sce$label,aggr.ref=TRUE,de.method="wilcox")
+#saveRDS(ref.labels,"ref.labels.RDS")
+ref.labels<-readRDS("ref.labels.RDS")
+kable(table(ref.labels$pruned.labels)) %>% kable_paper("hover", full_width = F)
+```
+
+## Annotate query and filter identities
+
+```{r filter_Idents}
+pbmc@meta.data$SingleR_labels <- ref.labels$pruned.labels
+pbmc@meta.data$SingleR_score <- apply(ref.labels$scores,1,function(X)X[which.max(X)])
+pbmc[["SingleR_labels"]][pbmc[["SingleR_score"]]<0.5]<-NA
+```
+
+## Tabulate identities
+
+```{r tab_idents}
+kable(table(pbmc[["seurat_annotations"]]$seurat_annotations,pbmc[["SingleR_labels"]]$SingleR_labels)) %>% kable_paper("hover", full_width = F)
+```
+
+##Plot labels
+
+```{r plot_SingleR,fig.height=3,fig.width=8}
+p1<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="SingleR_labels") + NoLegend()
+p2<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="seurat_annotations") + NoLegend()
+p1+p2
+```
+
+## Seurat Label Transfer: load reference dataset
+
+```{r process_ref_seurat}
+#pbmc_ref.seurat <- as.Seurat(as(pbmc_ref_sce,"SingleCellExperiment"), counts = "counts", data = "logcounts")
+#pbmc_ref.seurat <- ScaleData(pbmc_ref.seurat, verbose = FALSE)
+#pbmc_ref.seurat <- RunPCA(pbmc_ref.seurat, npcs = 30, verbose = FALSE)
+#pbmc_ref.seurat <- FindVariableFeatures(pbmc_ref.seurat)
+#saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.RDS")
+pbmc_ref.seurat<-readRDS("pbmc_ref.seurat.RDS")
+```
+
+## Seurat Label Transfer: transfer labels
+
+```{r transfer_data}
+pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat, query = pbmc, dims = 1:30, reference.reduction = "pca")
+predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat$label,dims = 1:30)
+pbmc <- AddMetaData(pbmc, metadata = predictions)
+
+```
+
+## Filter labels
+
+```{r filter_annotations}
+pbmc[["predicted.id"]][pbmc[["prediction.score.max"]]<0.5]<-NA
+```
+
+## Tabulate annotations
+
+```{r tabulate_annotations}
+kable(table(pbmc[["seurat_annotations"]]$seurat_annotations,pbmc[["predicted.id"]]$predicted.id)) %>% kable_paper("hover", full_width = F)
+
+```
+
+## Plot labels
+
+```{r plot_Seurat,fig.height=3,fig.width=8}
+p1<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="predicted.id") + NoLegend()
+p2<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="seurat_annotations") + NoLegend()
+p1+p2
+```
+
+
+## SessionInfo
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+## Citations
+
+Q. Huang, Y. Liu, Y. Du, L.X. Garmire, Evaluation of Cell Type Annotation R Packages on Single-cell RNA-seq Data, Genomics, Proteomics & Bioinformatics (2020), doi: https://doi.org/10.1016/j.gpb.2020.07.004.
+G.X.Y. Zheng, J.M. Terry, P. Belgrader, P. Ryvkin, Z.W. Bent, R. Wilson, et al.
+Massively parallel digital transcriptional profiling of single cells
+Nat Commun, 8 (2017), p. 14049
+
