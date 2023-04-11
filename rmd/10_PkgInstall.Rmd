@@ -8,6 +8,7 @@ output: html_document
 knitr::opts_chunk$set(eval=FALSE)
 ```
 
+We are going to install [Seurat](https://satijalab.org/seurat/). Be sure to check out their [vignettes](https://satijalab.org/seurat/articles/)!
 
 First, ensure you're running R `4.1.3`.
 
