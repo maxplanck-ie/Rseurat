@@ -369,6 +369,8 @@ head(Idents(pbmc), 5)
 
 POLL: How many clusters did we find?
 
+NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html)
+
 # End
 
 ```{r}
