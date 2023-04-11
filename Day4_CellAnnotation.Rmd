@@ -12,7 +12,13 @@ output: ioslides_presentation
 - Dataset
 - SingleR
 - Seurat Label Transfer
+- Differences summary
+- Other options
 - SessionInfo
+
+## Goal
+
+You have a 'query' pbmc dataset and you would like to annotate the cell types using a published reference dataset. We will attempt an automated annotation relying on the similarity of cells in query and reference datasets.
 
 ## Setup
 
@@ -56,10 +62,14 @@ data("pbmc3k")
 pbmc<-pbmc3k.final
 sce <- as.SingleCellExperiment(DietSeurat(pbmc))
 ```
+## SingleR - theory
+
+The SingleR() function identifies marker genes from the reference and uses them to compute assignment scores (based on the Spearman correlation across markers) for each cell in the test dataset against each label in the reference. The label with the highest score is the assigned to the test cell, possibly with further fine-tuning to resolve closely related labels.
+For use with scRNAseq reference, set de.method to wilcox or t. This marker detection mode considers the variance of expression across cells. Here, we will use the Wilcoxon ranked sum test to identify the top markers for each pairwise comparison between labels. This is slower but more appropriate for single-cell data compared to the default marker detection algorithm (which may fail for low-coverage data where the median is frequently zero).
+
 
 ## Run SingleR to predict cell labels
 
-The package was developed under the assumption that ref containts bulk data. For use with scRNAseq ref data, set de.method to wilcox or t.
 
 ```{r process_ref_sce}
 #set seed for the aggregation to be reproducible
@@ -89,13 +99,18 @@ pbmc[["SingleR_labels"]][pbmc[["SingleR_score"]]<0.5]<-NA
 kable(table(pbmc[["seurat_annotations"]]$seurat_annotations,pbmc[["SingleR_labels"]]$SingleR_labels)) %>% kable_classic_2(full_width = F)
 ```
 
-##Plot labels
+## Plot labels
 
 ```{r plot_SingleR,fig.height=3,fig.width=8}
 p1<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="SingleR_labels") + NoLegend()
 p2<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="seurat_annotations") + NoLegend()
 p1+p2
 ```
+
+## Seurat Label Transfer: theory
+
+Here, we develop a strategy to “anchor” diverse datasets together, enabling us to integrate single-cell measurements not only across scRNA-seq technologies, but also across different modalities. Through the identification of cell pairwise correspondences between single cells across datasets, termed “anchors,” we can transform datasets into a shared space, even in the presence of extensive technical and/or biological differences. 
+We first jointly reduce the dimensionality of both datasets using diagonalized CCA, then apply L2-normalization to the canonical correlation vectors (Figures 1A and 1B ). We next search for MNNs in this shared low-dimensional representation. We refer to the resulting cell pairs as anchors, as they encode the cellular relationships across datasets that will form the basis for all subsequent integration analyses . Our anchors can successfully recover matching cell states even in the presence of significant dataset differences, as CCA can effectively identify shared biological markers and conserved gene correlation patterns
 
 ## Seurat Label Transfer: load reference dataset
 
@@ -137,6 +152,16 @@ p1<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="predicted.id")
 p2<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="seurat_annotations") + NoLegend()
 p1+p2
 ```
+
+## A word on the observed differences
+
+
+
+## Other options
+
+-  Monocle3 https://cole-trapnell-lab.github.io/monocle3/
+-  Numerous published tools: https://www.nature.com/articles/s41596-021-00534-0
+-  Manual annotation using cell markers
 
 
 ## SessionInfo
