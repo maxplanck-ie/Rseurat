@@ -1,0 +1,31 @@
+name: deploy
+
+on:
+  pull_request:
+
+defaults:
+  run:
+      shell: bash -l {0}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: r-lib/actions/setup-tinytex@v2
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: configs/conda.yml
+          cache-downloads: true
+          environment-name: Rseurat
+      - name: activate_env
+        run: |
+          micromamba activate Rseurat
+      - name: render site
+        run: |
+          Rscript -e "rmarkdown::render_site('rmd/')"
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./rmd/site

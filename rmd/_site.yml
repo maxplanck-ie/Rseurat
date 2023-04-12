@@ -1,0 +1,36 @@
+name: Rdeseq2
+output_dir: site
+include: ["images"]
+
+navbar:
+  title: "Rseurat - Single Cell RNA-seq"
+  left:
+    - text: "Modules"
+      icon: fa-level-down
+      menu:
+      - text: 10_PkgInstall
+        icon: fa-archive
+        href: 10_PkgInstall.html
+      - text: 12_Intro
+        icon: handshake-o
+        href: 12_Intro.html
+      - text: 14_FirstSteps
+        icon: handshake-o
+        href: 14_FirstSteps.html
+      - text: 16_GSEA
+        icon: handshake-o
+        href: 16_GSEA.html
+      - text: 21_UMAP
+        icon: hand-spock-o
+        href: 21_UMAP.html
+      - text: 23_DE
+        icon: hand-spock-o
+        href: 23_DE.html
+      - text: 25_Viz
+        icon: hand-spock-o
+        href: 25_Viz.html
+
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
