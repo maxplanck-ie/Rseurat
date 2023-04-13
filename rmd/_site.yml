@@ -9,25 +9,25 @@ navbar:
       icon: fa-level-down
       menu:
       - text: 10_PkgInstall
-        icon: fa-archive
+        icon: download
         href: 10_PkgInstall.html
       - text: 12_Intro
         icon: handshake-o
         href: 12_Intro.html
       - text: 14_FirstSteps
-        icon: handshake-o
+        icon: users
         href: 14_FirstSteps.html
       - text: 16_GSEA
-        icon: handshake-o
+        icon: arrows-alt
         href: 16_GSEA.html
       - text: 21_UMAP
         icon: hand-spock-o
         href: 21_UMAP.html
       - text: 23_DE
-        icon: hand-spock-o
+        icon: question-circle
         href: 23_DE.html
       - text: 25_Viz
-        icon: hand-spock-o
+        icon: eye
         href: 25_Viz.html
 
 output:
