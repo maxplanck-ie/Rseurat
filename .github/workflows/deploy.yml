@@ -27,6 +27,7 @@ jobs:
           Rscript -e "rmarkdown::render_site('rmd/')"
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        if: ${{ !env.ACT }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./rmd/site
