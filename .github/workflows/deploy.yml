@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-  pull_request:
+# pull_request:
 
 defaults:
   run:
@@ -16,9 +16,9 @@ jobs:
       - uses: r-lib/actions/setup-tinytex@v2
       - uses: mamba-org/provision-with-micromamba@main
         with:
-          environment-file: configs/conda.yml
-          cache-downloads: true
           environment-name: Rseurat
+          environment-file: configs/conda.yml
+          cache-env: true
       - name: activate_env
         run: |
           micromamba activate Rseurat
