@@ -193,7 +193,8 @@ p1+p2
 
 ## A word on the observed differences
 
-
+- Seurat is at its best in annotating major cell types
+- SingleR outperforms Seurat at predicting rare cell types or differentiating highly similar cell types and coping with increased cell type classes
 
 ## Other options
 
@@ -221,3 +222,12 @@ Cell
 doi: 10.1016/j.cell.2019.05.031. Epub 2019 Jun 6.
 Comprehensive Integration of Single-Cell Data
 Tim Stuart  1 , Andrew Butler  2 , Paul Hoffman  1 , Christoph Hafemeister  1 , Efthymia Papalexi  2 , William M Mauck 3rd  2 , Yuhan Hao  2 , Marlon Stoeckius  3 , Peter Smibert  3 , Rahul Satija  4
+
+Qianhui Huang, Yu Liu, Yuheng Du, Lana X. Garmire,
+Evaluation of Cell Type Annotation R Packages on Single-cell RNA-seq Data,
+Genomics, Proteomics & Bioinformatics,
+Volume 19, Issue 2,
+2021,
+Pages 267-281,
+ISSN 1672-0229,
+https://doi.org/10.1016/j.gpb.2020.07.004.
