@@ -11,7 +11,7 @@ output: ioslides_presentation
 - Setup
 - Dataset
 - SingleR
-- Seurat Label Transfer
+- Seurat Integration and Label Transfer
 - Differences summary
 - Other options
 - SessionInfo
@@ -62,14 +62,17 @@ data("pbmc3k")
 pbmc<-pbmc3k.final
 sce <- as.SingleCellExperiment(DietSeurat(pbmc))
 ```
-## SingleR - theory
+## SingleR : theory
 
-![SingleR](/data/manke/processing/sikora/Rseurat_wdir/SingleR.Fig1.png){width=70%,height=70%}
+![SingleR](/data/manke/processing/sikora/Rseurat_wdir/SingleR.Fig1.png){width=80%,height=80%}
 
 
-## SingleR - theory
+## SingleR : theory
 
-The SingleR() function identifies marker genes from the reference and uses them to compute assignment scores (based on the Spearman correlation across markers) for each cell in the test dataset against each label in the reference. The label with the highest score is the assigned to the test cell, possibly with further fine-tuning to resolve closely related labels.
+The SingleR() function identifies marker genes from the reference and uses them to compute assignment scores (based on the Spearman correlation across markers) for each cell in the test dataset against each label in the reference. The label with the highest score is the assigned to the test cell, possibly with further fine-tuning to resolve closely related labels. 
+
+## SingleR : theory
+
 For use with scRNAseq reference, set de.method to wilcox or t. This marker detection mode considers the variance of expression across cells. Here, we will use the Wilcoxon ranked sum test to identify the top markers for each pairwise comparison between labels. This is slower but more appropriate for single-cell data compared to the default marker detection algorithm (which may fail for low-coverage data where the median is frequently zero).
 
 
@@ -104,27 +107,43 @@ pbmc[["SingleR_labels"]][pbmc[["SingleR_score"]]<0.5]<-NA
 kable(table(pbmc[["seurat_annotations"]]$seurat_annotations,pbmc[["SingleR_labels"]]$SingleR_labels)) %>% kable_classic_2(full_width = F)
 ```
 
-## Plot labels
+## Prepare label plots
 
-```{r plot_SingleR,fig.height=3,fig.width=8}
+```{r prep_plot_SingleR}
 p1<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="SingleR_labels") + NoLegend()
 p2<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="seurat_annotations") + NoLegend()
+```
+
+## Review the plots
+
+```{r plot_SingleR,fig.height=5,fig.width=8}
 p1+p2
 ```
 
-## Seurat Label Transfer: theory
+## Seurat Integration: theory
 
 ![Seurat](/data/manke/processing/sikora/Rseurat_wdir/fx1_lrg.jpg){width=70%,height=70%}
 
 
-## Seurat Label Transfer: theory
+## Seurat Integration: theory
 
-Here, we develop a strategy to “anchor” diverse datasets together, enabling us to integrate single-cell measurements not only across scRNA-seq technologies, but also across different modalities. Through the identification of cell pairwise correspondences between single cells across datasets, termed “anchors,” we can transform datasets into a shared space, even in the presence of extensive technical and/or biological differences. 
+Here, we develop a strategy to “anchor” diverse datasets together, enabling us to integrate single-cell measurements not only across scRNA-seq technologies, but also across different modalities. Through the identification of cell pairwise correspondences between single cells across datasets, termed “anchors,” we can transform datasets into a shared space, even in the presence of extensive technical and/or biological differences.   
+
+## Seurat Integration: theory
+
 We first jointly reduce the dimensionality of both datasets using diagonalized CCA, then apply L2-normalization to the canonical correlation vectors. We next search for MNNs in this shared low-dimensional representation. We refer to the resulting cell pairs as anchors, as they encode the cellular relationships across datasets that will form the basis for all subsequent integration analyses . Our anchors can successfully recover matching cell states even in the presence of significant dataset differences, as CCA can effectively identify shared biological markers and conserved gene correlation patterns.
 
-## Seurat Label Transfer: theory
+## Seurat Integration: theory
 
-Obtaining an accurate set of anchors is paramount to successful integration. Aberrant anchors that form between different biological cell states across datasets are analogous to noisy edges that occur in k-nearest neighbor (KNN) graphs and can confound downstream analyses. This has motivated the use of shared nearest neighbor (SNN) graphs, where the similarity between two cells is assessed by the overlap in their local neighborhoods. As this measure effectively pools neighbor information across many cells, the result is robust to aberrant connections in the neighbor graph. We introduced an analogous procedure for the scoring of anchors, where each anchor pair was assigned a score based on the shared overlap of mutual neighborhoods for the two cells in a pair. High-scoring correspondences therefore represent cases where many similar cells in one dataset are predicted to correspond to the same group of similar cells in a second dataset, reflecting increased robustness in the association between the anchor cells. While we initially identify anchors in low-dimensional space, we also filter out anchors whose correspondence is not supported based on the original untransformed data. The identification, filtering, and scoring of anchors is the first step for all integration analyses in this manuscript, including reference assembly, classification, and transfer learning.
+Obtaining an accurate set of anchors is paramount to successful integration. Aberrant anchors that form between different biological cell states across datasets are analogous to noisy edges that occur in k-nearest neighbor (KNN) graphs and can confound downstream analyses. This has motivated the use of shared nearest neighbor (SNN) graphs, where the similarity between two cells is assessed by the overlap in their local neighborhoods.    
+
+As this measure effectively pools neighbor information across many cells, the result is robust to aberrant connections in the neighbor graph.   
+
+## Seurat Integration: theory
+
+We introduced an analogous procedure for the scoring of anchors, where each anchor pair was assigned a score based on the shared overlap of mutual neighborhoods for the two cells in a pair. High-scoring correspondences therefore represent cases where many similar cells in one dataset are predicted to correspond to the same group of similar cells in a second dataset, reflecting increased robustness in the association between the anchor cells.    
+
+While we initially identify anchors in low-dimensional space, we also filter out anchors whose correspondence is not supported based on the original untransformed data. The identification, filtering, and scoring of anchors is the first step for all integration analyses in this manuscript, including reference assembly, classification, and transfer learning.
 
 ## Seurat Label Transfer: load reference dataset
 
@@ -159,11 +178,16 @@ kable(table(pbmc[["seurat_annotations"]]$seurat_annotations,pbmc[["predicted.id"
 
 ```
 
-## Plot labels
+## Prepare label plots
 
-```{r plot_Seurat,fig.height=3,fig.width=8}
+```{r prep_plot_Seurat}
 p1<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="predicted.id") + NoLegend()
 p2<-DimPlot(pbmc, label = T , repel = T, label.size = 3,group.by="seurat_annotations") + NoLegend()
+```
+
+## Review label plots
+
+```{r plot_Seurat,fig.height=5,fig.width=8}
 p1+p2
 ```
 
