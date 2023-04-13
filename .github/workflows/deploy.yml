@@ -1,31 +1,54 @@
 name: deploy
 
 on:
-  push:
-# pull_request:
 
+  push:
+  #SKIP for now#  pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# Use login shell
 defaults:
   run:
       shell: bash -l {0}
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: r-lib/actions/setup-tinytex@v2
-      - uses: mamba-org/provision-with-micromamba@main
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
+      - name: PkgInstall
+        uses: mamba-org/provision-with-micromamba@main
         with:
           environment-name: Rseurat
           environment-file: configs/conda.yml
           cache-env: true
-      - name: activate_env
+      - name: ActivateEnv
         run: |
           micromamba activate Rseurat
-      - name: render site
+      - name: RenderSite
         run: |
           Rscript -e "rmarkdown::render_site('rmd')"
-      - name: Deploy
+      - name: PagesDeployment
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ !env.ACT }}
         with:
