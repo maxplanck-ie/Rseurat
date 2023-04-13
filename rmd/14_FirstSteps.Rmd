@@ -138,6 +138,46 @@ At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc
   - [Object Information](https://github.com/satijalab/seurat/wiki/DimReduc#object-information)
   - [Data Access](https://github.com/satijalab/seurat/wiki/DimReduc#data-access)
 
+### NOTE
+
+It's possible to load cells from multiple experiments (e.g. KO, WT) into separate variables, create multiple `SeuratObject` and then merge them. Here's an exemplary data preparation R script. The final instruction saves your file in a binary/ serialized format so that you only need to go through these steps once.
+
+```{r, eval=FALSE}
+root.dir <- file.path("/data/something/here")
+
+counts.MyWT <- Read10X(
+  file.path(
+    root.dir, "MyWT", "outs/filtered_feature_bc_matrix"
+    )
+  )
+
+counts.MyKO <- Read10X(
+  file.path(
+    root.dir, "MyKO", "outs/filtered_feature_bc_matrix"
+    )
+  )
+
+wt <- CreateSeuratObject(
+  counts = counts.MyWT,
+  project = "WT"
+  )
+
+ko <- CreateSeuratObject(
+  counts = counts.MyKO,
+  project = "KO"
+  )
+
+myData <- merge(
+  wt, ko,
+  merge.data = FALSE,
+  add.cell.ids = c("WT", "KO")
+  )
+
+saveRDS(myData, file = file.path(getwd(), "resources/raw_data/myData.rds"))
+```
+
+This way, `orig.ident` will be set accordingly. We'll need to come back to this later... for now, let's keep it simple and work with only one level.
+
 # Quality Control
 
 A few QC metrics commonly used by the community include:
