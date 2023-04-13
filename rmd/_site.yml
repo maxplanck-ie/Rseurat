@@ -1,5 +1,5 @@
 name: Rdeseq2
-output_dir: site
+output_dir: "site"
 include: ["images"]
 
 navbar:
@@ -8,25 +8,25 @@ navbar:
     - text: "Modules"
       icon: fa-level-down
       menu:
-      - text: 10_PkgInstall
+      - text: PkgInstall
         icon: download
         href: 10_PkgInstall.html
-      - text: 12_Intro
+      - text: Intro
         icon: handshake-o
         href: 12_Intro.html
-      - text: 14_FirstSteps
+      - text: FirstSteps
         icon: users
         href: 14_FirstSteps.html
-      - text: 16_GSEA
+      - text: GSEA
         icon: arrows-alt
         href: 16_GSEA.html
-      - text: 21_UMAP
+      - text: UMAP
         icon: hand-spock-o
         href: 21_UMAP.html
-      - text: 23_DE
+      - text: DE
         icon: question-circle
         href: 23_DE.html
-      - text: 25_Viz
+      - text: Viz
         icon: eye
         href: 25_Viz.html
 
