@@ -36,3 +36,4 @@ dependencies:
   - r-enrichR
   - r-shiny
   - bioconductor-SingleCellExperiment
+  - r-qqconf
