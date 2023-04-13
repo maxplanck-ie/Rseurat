@@ -4,13 +4,15 @@ channels:
 dependencies:
   - r-base=4.1.3
   - r-essentials
-  - r-remotes
-  - r-biocmanager
   - r-formatR
   - r-sessioninfo
+  - r-remotes
+  - r-biocmanager
+  - bioconductor-BiocVersion=3.14
+  - r-ggplot2
+  - r-patchwork
+  - r-Seurat
   - r-DT
-  - bioconductor-deseq2
-  - bioconductor-ensdb.hsapiens.v75
   - r-tidyverse
   - r-pheatmap
   - r-ashr
@@ -25,9 +27,6 @@ dependencies:
   - r-magrittr
   - r-dplyr
   - r-RColorBrewer
-  - r-ggplot2
-  - r-patchwork
-  - r-Seurat
   - r-future
   - r-reticulate
   - r-uwot
@@ -35,5 +34,32 @@ dependencies:
   - r-metap
   - r-enrichR
   - r-shiny
-  - bioconductor-SingleCellExperiment
   - r-qqconf
+  - r-SparseM
+  - r-MatrixModels
+  - r-mnormt
+  - r-TH.data
+  - r-sandwich
+  - r-plotrix
+  - r-mathjaxr
+  - r-diagram
+  - r-curl
+  - r-openssl
+  - r-RcppParallel
+  - r-RcppTOML
+  - r-quantreg
+  - r-multcomp
+  - r-prodlim
+  - r-sn
+  - r-mutoss
+  - r-TFisher
+  - r-metap
+  - bioconductor-SingleCellExperiment
+  - bioconductor-multtest
+  - bioconductor-limma
+  - bioconductor-deseq2
+  - bioconductor-ensdb.hsapiens.v75
+  - bioconductor-BiocFileCache
+  - bioconductor-biomaRt
+  - bioconductor-GenomicFeatures
+  - bioconductor-ensembldb
