@@ -27,12 +27,12 @@ output:
 ## Setup
 
 ```{r, setup, include=FALSE}
-.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+# .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
 library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
-knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
+# knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
 knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
 ```
 

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 defaults:
   run:
-      shell: bash -l {0}
+    shell: bash -l {0}
 permissions:
   contents: read
   pages: write
@@ -16,8 +16,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
+      - name: CheckoutRepo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -30,13 +32,13 @@ jobs:
       - name: MicromambaActivateEnv
         run: micromamba activate Rseurat
       - name: RemoteInstallGH
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        shell: Rscript {0}
         run: |
-          Rscript -e "remotes::install_github('satijalab/seurat-data')"
-          Rscript -e "remotes::install_github('theislab/kBET')"
+          remotes::install_github('satijalab/seurat-data')
+          remotes::install_github('theislab/kBET')
       - name: RmarkdownRenderSite
-        run: Rscript -e "rmarkdown::render_site('rmd')"
+        shell: Rscript {0}
+        run: rmarkdown::render_site('rmd')
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
