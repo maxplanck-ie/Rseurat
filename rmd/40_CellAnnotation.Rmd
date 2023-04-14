@@ -145,7 +145,7 @@ We introduced an analogous procedure for the scoring of anchors, where each anch
 
 While we initially identify anchors in low-dimensional space, we also filter out anchors whose correspondence is not supported based on the original untransformed data. The identification, filtering, and scoring of anchors is the first step for all integration analyses in this manuscript, including reference assembly, classification, and transfer learning.
 
-## Seurat Label Transfer: load reference dataset
+## Seurat Integration: load reference dataset
 
 ```{r process_ref_seurat}
 #pbmc_ref.seurat <- as.Seurat(as(pbmc_ref_sce,"SingleCellExperiment"), counts = "counts", data = "logcounts")
@@ -156,7 +156,7 @@ While we initially identify anchors in low-dimensional space, we also filter out
 pbmc_ref.seurat<-readRDS("pbmc_ref.seurat.RDS")
 ```
 
-## Seurat Label Transfer: transfer labels
+## Seurat Integration: transfer labels
 
 ```{r transfer_data}
 pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat, query = pbmc, dims = 1:30, reference.reduction = "pca")
@@ -216,12 +216,7 @@ G.X.Y. Zheng, J.M. Terry, P. Belgrader, P. Ryvkin, Z.W. Bent, R. Wilson, et al.
 Massively parallel digital transcriptional profiling of single cells
 Nat Commun, 8 (2017), p. 14049
 
-
-Cell
-2019 Jun 13;177(7):1888-1902.e21.
-doi: 10.1016/j.cell.2019.05.031. Epub 2019 Jun 6.
-Comprehensive Integration of Single-Cell Data
-Tim Stuart  1 , Andrew Butler  2 , Paul Hoffman  1 , Christoph Hafemeister  1 , Efthymia Papalexi  2 , William M Mauck 3rd  2 , Yuhan Hao  2 , Marlon Stoeckius  3 , Peter Smibert  3 , Rahul Satija  4
+Stuart T, Butler A, Hoffman P, Hafemeister C, Papalexi E, Mauck WM 3rd, Hao Y, Stoeckius M, Smibert P, Satija R. Comprehensive Integration of Single-Cell Data. Cell. 2019 Jun 13;177(7):1888-1902.e21. doi: 10.1016/j.cell.2019.05.031. Epub 2019 Jun 6. PMID: 31178118; PMCID: PMC6687398
 
 Qianhui Huang, Yu Liu, Yuheng Du, Lana X. Garmire,
 Evaluation of Cell Type Annotation R Packages on Single-cell RNA-seq Data,
