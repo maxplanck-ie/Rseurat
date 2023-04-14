@@ -71,3 +71,4 @@ dependencies:
   - bioconductor-glmGamPoi
   # SeuratData  ## install manually using remotes::install_github('satijalab/seurat-data')
   # kBET  ## install manually using remotes::install_github('theislab/kBET')
+  - r-gh
