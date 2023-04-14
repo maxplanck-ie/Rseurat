@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 With bulk RNA-seq we can only estimate the **average expression level** for each gene across a population of cells, without regard for the heterogeneity in gene expression across individual cells of that sample. Therefore, it is insufficient for studying heterogeneous systems, e.g. early development studies or complex tissues such as the brain.
 
 ```{r, echo=FALSE, fig.cap="Broad comparison of bulk vs single-cell RNA-seq ([source](https://technologynetworks.com))."}
-knitr::include_graphics("../images/bulk-vs-singlecell.jpg")
+knitr::include_graphics("./images/bulk-vs-singlecell.jpg")
 ```
 
 One salient use-case for single-cell RNA-seq is building comprehensive compendium(s) of the cell diversity in organism(s):
@@ -32,7 +32,7 @@ Since 2009, single-cell protocols are showing an increase in the throughput, goi
 
 
 ```{r, echo=FALSE, fig.cap="Comparison of common scRNA-seq protocols ([source](https://doi.org/10.1146/annurev-biodatasci-080917-013452))"}
-knitr::include_graphics("../images/singlecell_protocols.jpg")
+knitr::include_graphics("./images/singlecell_protocols.jpg")
 ```
 
 >  Abbreviations: cDNA, complementary DNA; DNA pol I, DNA polymerase I; FACS, fluorescence-activated cell sorting; PCR, polymerase chain reaction; RNase H, ribonuclease H; RT, reverse transcription; TSO, template-switching oligonucleotide.
@@ -64,13 +64,13 @@ Another important aspect to take into account are batch effects. These can be ob
 
 
 ```{r, echo=FALSE, out.width="50%", fig.cap="The same cell population was sequenced with three different single-cell protocols (colours). ([source](https://doi.org/10.1016/j.molcel.2018.10.020))"}
-knitr::include_graphics("../images/batch_effect_protocols.png")
+knitr::include_graphics("./images/batch_effect_protocols.png")
 ```
 
 The processing of samples should also be done in a manner that avoids confounding between experimentally controlled variables (such as a treatment, a genotype or a disease state) and the time when the samples are prepared and sequenced. For example, if planning an experiment to compare healthy and diseased tissues from 10 patients each, if only 10 samples can be processed per day, it is best to do 5 healthy + 5 diseased together each day, rather than prepare all healthy samples one day and all diseased samples in another (figure below). Another consideration is to ensure that there is replication of tissue samples. For example, when collecting tissue from an organ, it may be a good idea to take multiple samples from different parts of the organ. Or consider the time of day when samples/replicates are collected (due to possible circadian changes in gene expression). In summary, all the common best practices in experimental design should be taken into account when performing scRNA-seq.
 
 ```{r, echo=FALSE, fig.cap="Illustration of a confounded (top panels) and balanced (bottom panels) designs. Shapes denote different sample types (e.g. tissues or patients) and colours processing batches. In the confounded design it’s impossible to disentangle biological variation from variation due to the processing batch. In the balanced design, by using tissue replicates and mixing them across batches, it is possible to distinguish between biological and batch-related variation. ([source](https://doi.org/10.1093/biostatistics/kxx053))"}
-knitr::include_graphics("../images/balanced_design.png")
+knitr::include_graphics("./images/balanced_design.png")
 ```
 
 
