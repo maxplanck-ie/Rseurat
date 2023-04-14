@@ -36,7 +36,7 @@ jobs:
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
           Rscript -e "remotes::install_github('theislab/kBET')"
       - name: RmarkdownRenderSite
-        shell: Rscript {0}
+        shell: bash -l Rscript {0}
         run: rmarkdown::render_site('rmd')
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
