@@ -1,0 +1,296 @@
+---
+title: "Day2_BatchEffects"
+author: "Katarzyna Sikora"
+date: "2/24/2023"
+output: ioslides_presentation
+---
+
+## Outline
+
+- Setup
+- Sources of batch effects
+- Dataset
+- Detecting batch effects
+- Mitigating batch effects
+- SessionInfo
+
+## Setup
+
+```{r, setup, include=FALSE}
+library(formatR)
+knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
+```
+
+```{r seuratVersion,warning=FALSE,message=FALSE}
+library(Seurat)
+packageVersion("Seurat")
+
+```
+## Sources of batch effects
+
+- Cell/RNA isolation (e.g. FACS)
+- Library construction
+- Sequencing run
+- Sequencing technology
+- Individual (patient sample)
+- The person performing the experiment
+
+
+## SeuratData
+
+Pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates.
+
+```{r SeuratData}
+#devtools::install_github('satijalab/seurat-data')
+library(SeuratData)
+#AvailableData()
+InstallData("panc8")
+panc <- LoadData("panc8", type = "default")
+table(panc$dataset)
+```
+
+## What does the data look like out of the box?
+
+Lets process the dataset in a standard way, ignoring any possible batch effects.
+
+```{r process_noBER}
+panc <- NormalizeData(panc)
+panc <- FindVariableFeatures(panc, selection.method = "vst", nfeatures = 2000)
+all.genes <- rownames(panc)
+panc <- ScaleData(panc, features = all.genes)
+panc <- RunPCA(panc, features = VariableFeatures(object = panc))
+panc <- RunUMAP(panc, dims = 1:15)
+```
+
+## What does the data look like out of the box?
+
+```{r out_of_the_box_umap, echo = FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+DimPlot(panc, reduction = "umap",label=TRUE)
+ggplot2::ggsave("panc.bytech.png")
+DimPlot(panc, reduction = "umap",group.by="celltype")
+ggplot2::ggsave("panc.bycelltype.png")
+
+knitr::include_graphics(c("panc.bytech.png","panc.bycelltype.png"))
+```
+
+## Subset dataset 
+
+```{r subset}
+#ifnb.list <- SplitObject(ifnb, split.by = "stim")
+
+#ctrl <- ifnb.list[["CTRL"]]
+#stim <- ifnb.list[["STIM"]]
+panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
+table(panc_sub$dataset)
+```
+
+## Redo normalization
+
+```{r norm_sub}
+panc_sub <- NormalizeData(panc_sub)
+panc_sub <- FindVariableFeatures(panc_sub, selection.method = "vst", nfeatures = 2000)
+all.genes <- rownames(panc_sub)
+panc_sub <- ScaleData(panc_sub, features = all.genes)
+panc_sub <- RunPCA(panc_sub, features = VariableFeatures(object = panc_sub))
+panc_sub <- RunUMAP(panc_sub, dims = 1:15)
+```
+
+## Revisit UMAP
+
+```{r umap_sub, echo=FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+DimPlot(panc_sub, reduction = "umap",label=TRUE)
+ggplot2::ggsave("panc_sub.bytech.png")
+DimPlot(panc_sub, reduction = "umap",group.by="celltype")
+ggplot2::ggsave("panc_sub.bycelltype.png")
+
+knitr::include_graphics(c("panc_sub.bytech.png","panc_sub.bycelltype.png"))
+```
+
+## How do we measure batch effects?
+
+We can see various amounts of batch effect by eye. Let's try to calculate some metrics using the kBET package from Theis lab.
+
+```{r kBET1}
+devtools::install_github('theislab/kBET')
+library(kBET)
+library(ggplot2)
+
+d<-t(as.matrix(GetAssayData(panc_sub,slot="data",assay="RNA")))
+b<-as.vector(t(panc_sub[["dataset"]]))
+batch.estimate <- kBET(df=d, batch=b, plot=FALSE)
+plot.data <- data.frame(class=rep(c('observed', 'expected'), 
+                                  each=length(batch.estimate$stats$kBET.observed)), 
+                        data =  c(batch.estimate$stats$kBET.observed,
+                                  batch.estimate$stats$kBET.expected))
+```
+
+## Plot the rejection rate
+
+```{r kBET1_plot,fig.width=4, fig.height=3}
+g <- ggplot(plot.data, aes(class, data)) + geom_boxplot() + 
+  labs(x='Test', y='Rejection rate',title='kBET test results') +
+  theme_bw() +  
+  scale_y_continuous(limits=c(0,1))
+
+g
+```
+
+## Is the measured batch effect significant?
+
+```{r kBET2}
+batch.estimate$summary
+batch.estimate$average.pval
+```
+
+## Which PC is the major source of batch effect?
+
+```{r kBET3}
+pca.data <- prcomp(d, center=TRUE) 
+batch.pca <- pcRegression(pca.data, b)
+z<-batch.pca["r2"]
+z$r2[which.max(z$r2[,"R.squared"]),]
+
+```
+
+
+## Inspect the result
+
+```{r kBET3_head}
+
+head(z$r2)
+which.max(z$r2[,"R.squared"])
+```
+
+## Inspect the result
+
+```{r kBET3_plot}
+FeaturePlot(panc,features="PC_1")
+
+```
+
+## What options are there to mitigate batch effects ?
+
+- Seurat Integrate
+- Seurat SCTransform
+- Conos
+- Harmony
+- ComBat/SVA
+- ...
+
+## Seurat Integrate
+
+```{r seurat_integrate1}
+# split the dataset into a list of two seurat objects (stim and CTRL)
+panc.list <- SplitObject(panc_sub, split.by = "dataset")
+
+# normalize and identify variable features for each dataset independently
+panc.list <- lapply(X = panc.list, FUN = function(x) {
+    x <- NormalizeData(x)
+    x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+})
+```
+
+## Seurat Integrate
+
+```{r seurat_integrate2}
+# select features that are repeatedly variable across datasets for integration
+features <- SelectIntegrationFeatures(object.list = panc.list)
+
+anchors <- FindIntegrationAnchors(object.list = panc.list, anchor.features = features)
+
+# this command creates an 'integrated' data assay
+panc.combined <- IntegrateData(anchorset = anchors)
+
+```
+
+## Process the newly integrated dataset
+
+```{r process_integrated}
+# specify that we will perform downstream analysis on the corrected data note that the
+# original unmodified data still resides in the 'RNA' assay
+DefaultAssay(panc.combined) <- "integrated"
+
+# Run the standard workflow for visualization and clustering
+panc.combined <- ScaleData(panc.combined, verbose = FALSE)
+panc.combined <- RunPCA(panc.combined, npcs = 30, verbose = FALSE)
+panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
+
+```
+
+## What does the data look like after the integration?
+
+```{r integrated_umap, echo=FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+DimPlot(panc.combined, reduction = "umap",label=TRUE)
+ggplot2::ggsave("panc.combined.bytech.png")
+DimPlot(panc.combined, reduction = "umap",group.by="celltype")
+ggplot2::ggsave("panc.combined.bycelltype.png")
+
+knitr::include_graphics(c("panc.combined.bytech.png","panc.combined.bycelltype.png"))
+```
+
+## What does the batch effect look like after the integration?
+
+We can see that the cells from different datasets overlap, and there appears to be one major cluster per cell type. Let's try to calculate some metrics using the kBET package from Theis lab.
+
+```{r integrated_kBET1}
+#downsample to 3000 cells to speed up computations
+d<-t(as.matrix(GetAssayData(panc.combined,slot="scale.data",assay="integrated")))
+b<-as.vector(t(panc.combined[["dataset"]]))
+batch.estimate <- kBET(df=d, batch=b, plot=FALSE)
+
+plot.data <- data.frame(class=rep(c('observed', 'expected'), 
+                                  each=length(batch.estimate$stats$kBET.observed)), 
+                        data =  c(batch.estimate$stats$kBET.observed,
+                                  batch.estimate$stats$kBET.expected))
+```
+
+
+## Inspect the result
+
+```{r integrated_kBET1_plot,fig.width=4, fig.height=3}
+  g <- ggplot(plot.data, aes(class, data)) + geom_boxplot() + 
+  labs(x='Test', y='Rejection rate',title='kBET test results') +
+  theme_bw() +  
+  scale_y_continuous(limits=c(0,1))
+
+g
+```
+
+## Is the measured batch effect significant?
+
+```{r integrated_kBET2}
+batch.estimate$summary
+batch.estimate$average.pval
+```
+
+## Which PC is the major source of batch effect?
+
+```{r integrated_kBET3}
+pca.data <- prcomp(d, center=TRUE) 
+batch.pca <- pcRegression(pca.data, b)
+z<-batch.pca["r2"]
+z$r2[which.max(z$r2[,"R.squared"]),]
+```
+
+## Inspect the result
+
+```{r integrated_kBET3_inspect}
+head(z$r2)
+which.max(z$r2[,"R.squared"])
+```
+
+## Outlook
+
+- Verify that expected marker genes are expressed per cell population
+
+## SessionInfo
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+## Citations
+```{r citations}
+
+```

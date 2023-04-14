@@ -1,0 +1,196 @@
+---
+title: "Day2_SCTransform"
+author: "Katarzyna Sikora"
+date: "2/24/2023"
+output: ioslides_presentation
+---
+
+
+## Outline
+
+- Setup
+- Dataset
+- Standard normalization
+- SCTransform
+- Seurat Integrate
+- DGE
+- SessionInfo
+
+## Setup
+
+```{r, setup, include=FALSE}
+library(formatR)
+knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
+```
+
+```{r seuratVersion,warning=FALSE,message=FALSE}
+library(ggplot2)
+library(Seurat)
+packageVersion("Seurat")
+
+```
+## SCTransform
+
+- Requires UMIs (?)
+- Removes the counfounding effect of sequencing depth
+- Optional: regress other confounding variables out (e.g. perct. MT)
+
+
+## SeuratData
+
+IFNB-Stimulated and Control human ctrls.
+
+```{r SeuratData}
+#devtools::install_github('satijalab/seurat-data')
+library(SeuratData)
+#AvailableData()
+InstallData("ifnb")
+ifnb <- LoadData("ifnb")
+table(ifnb$stim)
+ifnb.list <- SplitObject(ifnb, split.by = "stim")
+
+ctrl <- ifnb.list[["CTRL"]]
+stim <- ifnb.list[["STIM"]]
+```
+
+## Standard normalization?
+
+Lets process the dataset in a standard way.
+
+```{r process_noBER}
+ctrl <- NormalizeData(ctrl)
+ctrl <- FindVariableFeatures(ctrl, selection.method = "vst", nfeatures = 2000)
+all.genes <- rownames(ctrl)
+ctrl <- ScaleData(ctrl, features = all.genes)
+ctrl <- RunPCA(ctrl, features = VariableFeatures(object = ctrl))
+ctrl <- RunUMAP(ctrl, dims = 1:15)
+```
+
+## What does the data look like out of the box?
+
+```{r out_of_the_box_umap, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
+p1<-DimPlot(ctrl, reduction = "umap",group.by="seurat_annotations",label=TRUE) + theme(legend.position = "bottom")
+p2<-FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "top")
+p1+p2
+
+```
+
+## Subset dataset 
+
+```{r subset}
+#ctrl <- subset(x=ctrl,subset = dataset == c("celseq","celseq2","smartseq2"))
+#table(ctrl$dataset)
+```
+
+## Seurat SCTransform
+
+```{r seurat_sctransform1}
+BiocManager::install("glmGamPoi")
+library(sctransform)
+library(glmGamPoi)
+ctrl <- SCTransform(ctrl, method = "glmGamPoi", verbose = FALSE)
+# store mitochondrial percentage in object meta data
+#ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
+#ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
+```
+
+
+## Recalculate Dimensional Reductions
+
+```{r sct_umap_calc}
+DefaultAssay(ctrl)<-"SCT"
+ctrl <- RunPCA(ctrl, verbose = FALSE)
+ctrl <- RunUMAP(ctrl, dims = 1:30, verbose = FALSE)
+
+```
+
+
+## Revisit UMAP
+
+```{r sct_umap_plot, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
+
+p1<-DimPlot(ctrl, reduction = "umap",group.by="seurat_annotations",label=TRUE) + theme(legend.position = "bottom")
+p2<-FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "top")
+p1+p2
+
+```
+
+## Assignment
+
+Apply SCTransform to the IfnB-stimulated dataset as well. How does the lowD representation change using SCT versus log-Norm ?
+
+## Prepare both datasets for integration
+
+```{r sct_stim}
+library(magrittr)
+stim <- SCTransform(stim, method="glmGamPoi", verbose = FALSE) %>%
+    RunPCA(npcs = 30, verbose = FALSE)
+ifnb.list <- list(ctrl = ctrl, stim = stim)
+features <- SelectIntegrationFeatures(object.list = ifnb.list, nfeatures = 3000)
+ifnb.list <- PrepSCTIntegration(object.list = ifnb.list, anchor.features = features)
+
+```
+
+
+## Seurat Integrate
+
+```{r seurat_integrate1}
+immune.anchors <- FindIntegrationAnchors(object.list = ifnb.list, normalization.method = "SCT",
+    anchor.features = features)
+immune.combined.sct <- IntegrateData(anchorset = immune.anchors, normalization.method = "SCT")
+
+```
+
+## Process the newly integrated dataset
+
+```{r process_integrated}
+immune.combined.sct <- RunPCA(immune.combined.sct, verbose = FALSE)
+immune.combined.sct <- RunUMAP(immune.combined.sct, reduction = "pca", dims = 1:30, verbose = FALSE)
+```
+
+## What does the data look like after the integration?
+
+```{r integrated_umap, echo=FALSE,fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
+DimPlot(immune.combined.sct, reduction = "umap", split.by = "stim",group.by="seurat_annotations") + theme(legend.position = "bottom")
+```
+
+## DE genes
+
+Get a list of top 10 DE genes between stimulated and unstimulated B cells.
+
+```{r sct_de}
+immune.combined.sct$celltype.stim <- paste(immune.combined.sct$seurat_annotations, immune.combined.sct$stim,
+    sep = "_")
+Idents(immune.combined.sct) <- "celltype.stim"
+immune.combined.sct <- PrepSCTFindMarkers(immune.combined.sct)
+
+b.interferon.response <- FindMarkers(immune.combined.sct, assay = "SCT", ident.1 = "B_STIM", ident.2 = "B_CTRL",
+    verbose = FALSE)
+head(b.interferon.response, n = 10)
+```
+
+## Assignment
+
+Plot SCT "corrected counts" for one of the DE genes on a lowD representation, splitting by the stimulation status.
+
+## Proposed solution
+
+```{r DE_plot,fig.height=4, fig.width=8}
+Idents(immune.combined.sct) <- "seurat_annotations"
+DefaultAssay(immune.combined.sct) <- "SCT"
+FeaturePlot(immune.combined.sct, features = rownames(b.interferon.response)[1], split.by = "stim", max.cutoff = 3,
+    cols = c("grey", "red"))
+
+```
+
+## SessionInfo
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+## Citations
+```{r citations}
+
+```
