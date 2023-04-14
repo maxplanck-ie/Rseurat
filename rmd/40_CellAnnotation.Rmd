@@ -1,5 +1,5 @@
 ---
-title: "Day4_CellAnnotation"
+title: "Cell Annotation"
 author: "Katarzyna Sikora"
 date: "2/24/2023"
 output: ioslides_presentation
@@ -64,7 +64,7 @@ sce <- as.SingleCellExperiment(DietSeurat(pbmc))
 ```
 ## SingleR : theory
 
-![SingleR](../images/SingleR.Fig1.png){width=80%,height=80%}
+![SingleR](images/SingleR.Fig1.png){width=80%,height=80%}
 
 
 ## SingleR : theory
@@ -122,7 +122,7 @@ p1+p2
 
 ## Seurat Integration: theory
 
-![Seurat](../images/fx1_lrg.jpg){width=70%,height=70%}
+![Seurat](images/fx1_lrg.jpg){width=70%,height=70%}
 
 
 ## Seurat Integration: theory
@@ -218,11 +218,4 @@ Nat Commun, 8 (2017), p. 14049
 
 Stuart T, Butler A, Hoffman P, Hafemeister C, Papalexi E, Mauck WM 3rd, Hao Y, Stoeckius M, Smibert P, Satija R. Comprehensive Integration of Single-Cell Data. Cell. 2019 Jun 13;177(7):1888-1902.e21. doi: 10.1016/j.cell.2019.05.031. Epub 2019 Jun 6. PMID: 31178118; PMCID: PMC6687398
 
-Qianhui Huang, Yu Liu, Yuheng Du, Lana X. Garmire,
-Evaluation of Cell Type Annotation R Packages on Single-cell RNA-seq Data,
-Genomics, Proteomics & Bioinformatics,
-Volume 19, Issue 2,
-2021,
-Pages 267-281,
-ISSN 1672-0229,
-https://doi.org/10.1016/j.gpb.2020.07.004.
+

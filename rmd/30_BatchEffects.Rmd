@@ -25,8 +25,8 @@ output:
 ## Setup
 
 ```{r, setup, include=FALSE}
-library(formatR)
 .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
