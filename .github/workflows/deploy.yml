@@ -29,8 +29,8 @@ jobs:
         run: micromamba activate Rseurat
       - name: RemoteInstallGH
         run: |
-          Rscript -e "remotes::install_github('satijalab/seurat-data', auth_token=Sys.getenv('GITHUB_PAT'))"
-          Rscript -e "remotes::install_github('theislab/kBET', auth_token=Sys.getenv('GITHUB_PAT'))"
+          Rscript -e "remotes::install_github('satijalab/seurat-data', auth_token=gh::gitcreds_get()$password"
+          Rscript -e "remotes::install_github('theislab/kBET', auth_token=gh::gitcreds_get()$password"
       - name: RmarkdownRenderSite
         run: Rscript -e "rmarkdown::render_site('rmd')"
       - name: Upload artifact
