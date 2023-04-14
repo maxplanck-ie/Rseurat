@@ -23,9 +23,6 @@ jobs:
           environment-name: Rseurat
           environment-file: configs/conda.yml
           cache-env: true
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v3
       - name: MicromambaActivateEnv
         run: micromamba activate Rseurat
       - name: RmarkdownRenderSite
