@@ -19,8 +19,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-#     - name: TinyTeX
-#       uses: r-lib/actions/setup-tinytex@v2
       - name: MicromambaCreateEnv
         uses: mamba-org/provision-with-micromamba@main
         with:
@@ -29,13 +27,16 @@ jobs:
           cache-env: true
       - name: MicromambaActivateEnv
         run: micromamba activate Rseurat
+      - name: RemoteInstallGH
+        run: |
+          Rscript -e "remotes::install_github('satijalab/seurat-data')"
+          Rscript -e "remotes::install_github('theislab/kBET')"
       - name: RmarkdownRenderSite
         run: Rscript -e "rmarkdown::render_site('rmd')"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./rmd/site
-
   deploy:
     needs: build
     environment:
