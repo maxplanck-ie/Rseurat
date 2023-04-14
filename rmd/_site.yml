@@ -40,5 +40,10 @@ navbar:
 #       href: 40_CellAnnotation.html
 output:
   html_document:
-    theme: cosmo
-    highlight: textmate
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
