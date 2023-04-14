@@ -2,6 +2,9 @@ name: deploy
 on:
   push:
   workflow_dispatch:
+defaults:
+  run:
+      shell: bash -l {0}
 permissions:
   contents: read
   pages: write
