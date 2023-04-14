@@ -1,8 +1,16 @@
 ---
-title: "Day2_BatchEffects"
+title: "Batch Effects"
 author: "Katarzyna Sikora"
-date: "2/24/2023"
-output: ioslides_presentation
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::html_document2:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
 ---
 
 ## Outline
@@ -18,8 +26,12 @@ output: ioslides_presentation
 
 ```{r, setup, include=FALSE}
 library(formatR)
+.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+library(knitr)
+library(kableExtra)
+library(magrittr)
 knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
+knitr::opts_chunk$set(fig.width=6, fig.height=5,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
 ```
 
 ```{r seuratVersion,warning=FALSE,message=FALSE}
@@ -47,7 +59,7 @@ library(SeuratData)
 #AvailableData()
 InstallData("panc8")
 panc <- LoadData("panc8", type = "default")
-table(panc$dataset)
+kable(table(panc$dataset)) %>% kable_classic_2(full_width = F)
 ```
 
 ## What does the data look like out of the box?
@@ -65,24 +77,17 @@ panc <- RunUMAP(panc, dims = 1:15)
 
 ## What does the data look like out of the box?
 
-```{r out_of_the_box_umap, echo = FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-DimPlot(panc, reduction = "umap",label=TRUE)
-ggplot2::ggsave("panc.bytech.png")
-DimPlot(panc, reduction = "umap",group.by="celltype")
-ggplot2::ggsave("panc.bycelltype.png")
-
-knitr::include_graphics(c("panc.bytech.png","panc.bycelltype.png"))
+```{r out_of_the_box_umap, echo = FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+p1<-DimPlot(panc, reduction = "umap",label=TRUE)
+p2<-DimPlot(panc, reduction = "umap",group.by="celltype")
+p1+p2
 ```
 
 ## Subset dataset 
 
 ```{r subset}
-#ifnb.list <- SplitObject(ifnb, split.by = "stim")
-
-#ctrl <- ifnb.list[["CTRL"]]
-#stim <- ifnb.list[["STIM"]]
 panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
-table(panc_sub$dataset)
+kable(table(panc_sub$dataset)) %>%  kable_classic_2(full_width = F)
 ```
 
 ## Redo normalization
@@ -98,13 +103,10 @@ panc_sub <- RunUMAP(panc_sub, dims = 1:15)
 
 ## Revisit UMAP
 
-```{r umap_sub, echo=FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-DimPlot(panc_sub, reduction = "umap",label=TRUE)
-ggplot2::ggsave("panc_sub.bytech.png")
-DimPlot(panc_sub, reduction = "umap",group.by="celltype")
-ggplot2::ggsave("panc_sub.bycelltype.png")
-
-knitr::include_graphics(c("panc_sub.bytech.png","panc_sub.bycelltype.png"))
+```{r umap_sub, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+p1<-DimPlot(panc_sub, reduction = "umap",label=TRUE)
+p2<-DimPlot(panc_sub, reduction = "umap",group.by="celltype")
+p1+p2
 ```
 
 ## How do we measure batch effects?
@@ -181,7 +183,7 @@ FeaturePlot(panc,features="PC_1")
 ## Seurat Integrate
 
 ```{r seurat_integrate1}
-# split the dataset into a list of two seurat objects (stim and CTRL)
+# split the dataset into a list of seurat objects 
 panc.list <- SplitObject(panc_sub, split.by = "dataset")
 
 # normalize and identify variable features for each dataset independently
@@ -220,13 +222,10 @@ panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 
 ## What does the data look like after the integration?
 
-```{r integrated_umap, echo=FALSE, out.width="50%",out.height="20%",fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-DimPlot(panc.combined, reduction = "umap",label=TRUE)
-ggplot2::ggsave("panc.combined.bytech.png")
-DimPlot(panc.combined, reduction = "umap",group.by="celltype")
-ggplot2::ggsave("panc.combined.bycelltype.png")
-
-knitr::include_graphics(c("panc.combined.bytech.png","panc.combined.bycelltype.png"))
+```{r integrated_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
+p1<-DimPlot(panc.combined, reduction = "umap",label=TRUE)
+p2<-DimPlot(panc.combined, reduction = "umap",group.by="celltype")
+p1+p2
 ```
 
 ## What does the batch effect look like after the integration?
@@ -234,7 +233,6 @@ knitr::include_graphics(c("panc.combined.bytech.png","panc.combined.bycelltype.p
 We can see that the cells from different datasets overlap, and there appears to be one major cluster per cell type. Let's try to calculate some metrics using the kBET package from Theis lab.
 
 ```{r integrated_kBET1}
-#downsample to 3000 cells to speed up computations
 d<-t(as.matrix(GetAssayData(panc.combined,slot="scale.data",assay="integrated")))
 b<-as.vector(t(panc.combined[["dataset"]]))
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE)

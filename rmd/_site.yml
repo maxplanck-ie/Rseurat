@@ -38,7 +38,16 @@ navbar:
       - text: CellAnnotation
         icon: fa-paintbrush
         href: 40_CellAnnotation.html
+#output:
+#  html_document:
+#    theme: cosmo
+#    highlight: textmate
 output:
-  html_document:
-    theme: cosmo
-    highlight: textmate
+  bookdown::html_document2:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
