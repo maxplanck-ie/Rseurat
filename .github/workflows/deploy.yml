@@ -16,6 +16,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: CheckoutRepo
         uses: actions/checkout@v3
@@ -30,8 +32,6 @@ jobs:
       - name: MicromambaActivateEnv
         run: micromamba activate Rseurat
       - name: RemoteInstallGH
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
           Rscript -e "remotes::install_github('theislab/kBET')"
