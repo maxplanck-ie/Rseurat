@@ -1,8 +1,16 @@
 ---
-title: "Day2_SCTransform"
+title: "SCTransform"
 author: "Katarzyna Sikora"
-date: "2/24/2023"
-output: ioslides_presentation
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
 ---
 
 
@@ -19,7 +27,11 @@ output: ioslides_presentation
 ## Setup
 
 ```{r, setup, include=FALSE}
+.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
 library(formatR)
+library(knitr)
+library(kableExtra)
+library(magrittr)
 knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
 knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
 ```
@@ -76,12 +88,6 @@ p1+p2
 
 ```
 
-## Subset dataset 
-
-```{r subset}
-#ctrl <- subset(x=ctrl,subset = dataset == c("celseq","celseq2","smartseq2"))
-#table(ctrl$dataset)
-```
 
 ## Seurat SCTransform
 
@@ -123,7 +129,6 @@ Apply SCTransform to the IfnB-stimulated dataset as well. How does the lowD repr
 ## Prepare both datasets for integration
 
 ```{r sct_stim}
-library(magrittr)
 stim <- SCTransform(stim, method="glmGamPoi", verbose = FALSE) %>%
     RunPCA(npcs = 30, verbose = FALSE)
 ifnb.list <- list(ctrl = ctrl, stim = stim)
