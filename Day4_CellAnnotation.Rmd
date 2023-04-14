@@ -64,7 +64,7 @@ sce <- as.SingleCellExperiment(DietSeurat(pbmc))
 ```
 ## SingleR : theory
 
-![SingleR](/data/manke/processing/sikora/Rseurat_wdir/SingleR.Fig1.png){width=80%,height=80%}
+![SingleR](SingleR.Fig1.png){width=80%,height=80%}
 
 
 ## SingleR : theory
@@ -122,7 +122,7 @@ p1+p2
 
 ## Seurat Integration: theory
 
-![Seurat](/data/manke/processing/sikora/Rseurat_wdir/fx1_lrg.jpg){width=70%,height=70%}
+![Seurat](fx1_lrg.jpg){width=70%,height=70%}
 
 
 ## Seurat Integration: theory
