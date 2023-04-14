@@ -32,10 +32,9 @@ jobs:
       - name: RemoteInstallGH
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        shell: Rscript {0}
         run: |
-          remotes::install_github('satijalab/seurat-data')
-          remotes::install_github('theislab/kBET')
+          Rscript -e "remotes::install_github('satijalab/seurat-data')"
+          Rscript -e "remotes::install_github('theislab/kBET')"
       - name: RmarkdownRenderSite
         shell: Rscript {0}
         run: rmarkdown::render_site('rmd')
