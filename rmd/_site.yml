@@ -29,15 +29,16 @@ navbar:
       - text: Viz
         icon: eye
         href: 25_Viz.html
-#     - text: BatchEffects
-#       icon: fa-trillium
-#       href: 30_BatchEffects.html
-#     - text: SCTransform
-#       icon: fa-bolt-lightning
-#       href: 31_SCTransform.html
-#     - text: CellAnnotation
-#       icon: fa-paintbrush
-#       href: 40_CellAnnotation.html
+      - text: BatchEffects
+        icon: fa-trillium
+        href: 30_BatchEffects.html
+      - text: SCTransform
+        icon: fa-bolt-lightning
+        href: 31_SCTransform.html
+      - text: CellAnnotation
+        icon: fa-paintbrush
+        href: 40_CellAnnotation.html
+
 output:
   html_document:
     theme: spacelab
