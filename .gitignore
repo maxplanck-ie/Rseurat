@@ -7,3 +7,6 @@ rmd/*.html
 rmd/*_files/
 rmd/site/
 rmd/site_libs/
+*.gz
+*.RDS
+*.rds
