@@ -52,6 +52,10 @@ packageVersion("Seurat")
 
 IFNB-Stimulated and Control human ctrls.
 
+```{r FIXME}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
 ```{r SeuratData}
 #devtools::install_github('satijalab/seurat-data')
 library(SeuratData)

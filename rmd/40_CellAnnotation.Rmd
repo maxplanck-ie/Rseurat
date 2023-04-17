@@ -62,6 +62,10 @@ pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
 
 ## Load query dataset.
 
+```{r FIXME}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
 ```{r seurat_to_sce}
 library(SeuratData)
 InstallData("pbmc3k")
