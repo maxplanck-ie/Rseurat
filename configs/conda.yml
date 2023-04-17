@@ -63,3 +63,12 @@ dependencies:
   - bioconductor-biomaRt
   - bioconductor-GenomicFeatures
   - bioconductor-ensembldb
+  - r-kableExtra
+  - r-sctransform
+  - bioconductor-SingleR
+  - bioconductor-scran
+  - bioconductor-scater
+  - bioconductor-glmGamPoi
+  # SeuratData  ## install manually using remotes::install_github('satijalab/seurat-data')
+  # kBET  ## install manually using remotes::install_github('theislab/kBET')
+  - r-gh

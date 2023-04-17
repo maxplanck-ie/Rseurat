@@ -1,56 +1,53 @@
 name: deploy
-
 on:
-
   push:
-  #SKIP for now#  pull_request:
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: ['main']
   workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+defaults:
+  run:
+    shell: bash -l {0}
 permissions:
   contents: read
   pages: write
   id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
-
-# Use login shell
-defaults:
-  run:
-      shell: bash -l {0}
-
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
+      - name: CheckoutRepo
         uses: actions/checkout@v3
-      - name: TinyTeX
-        uses: r-lib/actions/setup-tinytex@v2
-      - name: PkgInstall
+        with:
+          fetch-depth: 0
+      - name: MicromambaCreateEnv
         uses: mamba-org/provision-with-micromamba@main
         with:
           environment-name: Rseurat
           environment-file: configs/conda.yml
           cache-env: true
-      - name: ActivateEnv
+      - name: MicromambaActivateEnv
+        run: micromamba activate Rseurat
+      - name: RemoteInstallGH
         run: |
-          micromamba activate Rseurat
-      - name: RenderSite
-        run: |
-          Rscript -e "rmarkdown::render_site('rmd')"
-      - name: PagesDeployment
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ !env.ACT }}
+          Rscript -e "remotes::install_github('satijalab/seurat-data')"
+          Rscript -e "remotes::install_github('theislab/kBET')"
+      - name: RmarkdownRenderSite
+        run: Rscript -e "rmarkdown::render_site('rmd')"
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./rmd/site
+          path: ./rmd/site
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
