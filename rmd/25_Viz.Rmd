@@ -95,7 +95,7 @@ myFlappy <- function(x, ...) {
 We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:
 
 ```{r}
-pbmc <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/") %>%
+pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
@@ -169,7 +169,7 @@ Using the customized plotting functions keep us away from reinventing the wheel.
 ### Threshold lines
 
 ```{r}
-pbmc <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/") %>%
+pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")

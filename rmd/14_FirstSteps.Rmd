@@ -105,7 +105,7 @@ For further details on the primary analysis pipeline, see [here](https://support
 The values in the **count matrix** represent the number of molecules for each feature (i.e. gene; row) that are detected in each cell (column).
 
 ```{r}
-pbmc.data <- Read10X(data.dir = "../datasets/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
 Lets examine a few genes in the first thirty cells:
