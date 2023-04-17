@@ -1,8 +1,16 @@
 ---
 title: "Cell Annotation"
 author: "Katarzyna Sikora"
-date: "2/24/2023"
-output: ioslides_presentation
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
 ---
 
 
@@ -29,7 +37,7 @@ library(knitr)
 library(kableExtra)
 library(magrittr)
 knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
 ```
 
 ```{r loadLibs,warning=FALSE,message=FALSE}

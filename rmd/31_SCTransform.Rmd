@@ -33,7 +33,7 @@ library(knitr)
 library(kableExtra)
 library(magrittr)
 knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=40)) 
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
 ```
 
 ```{r seuratVersion,warning=FALSE,message=FALSE}
