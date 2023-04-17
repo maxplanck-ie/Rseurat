@@ -3,7 +3,6 @@
 .RData
 .Ruserdata
 *.log
-datasets/
 rmd/*.html
 rmd/*_files/
 rmd/site/
