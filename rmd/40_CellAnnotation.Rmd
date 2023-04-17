@@ -36,7 +36,6 @@ library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
-knitr::opts_knit$set(root.dir = '/data/manke/processing/sikora/Rseurat_wdir')
 knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
 ```
 
@@ -58,7 +57,7 @@ library(scran)
 #pbmc_ref_sce<-SingleCellExperiment(list(counts=pbmc_ref),colData=DataFrame(label=pbmc_ref_meta$id_extract))
 #pbmc_ref_sce<-logNormCounts(pbmc_ref_sce)
 #saveRDS(pbmc_ref_sce,"pbmc_ref_sce.RDS")
-pbmc_ref_sce<-readRDS("pbmc_ref_sce.RDS")
+pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
 ```
 
 ## Load query dataset.
@@ -92,7 +91,7 @@ For use with scRNAseq reference, set de.method to wilcox or t. This marker detec
 #set.seed(123)
 #ref.labels <- SingleR(test = sce,assay.type.test = "logcounts",ref = pbmc_ref_sce,labels = pbmc_ref_sce$label,aggr.ref=TRUE,de.method="wilcox")
 #saveRDS(ref.labels,"ref.labels.RDS")
-ref.labels<-readRDS("ref.labels.RDS")
+ref.labels<-readRDS("datasets/preprocessed_rds/ref.labels.RDS")
 ```
 
 ## Tabulate reference labels
@@ -161,7 +160,7 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #pbmc_ref.seurat <- RunPCA(pbmc_ref.seurat, npcs = 30, verbose = FALSE)
 #pbmc_ref.seurat <- FindVariableFeatures(pbmc_ref.seurat)
 #saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.RDS")
-pbmc_ref.seurat<-readRDS("pbmc_ref.seurat.RDS")
+pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
 ```
 
 ## Seurat Integration: transfer labels
