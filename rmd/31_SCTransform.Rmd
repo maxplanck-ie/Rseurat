@@ -41,9 +41,13 @@ library(Seurat)
 packageVersion("Seurat")
 
 ```
-## SCTransform
+## SCTransform: theory
 
-- Requires UMIs (?)
+
+
+## SCTransform: long story short
+
+- Requires UMIs
 - Removes the counfounding effect of sequencing depth
 - Optional: regress other confounding variables out (e.g. perct. MT)
 
@@ -200,5 +204,9 @@ sessionInfo()
 
 ## Citations
 ```{r citations}
+Hafemeister, C., Satija, R. Normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression. Genome Biol 20, 296 (2019). https://doi.org/10.1186/s13059-019-1874-1
 
+Choudhary, S., Satija, R. Comparison and evaluation of statistical error models for scRNA-seq. Genome Biol 23, 27 (2022). https://doi.org/10.1186/s13059-021-02584-9
+
+Ahlmann-Eltze C, Huber W (2020). “glmGamPoi: Fitting Gamma-Poisson Generalized Linear Models on Single Cell Count Data.” Bioinformatics. doi: 10.1093/bioinformatics/btaa1009, https://doi.org/10.1093/bioinformatics/btaa1009. 
 ```
