@@ -38,6 +38,10 @@ navbar:
       - text: CellAnnotation
         icon: fa-paintbrush
         href: 40_CellAnnotation.html
+  right:
+    - text: "Source"
+      icon: fa-github
+      href: https://github.com/maxplanck-ie/Rseurat
 
 output:
   html_document:
