@@ -9,28 +9,28 @@ navbar:
       icon: fa-level-down
       menu:
       - text: PkgInstall
-        icon: download
+        icon: fa-download
         href: 10_PkgInstall.html
       - text: Intro
-        icon: handshake-o
+        icon: fa-handshake-o
         href: 12_Intro.html
       - text: FirstSteps
-        icon: users
+        icon: fa-users
         href: 14_FirstSteps.html
       - text: GSEA
-        icon: arrows-alt
+        icon: fa-arrows-alt
         href: 16_GSEA.html
       - text: UMAP
-        icon: hand-spock-o
+        icon: fa-hand-spock-o
         href: 21_UMAP.html
       - text: DE
-        icon: question-circle
+        icon: fa-question-circle
         href: 23_DE.html
       - text: Viz
-        icon: eye
+        icon: fa-eye
         href: 25_Viz.html
       - text: BatchEffects
-        icon: fa-trillium
+        icon: fa-ambulance
         href: 30_BatchEffects.html
       - text: SCTransform
         icon: fa-bolt-lightning
