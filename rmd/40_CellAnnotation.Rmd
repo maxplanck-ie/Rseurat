@@ -51,6 +51,10 @@ library(scran)
 
 ## Preprocess reference dataset.
 
+```{r FIXME}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
 ```{r ref_data}
 #pbmc_ref<-readRDS("pbmc_sorted_norm.rds")
 #pbmc_ref_meta<-readRDS("pbmc_sorted_meta.rds")
@@ -61,10 +65,6 @@ pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
 ```
 
 ## Load query dataset.
-
-```{r FIXME}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ```{r seurat_to_sce}
 library(SeuratData)
