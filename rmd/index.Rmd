@@ -1,18 +1,21 @@
 ---
-title: "Single Cell RNA Analysis"
+title: "Single Cell RNA Analysis Course"
 author: "Bioinfo-Core @ MPI-IE"
-date: "`r date() `"
+output:
+  html_document:
+    toc: false
 ---
 
-Seurat is an R package designed for QC, analysis, and exploration of
-single-cell RNA-seq data. Seurat aims to enable users to identify and interpret
-sources of heterogeneity from single-cell transcriptomic measurements, and to
-integrate diverse types of single-cell data. All methods emphasize clear,
-attractive, and interpretable visualizations, and were designed to be easily
-used by both dry-lab and wet-lab researchers. Seurat is developed and
-maintained by the Satija lab and is released under the MIT license.
+> Seurat is an R package designed for QC, analysis, and exploration of
+> single-cell RNA-seq data. Seurat aims to enable users to identify and
+> interpret sources of heterogeneity from single-cell transcriptomic
+> measurements, and to integrate diverse types of single-cell data. All methods
+> emphasize clear, attractive, and interpretable visualizations, and were
+> designed to be easily used by both dry-lab and wet-lab researchers. Seurat is
+> developed and maintained by the Satija lab and is released under the MIT
+> license.
 
-# Requirements:
+### Requirements
 
 * **R-language**: has been covered by our introductory
   [course](https://maxplanck-ie.github.io/Rintro).
