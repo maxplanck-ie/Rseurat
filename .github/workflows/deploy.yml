@@ -1,7 +1,5 @@
 name: deploy
 on:
-  push:
-    branches: ['main']
   workflow_dispatch:
 defaults:
   run:
@@ -13,6 +11,7 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: false
+# TODO: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#running-your-pull_request-workflow-when-a-pull-request-merges
 jobs:
   build:
     runs-on: ubuntu-latest
