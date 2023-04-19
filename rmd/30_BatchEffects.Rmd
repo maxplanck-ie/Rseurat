@@ -65,9 +65,6 @@ kable(table(panc$dataset)) %>% kable_classic_2(full_width = F)
 
 Lets process the dataset in a standard way, ignoring any possible batch effects.
 
-```{r FIXME}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ```{r process_noBER}
 panc <- NormalizeData(panc)
