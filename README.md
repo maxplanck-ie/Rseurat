@@ -1,3 +1,5 @@
+[![gh-pages](https://github.com/maxplanck-ie/Rseurat/actions/workflows/deploy.yml/badge.svg)](https://github.com/maxplanck-ie/Rseurat/actions/workflows/deploy.yml)
+
 # Rseurat
 
 ## Single Cell RNA-seq Course
