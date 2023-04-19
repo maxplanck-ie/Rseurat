@@ -51,9 +51,6 @@ library(scran)
 
 ## Preprocess reference dataset.
 
-```{r FIXME}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ```{r ref_data}
 #pbmc_ref<-readRDS("pbmc_sorted_norm.rds")
