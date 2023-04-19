@@ -43,7 +43,16 @@ packageVersion("Seurat")
 ```
 ## SCTransform: theory
 
-
+- Default log-normalization:
+  - @counts: read count matrix e.g. from STARsolo ("raw counts")
+  - @data: log1p(counts/sum(counts)*scale_factor)
+  - @scale.data: scale(data, scale=TRUE, center=TRUE)
+  
+- SCTransform
+  - @scale.data: residuals from glm(raw_counts~log_umi_per_cell; error_model="NB") divided by sd; uses gene tier-wise parameters; ("Pearson residuals")
+  - @counts: "corrected" counts back-calculated from @scale.data
+  - @data: log1p(counts)
+  
 
 ## SCTransform: long story short
 
