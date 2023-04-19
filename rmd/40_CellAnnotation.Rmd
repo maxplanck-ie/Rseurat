@@ -61,6 +61,9 @@ knitr::opts_chunk$set(eval = FALSE)
 #pbmc_ref_sce<-SingleCellExperiment(list(counts=pbmc_ref),colData=DataFrame(label=pbmc_ref_meta$id_extract))
 #pbmc_ref_sce<-logNormCounts(pbmc_ref_sce)
 #saveRDS(pbmc_ref_sce,"pbmc_ref_sce.RDS")
+
+#download preprocessed file
+utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref_sce.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref_sce.RDS",method="wget")
 pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
 ```
 
@@ -95,6 +98,9 @@ For use with scRNAseq reference, set de.method to wilcox or t. This marker detec
 #set.seed(123)
 #ref.labels <- SingleR(test = sce,assay.type.test = "logcounts",ref = pbmc_ref_sce,labels = pbmc_ref_sce$label,aggr.ref=TRUE,de.method="wilcox")
 #saveRDS(ref.labels,"ref.labels.RDS")
+
+#download labels:
+utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="wget")
 ref.labels<-readRDS("datasets/preprocessed_rds/ref.labels.RDS")
 ```
 
@@ -164,6 +170,9 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #pbmc_ref.seurat <- RunPCA(pbmc_ref.seurat, npcs = 30, verbose = FALSE)
 #pbmc_ref.seurat <- FindVariableFeatures(pbmc_ref.seurat)
 #saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.RDS")
+
+#dowload preprocessed dataset
+utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")
 pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
 ```
 
