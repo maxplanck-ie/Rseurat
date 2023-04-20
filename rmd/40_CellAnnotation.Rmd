@@ -173,13 +173,14 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
 #utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
 pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
+pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=200)
 ```
 
 ## Seurat Integration: transfer labels
 
 ```{r transfer_data}
-pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat, query = pbmc, dims = 1:30, reference.reduction = "pca")
-predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat$label,dims = 1:30)
+pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat_sub, query = pbmc, dims = 1:30, reference.reduction = "pca")
+predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat_sub$label,dims = 1:30)
 pbmc <- AddMetaData(pbmc, metadata = predictions)
 
 ```
