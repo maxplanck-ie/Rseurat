@@ -37,6 +37,7 @@ jobs:
           Rscript -e "SeuratData::InstallData('ifnb')"
           Rscript -e "SeuratData::InstallData('pbmc3k')"
       - name: DownloadZenodo
+        working-directory: ./rmd
         run: |
           Rscript -e "utils::download.file('https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1',destfile='datasets/preprocessed_rds/panc_sub.RDS',method='wget')"
           Rscript -e "utils::download.file('https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1',destfile='datasets/preprocessed_rds/ref.labels.RDS',method='wget')"
