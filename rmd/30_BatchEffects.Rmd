@@ -176,7 +176,7 @@ which.max(z$r2[,"R.squared"])
 ## Inspect the result
 
 ```{r kBET3_plot}
-FeaturePlot(panc,features="PC_1")
+FeaturePlot(panc_sub,features="PC_1")
 
 ```
 
