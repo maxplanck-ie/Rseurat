@@ -35,6 +35,7 @@ jobs:
           Rscript -e "remotes::install_github('theislab/kBET')"
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
           Rscript -e "SeuratData::InstallData('ifnb')"
+          Rscript -e "SeuratData::InstallData('pbmc3k')"
       - name: RmarkdownRenderSite
         run: Rscript -e "rmarkdown::render_site('rmd')"
       - name: Upload artifact
