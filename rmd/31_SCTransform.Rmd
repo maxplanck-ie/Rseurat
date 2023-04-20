@@ -69,8 +69,9 @@ IFNB-Stimulated and Control human ctrls.
 ```{r SeuratData}
 library(SeuratData)
 ifnb <- LoadData("ifnb")
-table(ifnb$stim)
-ifnb.list <- SplitObject(ifnb, split.by = "stim")
+ifnb_sub<-subset(x = ifnb, downsample = 1000)
+table(ifnb_sub$stim)
+ifnb.list <- SplitObject(ifnb_sub, split.by = "stim")
 
 ctrl <- ifnb.list[["CTRL"]]
 stim <- ifnb.list[["STIM"]]
