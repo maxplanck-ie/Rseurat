@@ -53,10 +53,7 @@ packageVersion("Seurat")
 Pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates.
 
 ```{r SeuratData}
-#devtools::install_github('satijalab/seurat-data')
 #library(SeuratData)
-#AvailableData()
-#InstallData("panc8")
 #panc <- LoadData("panc8", type = "default")
 #kable(table(panc$dataset)) %>% kable_classic_2(full_width = F)
 ```
@@ -91,8 +88,8 @@ Lets process the dataset in a standard way, ignoring any possible batch effects.
 ```{r subset}
 #panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
 #saveRDS(panc_sub,"panc_sub.RDS")
-if (!file.exists("datasets/preprocessed_rds/panc_sub.RDS")){
-utils::download.file("https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub.RDS",method="wget")}
+#if (!file.exists("datasets/preprocessed_rds/panc_sub.RDS")){
+#utils::download.file("https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub.RDS",method="wget")}
 panc_sub<-readRDS("datasets/preprocessed_rds/panc_sub.RDS")
 kable(table(panc_sub$dataset)) %>%  kable_classic_2(full_width = F)
 ```
@@ -127,7 +124,6 @@ We can see various amounts of batch effect by eye. Let's try to calculate some m
 ## Run kBET
 
 ```{r kBET1}
-devtools::install_github('theislab/kBET')
 library(kBET)
 library(ggplot2)
 

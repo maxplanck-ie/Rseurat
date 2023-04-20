@@ -48,7 +48,14 @@ R packages bundle data with them, usually for testing purposes. In the case of `
 
 ```{r}
 if (! "SeuratData" %in% installed_pkgs) remotes::install_github('satijalab/seurat-data')
-if (! "panc8.SeuratData" %in% installed_pkgs) SeuratData::InstallData("panc8")
+if (! "ifnb.SeuratData" %in% installed_pkgs) SeuratData::InstallData("infb")
+if (! "pbmc3k.SeuratData" %in% installed_pkgs) SeuratData::InstallData("pbmc3k")
+```
+
+We are going to use another package available on github:
+
+```{r}
+if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
 ```
 
 The next code block defines `my_load_namespaces` function that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
@@ -75,7 +82,7 @@ Let's use it! The whole process is going to take a couple of minutes...
 
 ```{r}
 my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future"),
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future","glmGamPoi"),
   coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "remotes", "bookdown")
 )
 ```
@@ -89,3 +96,18 @@ stopifnot(BiocManager::valid())
 ```
 
 If the above code block fails, is because according to BiocManager our current state is not valid (so, it didn't return `TRUE` to `stopifnot`). To correct this, you should run the `BiocManager::install()` command as it's stated by `BiocManager::valid()`.
+
+
+# Download preprocessed datasets from zenodo
+
+For the later part of the course, we have preprocessed a couple of large datasets and would like you to download them from zenodo:
+
+```{r zenodo}
+if (!file.exists("datasets/preprocessed_rds/panc_sub.RDS")){
+utils::download.file("https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub.RDS",method="wget")}
+if (!file.exists("datasets/preprocessed_rds/ref.labels.RDS")){
+utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="wget")}
+if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
+utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
+
+```

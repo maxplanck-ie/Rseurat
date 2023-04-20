@@ -69,7 +69,6 @@ library(scran)
 
 ```{r seurat_to_sce}
 library(SeuratData)
-InstallData("pbmc3k")
 data("pbmc3k")
 pbmc<-pbmc3k.final
 sce <- as.SingleCellExperiment(DietSeurat(pbmc))
@@ -98,8 +97,8 @@ For use with scRNAseq reference, set de.method to wilcox or t. This marker detec
 #saveRDS(ref.labels,"ref.labels.RDS")
 
 #download labels:
-if (!file.exists("datasets/preprocessed_rds/ref.labels.RDS")){
-utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="wget")}
+#if (!file.exists("datasets/preprocessed_rds/ref.labels.RDS")){
+#utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="wget")}
 ref.labels<-readRDS("datasets/preprocessed_rds/ref.labels.RDS")
 ```
 
@@ -171,8 +170,8 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.RDS")
 
 #dowload preprocessed dataset
-if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
-utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
+#if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
+#utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
 pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
 ```
 
