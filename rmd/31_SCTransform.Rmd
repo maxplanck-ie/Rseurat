@@ -65,6 +65,14 @@ $ \begin{array}{*{20}l} Z_{gc} &= \frac{x_{gc}-\mu_{gc}}{\sigma_{gc}}\\ \mu_{gc}
 
 ## SCTransform: @counts
 $ \begin{array}{*{20}l} \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{0}}}, \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}},\\ y_{gc} &= \text{floor}(Z_{gc} \sigma_{gc} + \mu_{gc}), \end{array} $
+
+## SCTransform: gene counts ~ cell counts
+
+![Before](images/SCTransform.F1C.png)
+![After](images/SCTransform.F3A.png)
+## SCTransform: theta regularization
+
+![](images/SCTransform.vst2.F3A.png)
   
 
 ## SCTransform: long story short
