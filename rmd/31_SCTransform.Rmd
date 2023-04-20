@@ -56,7 +56,15 @@ packageVersion("Seurat")
 
 ## SCTransform: @scale.data
 
+$equation \begin{array}{*{20}l} x_{gc} &\sim \text{NB}(\mu_{gc}, \theta_{g})\\ \ln \mu_{gc} &= \beta_{g0} + \ln n_{c}, \end{array} $
 
+where θ_g is the gene-specific dispersion parameter, $n_{c}=\sum _{g} x_{gc}$ is the total sequencing depth and the variance of the negative binomial (NB) is given by $ \mu _{gc} + \mu _{gc}^{2}/\theta _{g} $
+
+For each gene-cell combination, the Pearson residuals Z_gc are given by:
+$ \begin{array}{*{20}l} Z_{gc} &= \frac{x_{gc}-\mu_{gc}}{\sigma_{gc}}\\ \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{c}}} \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}}, \end{array} $
+
+## SCTransform: @counts
+$ \begin{array}{*{20}l} \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{0}}}, \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}},\\ y_{gc} &= \text{floor}(Z_{gc} \sigma_{gc} + \mu_{gc}), \end{array} $
   
 
 ## SCTransform: long story short
