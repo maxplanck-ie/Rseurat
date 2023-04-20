@@ -105,7 +105,7 @@ p1+p2
 ```{r seurat_sctransform1}
 library(sctransform)
 library(glmGamPoi)
-ctrl <- SCTransform(ctrl, method = "glmGamPoi", verbose = FALSE)
+ctrl <- SCTransform(ctrl, method = "glmGamPoi",vst.flavor = "v2", verbose = FALSE)
 # store mitochondrial percentage in object meta data
 #ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
 #ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
@@ -139,7 +139,7 @@ Apply SCTransform to the IfnB-stimulated dataset as well. How does the lowD repr
 ## Prepare both datasets for integration
 
 ```{r sct_stim}
-stim <- SCTransform(stim, method="glmGamPoi", verbose = FALSE) %>%
+stim <- SCTransform(stim, method="glmGamPoi",vst.flavor = "v2", verbose = FALSE) %>%
     RunPCA(npcs = 30, verbose = FALSE)
 ifnb.list <- list(ctrl = ctrl, stim = stim)
 features <- SelectIntegrationFeatures(object.list = ifnb.list, nfeatures = 3000)
