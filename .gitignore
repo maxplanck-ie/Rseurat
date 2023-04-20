@@ -7,6 +7,8 @@ rmd/*.html
 rmd/*_files/
 rmd/site/
 rmd/site_libs/
+rmd/datasets/preprocessed_rds/*.rds
+rmd/datasets/preprocessed_rds/*.RDS
 *.gz
 *.RDS
 *.rds
