@@ -127,7 +127,7 @@ We can see various amounts of batch effect by eye. Let's try to calculate some m
 ## Run kBET
 
 ```{r kBET1}
-devtools::install_github('theislab/kBET')
+#devtools::install_github('theislab/kBET')
 library(kBET)
 library(ggplot2)
 
