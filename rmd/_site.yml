@@ -8,34 +8,34 @@ navbar:
     - text: "Modules"
       icon: fa-level-down
       menu:
-      - text: PkgInstall
+      - text: Installation
         icon: fa-download
         href: 10_PkgInstall.html
-      - text: Intro
+      - text: Introduction
         icon: fa-handshake-o
         href: 12_Intro.html
-      - text: FirstSteps
+      - text: First steps
         icon: fa-users
         href: 14_FirstSteps.html
-      - text: GSEA
+      - text: Ontologies Enrichment
         icon: fa-arrows-alt
         href: 16_GSEA.html
-      - text: UMAP
+      - text: Embeddings
         icon: fa-hand-spock-o
         href: 21_UMAP.html
-      - text: DE
+      - text: Diff. Expression
         icon: fa-question-circle
         href: 23_DE.html
-      - text: Viz
+      - text: Data Viz.
         icon: fa-eye
         href: 25_Viz.html
-      - text: BatchEffects
+      - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
       - text: SCTransform
         icon: fa-bolt-lightning
         href: 31_SCTransform.html
-      - text: CellAnnotation
+      - text: Cell Annotation
         icon: fa-paintbrush
         href: 40_CellAnnotation.html
   right:
