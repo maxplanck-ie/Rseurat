@@ -173,7 +173,7 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
 #utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
 pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
-pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=200)
+pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=100)
 ```
 
 ## Seurat Integration: transfer labels
