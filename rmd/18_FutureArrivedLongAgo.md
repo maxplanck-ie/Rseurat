@@ -20,4 +20,4 @@ Each worker (session/ core) needs access to certain global variables, these 'exp
 
 ---
 
-Note: you can execute `free -mh`, `top`, and other system monitoring utilities from within the 'Terminal' tab inside the RStudio IDE. Go to 'Tools' in the Menubar.
+Note: you can execute `free -mh`, `top`, and other system monitoring utilities from within the 'Terminal' tab inside the RStudio IDE. If such tab is not already open, next to 'Console', you will need to go into 'Tools' Menu.
