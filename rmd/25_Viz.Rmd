@@ -40,6 +40,13 @@ params:
     value: 0.5
 ---
 
+<!-- 
+https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
+
+https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
+
+https://samuel-marsh.github.io/scCustomize/reference/index.html
+-->
 
 # Setup
 
@@ -78,7 +85,7 @@ my_load_namespaces(
 if (interactive()) stopifnot(suppressMessages(BiocManager::valid()))
 
 set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, format = TRUE)
 
 options(parallelly.fork.enable = params$fork,
         future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
@@ -269,25 +276,8 @@ myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
 ```
 
 
-# End
+# EXERCISES
 
-<!-- 
-https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
+1. Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
 
-https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
-
-https://samuel-marsh.github.io/scCustomize/reference/index.html
--->
-
-```{r}
-timestamp()
-```
-
-```{r}
-my.file.name <- "25_Viz"
-sessioninfo::session_info(to_file = file.path(getwd(), paste0("../", my.file.name, ".session.log")))
-```
-
-EXERCISE: Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
-
-EXERCISE: Are there any differences in the results? If so, did you reset the seed between runs? What about the time it takes? You can measure with `microbenchmark` package.
+2. Are there any differences in the results? If so, did you reset the seed between runs? What about the time it takes? You can measure with `microbenchmark` package.
