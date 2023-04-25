@@ -1,6 +1,9 @@
 name: deploy
 on:
   workflow_dispatch:
+  pull_request:
+    types:
+      - closed
 defaults:
   run:
     shell: bash -l {0}
@@ -11,9 +14,9 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: false
-# TODO: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#running-your-pull_request-workflow-when-a-pull-request-merges
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
