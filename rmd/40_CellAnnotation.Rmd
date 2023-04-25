@@ -36,7 +36,7 @@ library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70),eval=FALSE) 
 ```
 
 ```{r loadLibs,warning=FALSE,message=FALSE}
