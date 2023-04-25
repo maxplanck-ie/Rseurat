@@ -43,12 +43,42 @@ packageVersion("Seurat")
 ```
 ## SCTransform: theory
 
+- Default log-normalization:
+  - @counts: read count matrix e.g. from STARsolo ("raw counts")
+  - @data: log1p(counts/sum(counts)*scale_factor)
+  - @scale.data: scale(data, scale=TRUE, center=TRUE)
+  
+- SCTransform
+  - @scale.data: Pearson residuals from glm(raw_counts~log_umi_per_cell; error_model="NB") --> details 
+  - @counts: "corrected" counts back-calculated from @scale.data --> details
+  - @data: log1p(counts)
+  
 
+## SCTransform: @scale.data
+
+$equation \begin{array}{*{20}l} x_{gc} &\sim \text{NB}(\mu_{gc}, \theta_{g})\\ \ln \mu_{gc} &= \beta_{g0} + \ln n_{c}, \end{array} $
+
+where θ_g is the gene-specific dispersion parameter, $n_{c}=\sum _{g} x_{gc}$ is the total sequencing depth and the variance of the negative binomial (NB) is given by $ \mu _{gc} + \mu _{gc}^{2}/\theta _{g} $
+
+For each gene-cell combination, the Pearson residuals Z_gc are given by:
+$ \begin{array}{*{20}l} Z_{gc} &= \frac{x_{gc}-\mu_{gc}}{\sigma_{gc}}\\ \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{c}}} \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}}, \end{array} $
+
+## SCTransform: @counts
+$ \begin{array}{*{20}l} \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{0}}}, \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}},\\ y_{gc} &= \text{floor}(Z_{gc} \sigma_{gc} + \mu_{gc}), \end{array} $
+
+## SCTransform: gene counts ~ cell counts
+
+![Before](images/SCTransform.F1C.png)
+![After](images/SCTransform.F3A.png)
+## SCTransform: theta regularization
+
+![](images/SCTransform.vst2.F3A.png)
+  
 
 ## SCTransform: long story short
 
 - Requires UMIs
-- Removes the counfounding effect of sequencing depth
+- Removes the effect of sequencing depth through regression
 - Optional: regress other confounding variables out (e.g. perct. MT)
 
 
@@ -56,18 +86,13 @@ packageVersion("Seurat")
 
 IFNB-Stimulated and Control human ctrls.
 
-```{r FIXME}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ```{r SeuratData}
-#devtools::install_github('satijalab/seurat-data')
 library(SeuratData)
-#AvailableData()
-InstallData("ifnb")
 ifnb <- LoadData("ifnb")
-table(ifnb$stim)
-ifnb.list <- SplitObject(ifnb, split.by = "stim")
+ifnb_sub<-subset(x = ifnb, downsample = 1000)
+table(ifnb_sub$stim)
+ifnb.list <- SplitObject(ifnb_sub, split.by = "stim")
 
 ctrl <- ifnb.list[["CTRL"]]
 stim <- ifnb.list[["STIM"]]
@@ -99,10 +124,9 @@ p1+p2
 ## Seurat SCTransform
 
 ```{r seurat_sctransform1}
-BiocManager::install("glmGamPoi")
 library(sctransform)
 library(glmGamPoi)
-ctrl <- SCTransform(ctrl, method = "glmGamPoi", verbose = FALSE)
+ctrl <- SCTransform(ctrl, method = "glmGamPoi",vst.flavor = "v2", verbose = FALSE)
 # store mitochondrial percentage in object meta data
 #ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
 #ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
@@ -136,7 +160,7 @@ Apply SCTransform to the IfnB-stimulated dataset as well. How does the lowD repr
 ## Prepare both datasets for integration
 
 ```{r sct_stim}
-stim <- SCTransform(stim, method="glmGamPoi", verbose = FALSE) %>%
+stim <- SCTransform(stim, method="glmGamPoi",vst.flavor = "v2", verbose = FALSE) %>%
     RunPCA(npcs = 30, verbose = FALSE)
 ifnb.list <- list(ctrl = ctrl, stim = stim)
 features <- SelectIntegrationFeatures(object.list = ifnb.list, nfeatures = 3000)
@@ -203,10 +227,10 @@ sessionInfo()
 ```
 
 ## Citations
-```{r citations}
+
 Hafemeister, C., Satija, R. Normalization and variance stabilization of single-cell RNA-seq data using regularized negative binomial regression. Genome Biol 20, 296 (2019). https://doi.org/10.1186/s13059-019-1874-1
 
 Choudhary, S., Satija, R. Comparison and evaluation of statistical error models for scRNA-seq. Genome Biol 23, 27 (2022). https://doi.org/10.1186/s13059-021-02584-9
 
 Ahlmann-Eltze C, Huber W (2020). “glmGamPoi: Fitting Gamma-Poisson Generalized Linear Models on Single Cell Count Data.” Bioinformatics. doi: 10.1093/bioinformatics/btaa1009, https://doi.org/10.1093/bioinformatics/btaa1009. 
-```
+

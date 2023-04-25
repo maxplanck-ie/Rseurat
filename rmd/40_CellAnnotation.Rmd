@@ -36,7 +36,7 @@ library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70),eval=FALSE) 
 ```
 
 ```{r loadLibs,warning=FALSE,message=FALSE}
@@ -51,9 +51,6 @@ library(scran)
 
 ## Preprocess reference dataset.
 
-```{r FIXME}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ```{r ref_data}
 #pbmc_ref<-readRDS("pbmc_sorted_norm.rds")
@@ -61,14 +58,17 @@ knitr::opts_chunk$set(eval = FALSE)
 #pbmc_ref_sce<-SingleCellExperiment(list(counts=pbmc_ref),colData=DataFrame(label=pbmc_ref_meta$id_extract))
 #pbmc_ref_sce<-logNormCounts(pbmc_ref_sce)
 #saveRDS(pbmc_ref_sce,"pbmc_ref_sce.RDS")
-pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
+
+#download preprocessed file
+#if (!file.exists("datasets/preprocessed_rds/pbmc_ref_sce.RDS")){
+#utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref_sce.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref_sce.RDS",method="wget")}
+#pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
 ```
 
 ## Load query dataset.
 
 ```{r seurat_to_sce}
 library(SeuratData)
-InstallData("pbmc3k")
 data("pbmc3k")
 pbmc<-pbmc3k.final
 sce <- as.SingleCellExperiment(DietSeurat(pbmc))
@@ -95,6 +95,10 @@ For use with scRNAseq reference, set de.method to wilcox or t. This marker detec
 #set.seed(123)
 #ref.labels <- SingleR(test = sce,assay.type.test = "logcounts",ref = pbmc_ref_sce,labels = pbmc_ref_sce$label,aggr.ref=TRUE,de.method="wilcox")
 #saveRDS(ref.labels,"ref.labels.RDS")
+
+#download labels:
+#if (!file.exists("datasets/preprocessed_rds/ref.labels.RDS")){
+#utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="wget")}
 ref.labels<-readRDS("datasets/preprocessed_rds/ref.labels.RDS")
 ```
 
@@ -164,16 +168,28 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #pbmc_ref.seurat <- RunPCA(pbmc_ref.seurat, npcs = 30, verbose = FALSE)
 #pbmc_ref.seurat <- FindVariableFeatures(pbmc_ref.seurat)
 #saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.RDS")
+
+#dowload preprocessed dataset
+#if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
+#utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
 pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
+pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=1000)
+pbmc_ref.seurat_sub_diet<-DietSeurat(pbmc_ref.seurat_sub,counts=FALSE,scale.data=FALSE,dimreducs="pca")
 ```
 
 ## Seurat Integration: transfer labels
 
 ```{r transfer_data}
-pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat, query = pbmc, dims = 1:30, reference.reduction = "pca")
-predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat$label,dims = 1:30)
-pbmc <- AddMetaData(pbmc, metadata = predictions)
+pbmc_sub<-subset(pbmc,downsample=1000)
+pbmc_diet<-DietSeurat(pbmc_sub,counts=FALSE,scale.data=FALSE,dimreducs="pca")
+p1<-profmem({
+pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat_sub_diet, query = pbmc_diet, dims = 1:30,reduction="cca")}) #>19Gb
+#reference.reduction = "pca",reduction="pcaproject"#>19Gb; retained 4 anchors
+#reduction="cca" > 7Gb, retained 2331 anchors
 
+predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat_sub_diet$label,dims = 1:30)
+pbmc<-pbmc_diet
+pbmc <- AddMetaData(pbmc, metadata = predictions)
 ```
 
 ## Filter labels

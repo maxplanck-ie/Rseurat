@@ -25,7 +25,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          lfs: true
       - name: MicromambaCreateEnv
         uses: mamba-org/provision-with-micromamba@main
         with:
@@ -38,7 +37,14 @@ jobs:
         run: |
           Rscript -e "remotes::install_github('theislab/kBET')"
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
-          Rscript -e "SeuratData::InstallData('panc8')"
+          Rscript -e "SeuratData::InstallData('ifnb')"
+          Rscript -e "SeuratData::InstallData('pbmc3k')"
+      - name: DownloadZenodo
+        working-directory: ./rmd
+        run: |
+          Rscript -e "utils::download.file('https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1',destfile='datasets/preprocessed_rds/panc_sub.RDS',method='wget')"
+          Rscript -e "utils::download.file('https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1',destfile='datasets/preprocessed_rds/ref.labels.RDS',method='wget')"
+          Rscript -e "utils::download.file('https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1',destfile='datasets/preprocessed_rds/pbmc_ref.seurat.RDS',method='wget')"
       - name: RmarkdownRenderSite
         run: Rscript -e "rmarkdown::render_site('rmd')"
       - name: Upload artifact
