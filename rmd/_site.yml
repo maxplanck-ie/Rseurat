@@ -2,6 +2,8 @@ name: Rseurat
 output_dir: "site"
 include: ["images"]
 
+# get icon labels from here, https://fontawesome.com/v4/icons/
+
 navbar:
   title: "Rseurat - Single Cell RNA-seq"
   left:
@@ -20,6 +22,9 @@ navbar:
       - text: Ontologies Enrichment
         icon: fa-arrows-alt
         href: 16_GSEA.html
+      - text: Parallelization
+        icon: fa-clock-o
+        href: 18_FutureArrivedLongAgo.html
       - text: Embeddings
         icon: fa-hand-spock-o
         href: 21_UMAP.html
@@ -27,8 +32,11 @@ navbar:
         icon: fa-question-circle
         href: 23_DE.html
       - text: Data Viz.
-        icon: fa-eye
+        icon: fa-map-marker
         href: 25_Viz.html
+      - text: Shiny brushedPlot
+        icon: fa-eye
+        href: 27_brushedPlot.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
