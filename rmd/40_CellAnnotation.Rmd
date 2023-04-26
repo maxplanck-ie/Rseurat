@@ -191,7 +191,7 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #dowload preprocessed dataset
 if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
 utils::download.file("https://zenodo.org/record/7866848/files/pbmc_ref.seurat.sel.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.sel.RDS",method="wget")}
-#pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
+pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.sel.RDS")
 #pbmc_ref.seurat<-readRDS("pbmc_ref.seurat.sel.RDS")
 #pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=1000)
 pbmc_ref.seurat_sub_diet<-DietSeurat(pbmc_ref.seurat,counts=FALSE,scale.data=FALSE,dimreducs="pca")
