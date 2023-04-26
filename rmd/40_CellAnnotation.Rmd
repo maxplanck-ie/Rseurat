@@ -36,7 +36,7 @@ library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70),eval=FALSE) 
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
 ```
 
 ```{r loadLibs,warning=FALSE,message=FALSE}
@@ -53,16 +53,30 @@ library(scran)
 
 
 ```{r ref_data}
-#pbmc_ref<-readRDS("pbmc_sorted_norm.rds")
-#pbmc_ref_meta<-readRDS("pbmc_sorted_meta.rds")
-#pbmc_ref_sce<-SingleCellExperiment(list(counts=pbmc_ref),colData=DataFrame(label=pbmc_ref_meta$id_extract))
+#pbmc_ref<-readRDS("/data/manke/processing/sikora/Rseurat_wdir/pbmc_sorted_norm.rds")
+#pbmc_ref_meta<-readRDS("/data/manke/processing/sikora/Rseurat_wdir/pbmc_sorted_meta.rds")
+#pbmc_ref_meta<-as.data.frame(pbmc_ref_meta)
+#pbmc_ref_meta$id_extract<-as.character(pbmc_ref_meta$id_extract)
+#downsample input data
+#set.seed(123)
+#sample_cells<-sample(colnames(pbmc_ref),size=3000,replace=FALSE)
+#pbmc_ref_sub<-pbmc_ref[,sample_cells]
+#pbmc_ref_meta_sub<-pbmc_ref_meta[sample_cells,,drop=FALSE]
+#all.equal(colnames(pbmc_ref_sub),rownames(pbmc_ref_meta_sub))
+#pbmc_ref<-pbmc_ref_sub
+#pbmc_ref_meta<-pbmc_ref_meta_sub
+#table(pbmc_ref_meta$id_extract)
+#sel<-c("B cells","CD4 T cells","CD8 T cells","Dendritic cells")
+#sel2<-rownames(pbmc_ref_meta)[pbmc_ref_meta$id_extract %in% sel]
+#pbmc_ref_sce<-SingleCellExperiment(list(counts=pbmc_ref[,sel2]),colData=DataFrame(label=pbmc_ref_meta[sel2,"id_extract"]))
 #pbmc_ref_sce<-logNormCounts(pbmc_ref_sce)
-#saveRDS(pbmc_ref_sce,"pbmc_ref_sce.RDS")
+#saveRDS(pbmc_ref_sce,"pbmc_ref_sce_sel.RDS")
 
 #download preprocessed file
-#if (!file.exists("datasets/preprocessed_rds/pbmc_ref_sce.RDS")){
-#utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref_sce.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref_sce.RDS",method="wget")}
+if (!file.exists("datasets/preprocessed_rds/pbmc_ref_sce.RDS")){
+utils::download.file("https://zenodo.org/record/7866848/files/pbmc_ref_sce_sel.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref_sce.sel.RDS",method="wget")}
 #pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
+#pbmc_ref_sce<-readRDS("pbmc_ref_sce_sel.RDS")
 ```
 
 ## Load query dataset.
@@ -71,6 +85,11 @@ library(scran)
 library(SeuratData)
 data("pbmc3k")
 pbmc<-pbmc3k.final
+table(pbmc$seurat_annotations)
+sel<-c("Naive CD4 T","Memory CD4 T","B","CD8 T","DC")
+pbmc_sub<-subset(pbmc,subset = seurat_annotations == sel)
+pbmc<-pbmc_sub
+table(pbmc$seurat_annotations)
 sce <- as.SingleCellExperiment(DietSeurat(pbmc))
 ```
 ## SingleR : theory
@@ -92,14 +111,14 @@ For use with scRNAseq reference, set de.method to wilcox or t. This marker detec
 
 ```{r process_ref_sce}
 #set seed for the aggregation to be reproducible
-#set.seed(123)
-#ref.labels <- SingleR(test = sce,assay.type.test = "logcounts",ref = pbmc_ref_sce,labels = pbmc_ref_sce$label,aggr.ref=TRUE,de.method="wilcox")
+set.seed(123)
+ref.labels <- SingleR(test = sce,assay.type.test = "logcounts",ref = pbmc_ref_sce,labels = pbmc_ref_sce$label,aggr.ref=TRUE,de.method="wilcox")
 #saveRDS(ref.labels,"ref.labels.RDS")
 
 #download labels:
 #if (!file.exists("datasets/preprocessed_rds/ref.labels.RDS")){
 #utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="wget")}
-ref.labels<-readRDS("datasets/preprocessed_rds/ref.labels.RDS")
+#ref.labels<-readRDS("datasets/preprocessed_rds/ref.labels.RDS")
 ```
 
 ## Tabulate reference labels
@@ -165,25 +184,28 @@ While we initially identify anchors in low-dimensional space, we also filter out
 ```{r process_ref_seurat}
 #pbmc_ref.seurat <- as.Seurat(as(pbmc_ref_sce,"SingleCellExperiment"), counts = "counts", data = "logcounts")
 #pbmc_ref.seurat <- ScaleData(pbmc_ref.seurat, verbose = FALSE)
-#pbmc_ref.seurat <- RunPCA(pbmc_ref.seurat, npcs = 30, verbose = FALSE)
 #pbmc_ref.seurat <- FindVariableFeatures(pbmc_ref.seurat)
-#saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.RDS")
+#pbmc_ref.seurat <- RunPCA(pbmc_ref.seurat, npcs = 30, verbose = FALSE)
+#saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.sel.RDS")
 
 #dowload preprocessed dataset
-#if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
-#utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
-pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
-pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=1000)
-pbmc_ref.seurat_sub_diet<-DietSeurat(pbmc_ref.seurat_sub,counts=FALSE,scale.data=FALSE,dimreducs="pca")
+if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
+utils::download.file("https://zenodo.org/record/7866848/files/pbmc_ref.seurat.sel.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.sel.RDS",method="wget")}
+#pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")
+#pbmc_ref.seurat<-readRDS("pbmc_ref.seurat.sel.RDS")
+#pbmc_ref.seurat_sub<-subset(pbmc_ref.seurat,downsample=1000)
+pbmc_ref.seurat_sub_diet<-DietSeurat(pbmc_ref.seurat,counts=FALSE,scale.data=FALSE,dimreducs="pca")
 ```
 
 ## Seurat Integration: transfer labels
 
 ```{r transfer_data}
-pbmc_sub<-subset(pbmc,downsample=1000)
-pbmc_diet<-DietSeurat(pbmc_sub,counts=FALSE,scale.data=FALSE,dimreducs="pca")
-p1<-profmem({
-pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat_sub_diet, query = pbmc_diet, dims = 1:30,reduction="cca")}) #>19Gb
+#library(profmem)
+#pbmc_sub<-subset(pbmc,downsample=1000)
+pbmc_diet<-DietSeurat(pbmc,counts=FALSE,scale.data=FALSE,dimreducs="pca")
+#p1<-profmem({
+pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat_sub_diet, query = pbmc_diet, dims = 1:30,reduction="cca")
+#}) #>19Gb
 #reference.reduction = "pca",reduction="pcaproject"#>19Gb; retained 4 anchors
 #reduction="cca" > 7Gb, retained 2331 anchors
 
