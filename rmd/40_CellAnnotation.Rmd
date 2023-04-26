@@ -75,7 +75,7 @@ library(scran)
 #download preprocessed file
 if (!file.exists("datasets/preprocessed_rds/pbmc_ref_sce.RDS")){
 utils::download.file("https://zenodo.org/record/7866848/files/pbmc_ref_sce_sel.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref_sce.sel.RDS",method="wget")}
-#pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.RDS")
+pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.sel.RDS")
 #pbmc_ref_sce<-readRDS("pbmc_ref_sce_sel.RDS")
 ```
 
