@@ -209,7 +209,7 @@ pbmc.anchors <- FindTransferAnchors(reference = pbmc_ref.seurat_sub_diet, query 
 #reference.reduction = "pca",reduction="pcaproject"#>19Gb; retained 4 anchors
 #reduction="cca" > 7Gb, retained 2331 anchors
 
-predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat_sub_diet$label,dims = 1:30)
+predictions <- TransferData(anchorset = pbmc.anchors, refdata = pbmc_ref.seurat_sub_diet$label,dims = 1:30,weight.reduction="cca")
 pbmc<-pbmc_diet
 pbmc <- AddMetaData(pbmc, metadata = predictions)
 ```
