@@ -73,7 +73,7 @@ library(scran)
 #saveRDS(pbmc_ref_sce,"pbmc_ref_sce_sel.RDS")
 
 #download preprocessed file
-if (!file.exists("datasets/preprocessed_rds/pbmc_ref_sce.RDS")){
+if (!file.exists("datasets/preprocessed_rds/pbmc_ref_sce.sel.RDS")){
 utils::download.file("https://zenodo.org/record/7866848/files/pbmc_ref_sce_sel.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref_sce.sel.RDS",method="wget")}
 pbmc_ref_sce<-readRDS("datasets/preprocessed_rds/pbmc_ref_sce.sel.RDS")
 #pbmc_ref_sce<-readRDS("pbmc_ref_sce_sel.RDS")
@@ -189,7 +189,7 @@ While we initially identify anchors in low-dimensional space, we also filter out
 #saveRDS(pbmc_ref.seurat,"pbmc_ref.seurat.sel.RDS")
 
 #dowload preprocessed dataset
-if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
+if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.sel.RDS")){
 utils::download.file("https://zenodo.org/record/7866848/files/pbmc_ref.seurat.sel.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.sel.RDS",method="wget")}
 pbmc_ref.seurat<-readRDS("datasets/preprocessed_rds/pbmc_ref.seurat.sel.RDS")
 #pbmc_ref.seurat<-readRDS("pbmc_ref.seurat.sel.RDS")
