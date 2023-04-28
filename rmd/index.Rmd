@@ -15,6 +15,25 @@ output:
 > developed and maintained by the Satija lab and is released under the MIT
 > license.
 
+### Outlook
+
+- Sequencing Protocols Overview
+- Import 10X Chromium Data
+- Quality Control for scRNAseq
+- Making sense out of gene lists
+- Running Seurat on multiple cores
+- Working with RMarkdown as a Pipeline
+- Normalization, and Scaling Data
+- Dimensional Reduction Methodologies
+- Data Visualization Techniques
+- Clustering Cells with their Neighborhoods
+- Differential Expression Analysis
+- Identifying cells from UMAP manually
+- Batch Effects correction
+- Integration of multiple datasets
+- Querying Cell Identities
+
+
 ### Requirements
 
 * **R-language**: has been covered by our introductory
