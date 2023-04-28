@@ -7,29 +7,33 @@ output: html_document
 ```{r setup}
 knitr::opts_chunk$set(eval=FALSE)
 ```
+# Preparation
 
-We are going to install [Seurat](https://satijalab.org/seurat/). Be sure to check out their [vignettes](https://satijalab.org/seurat/articles/)!
+In this notebook we detail the necessary preparation steps to get both software packages and example data for the course.
+Make sure you allow for 30-60 min to complete the steps below.
+The exact time will depend on network performance and previously installation.
 
-First, ensure you're running R `4.1.3`.
+> Important Points:
+>
+- ensure you're running R `4.1.3`.
+- run the following code blocks manually and watch out for possible errors
+- if asked to update packages, answer 'none'
+- installation may take some time, but only needs to be run **once**
 
-The next code block only needs to be run **once**. If asked to update packages, answer 'none'. We take care of it later.
 
-```{r}
+## Install Bioconductor
+
+Similar to CRAN, Bioconductor is a large repository of software packages.
+The BiocManager will facilitate installation of Bioconductor packages.
+
+The following cell installs BiocManager (from CRAN) and a specific version of Bioconductor `3.14` which is linked to the R-version
+```{r install_bioc}
 installed_pkgs <- installed.packages()
 
-if (! "markdown" %in% installed_pkgs) install.packages("markdown") 
-
-if (! "remotes" %in% installed_pkgs) install.packages("remotes") 
-
 if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-```
 
-With `BiocManager`, we can install Bioconductor `3.14`.
-
-```{r}
 BiocManager::install(version='3.14')
 ```
-
 > You can ignore the message:
 > 
 > ```
@@ -44,23 +48,12 @@ BiocManager::install(version='3.14')
 >     spatial, survival
 > ```
 
-R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Before proceeding with the installation of other packages, let's get a dataset:
 
-```{r}
-if (! "SeuratData" %in% installed_pkgs) remotes::install_github('satijalab/seurat-data')
-if (! "ifnb.SeuratData" %in% installed_pkgs) SeuratData::InstallData("infb")
-if (! "pbmc3k.SeuratData" %in% installed_pkgs) SeuratData::InstallData("pbmc3k")
-```
+## Install other packages
 
-We are going to use another package available on github:
+The next code block defines a fucntion `my_load_namespaces()` that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
 
-```{r}
-if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
-```
-
-The next code block defines `my_load_namespaces` function that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
-
-```{r}
+```{r my_load_namespaces}
 my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
   
   installed_pkgs <- installed.packages()
@@ -78,14 +71,22 @@ my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
 }
 ```
 
-Let's use it! The whole process is going to take a couple of minutes...
 
-```{r}
+
+Below we will use the above function to install [Seurat](https://satijalab.org/seurat/) as well as many other tools and dependencies that we will need throughout the course. 
+
+Depending on how many packages you had already installed before, the whole process may take 10-15 minutes...
+
+This is why we ask you to do so before the course.
+
+```{r load_packages}
 my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future","glmGamPoi"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "remotes", "bookdown")
+  packagesToLoad = c("Seurat", "tidyverse", "openxlsx", "RColorBrewer", "patchwork", "future","glmGamPoi"),
+  coreLibraries = c("markdown", "remotes", "knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "remotes", "bookdown")
 )
 ```
+
+**Warning**: You may have to repeat this code block !!!
 
 Sometimes, there are errors while installing packages in bulk that are easily solved by re-iterating the command. These error messages are difficult to track, since we get so much output from the ongoing process in bulk, and also because of all the dependencies. This is specially true for first-comers, because their library of packages is empty. Anyhow, just re-run the previous code block 2-3 times until its only output is: `TRUE`.
 
@@ -97,11 +98,39 @@ stopifnot(BiocManager::valid())
 
 If the above code block fails, is because according to BiocManager our current state is not valid (so, it didn't return `TRUE` to `stopifnot`). To correct this, you should run the `BiocManager::install()` command as it's stated by `BiocManager::valid()`.
 
+Some useful packages are neither in CRAN nor Bioconductor, but we may install them from github
 
-# Download preprocessed datasets from zenodo
+```{r}
+if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
+```
+
+
+
+## Download Datasets
+
+
+### As packages
+
+
+
 
 For the later part of the course, we have preprocessed a couple of large datasets and would like you to download them from zenodo:
+R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Before proceeding with the installation of other packages, let's get a dataset:
 
+```{r}
+if (! "SeuratData" %in% installed_pkgs) remotes::install_github('satijalab/seurat-data')
+if (! "ifnb.SeuratData" %in% installed_pkgs) SeuratData::InstallData("ifnb")
+if (! "pbmc3k.SeuratData" %in% installed_pkgs) SeuratData::InstallData("pbmc3k")
+```
+
+#### From zenodo
+
+Depending on your bandwidth, the following downloads may take 15-30 min.
+For those using our Rstudio server we also provide the datasets at
+
+> /scratch/local/rseurat/datasets
+
+You might want to `softlink` this folder to your respective work directory.
 ```{r zenodo}
 if (!file.exists("datasets/preprocessed_rds/panc_sub.RDS")){
 utils::download.file("https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub.RDS",method="wget")}
