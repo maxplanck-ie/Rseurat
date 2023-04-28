@@ -140,3 +140,10 @@ if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
 utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="wget")}
 
 ```
+
+
+**Task**:  Obtain the results of sessionInfo() and check that all expected packages are available.
+
+```{r sessionInfo}
+sessionInfo()
+```

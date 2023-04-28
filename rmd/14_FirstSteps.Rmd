@@ -36,7 +36,7 @@ params:
 
 <!-- https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html -->
 
-# Setup
+## Setup
 
 ```{r}
 timestamp()
@@ -91,7 +91,7 @@ myFlappy <- function(x, ...) {
 }
 ```
 
-## Load Data
+# Load Data
 
 ```{r}
 dataSourceURL <- "https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz"
@@ -107,20 +107,27 @@ The values in the **count matrix** represent the number of molecules for each fe
 pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
+
+**Polls**: How many genes and cells does this data set have?
+
 Lets examine a few genes in the first thirty cells:
 
 ```{r}
 pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
 ```
+**Poll**: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"
 
-Initialize the Seurat object with the raw (non-normalized data):
+
+# Create Seurat Object
+Initialize the Seurat object with the raw count data (and some filtering)
 
 ```{r}
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
 ```
+**Poll**: What is the dimensionalty of pbmc.data and pbmc?
 
-The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
+The `SeuratObject` serves as a container that will contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively. The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values. On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay object(s) via various dimensional reduction techniques such as PCA. For class-specific details, including more in depth description of the slots, please see the wiki sections for each class:
 
@@ -137,7 +144,8 @@ At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc
   - [Object Information](https://github.com/satijalab/seurat/wiki/DimReduc#object-information)
   - [Data Access](https://github.com/satijalab/seurat/wiki/DimReduc#data-access)
 
-### NOTE
+
+## Multiple Experiments (optional?)
 
 It's possible to load cells from multiple experiments (e.g. KO, WT) into separate variables, create multiple `SeuratObject` and then merge them. Here's an exemplary data preparation R script. The final instruction saves your file in a binary/ serialized format so that you only need to go through these steps once.
 
@@ -184,6 +192,7 @@ saveRDS(myData, file = file.path(getwd(), "resources/raw_data/myData.rds"))
 
 This way, `orig.ident` will be set accordingly. We'll need to come back to this later... for now, let's keep it simple and work with only one level. The pipeline would stay the same at its core, with some extra steps (e.g. batch effects correction, we'll see these on the second half of the course).
 
+
 # Quality Control
 
 A few QC metrics commonly used, include:
@@ -210,6 +219,7 @@ The `[[` operator can add columns to object metadata. This is a great place to s
 
 ```{r}
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+head(pbmc@meta.data, 5)
 ```
 
 `PercentageFeatureSet()` function calculates the percentage of counts originating from a set of features.
@@ -220,9 +230,9 @@ Let's visualize these broad metrics now as Violin plots.:
 VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
 
-The `VlnPlot()` function allows to see the probability density function, along with the actual values, for any variable.
+The `VlnPlot()` function plots the probability density function for all specified variables (features).
 
-`FeatureScatter()` is typically used to visualize feature-feature relationships, but can be used for anything calculated at the object, i.e. columns in object metadata, PC scores etc.
+`FeatureScatter()` is typically used to visualize relationships between features, but can be used for anything calculated at the object, i.e. columns in object metadata, PC scores etc.
 
 ```{r}
 plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt")
@@ -254,59 +264,63 @@ pbmc %<>% CellCycleScoring(s.features = standardize.gene.name(cc.genes$s.genes, 
 pbmc$CC.Difference <- pbmc$S.Score - pbmc$G2M.Score
 `` -->
 
+# Filtering and Transformation
 
-## Filter
+## Cell Selection (subset)
 
-We'll filter cells that have:
+Based on the cell-specific features we can subset the cells even further.
 
-- Unique feature counts over 2500 or below 200.
-- >5% mitochondrial counts.
+**Task**: Using the SeuratObject::subset() command, filter out cells
+with less than 200 or more than 2500 counts, and more than 5% mitochondrial counts (Why?)
 
-```{r}
-pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+
+```{r subset, echo=FALSE}
+pbmc <- subset(pbmc, subset = nFeature_RNA >= 200 & nFeature_RNA <= 2500 & percent.mt <= 5)
 ```
 
 Note that the `subset()` function we just used is not the same than in base R!
 
-We started with 2700 cells. POLL: What's the current number of cells? 2583, 2638, 2385?
+**Poll:** What's the number of cells after filtering? (2583, 2638, 2385)?
 
-# Normalization
+
+## Normalization
 
 After removing unwanted cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10000 by default), and log-transforms the result. Normalized values are stored in `pbmc[["RNA"]]@data`.
 
-```{r}
+```{r normalizedata}
 pbmc <- NormalizeData(pbmc)
 ```
 
-## Feature Selection
 
-Next, we look at a subset of features that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). To identify highly variable features, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function.
+## Gene Selection (Feature Selection)
 
-By default, it uses the "vst" methodology with 2000 features per dataset. First, fits a line to the relationship of log(variance) and log(mean) using local polynomial regression (loess). Then standardizes the feature values using the observed mean and expected variance (given by the fitted line). Feature variance is then calculated on the standardized values after clipping to a maximum (by default, square root of the number of cells). These will be used downstream in dimensional reductions like PCA. 
+Next, we look at a subset of genes that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). To identify highly variable genes, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function.
+
+By default, it uses the `vst` methodology with 2000 features per dataset. First, fits a line to the relationship of log(variance) and log(mean) using local polynomial regression (loess). Then standardizes the feature values using the observed mean and expected variance (given by the fitted line). Feature variance is then calculated on the standardized values after clipping to a maximum (by default, square root of the number of cells). These will be used downstream in dimensional reductions like PCA. 
 
 <!--Some relevant publications for Feature selection and its importance are: [[1](https://www.nature.com/articles/nmeth.2645)], and [[2](https://doi.org/10.1016/j.cell.2019.05.031)].-->
 
-```{r}
+```{r findvariablefeatures}
 pbmc <- FindVariableFeatures(pbmc)
 ```
 
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
 
-Identify the 10 most highly variable genes:
+**Task**: Extract the 10 most highly variable genes using the function VariableFeatures()
 
-```{r}
-(top10 <- head(VariableFeatures(pbmc), 10))
+```{r top10, echo=FALSE}
+(top10 <- VariableFeatures(pbmc) %>% head(10) )
 ```
 
 Plot variable features
 
-```{r}
+```{r plot1}
 (plot1 <- VariableFeaturePlot(pbmc))
 ```
 
 Now with labels:
 
-```{r}
+```{r plot2}
 (plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE))
 ```
 
@@ -355,7 +369,7 @@ DimHeatmap(pbmc, dims = 1:9, cells = 500, balanced = TRUE)
 
 To overcome the extensive technical noise in any single feature for scRNA-seq data, Seurat clusters cells based on their PCA scores, with each PC essentially representing a 'metafeature' that combines information across a correlated feature set. The top principal components therefore represent a robust compression of the dataset.
 
-POLL: How many components should we choose to include? 10? 20? 100?
+**Poll:** How many components should we choose to include? 10? 20? 100?
 
 One quick way to determine the 'dimensionality' of the dataset is by eyeballing how the percentage of variance explained decreases:
 
@@ -409,7 +423,7 @@ knitr::include_graphics("./images/jaccard.svg")
 
 All the process described before is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
-POLL: Machine learning algorithms have parameters and hyperparameters, Deep Learning Large Language Models have them in the order of billions, this one only has one: `K`. Can you find which is the default value that Seurat uses? 10? 20? 30?... Hint: `help` yourselves by reading the docs!
+**Poll:** Machine learning algorithms have parameters and hyperparameters, Deep Learning Large Language Models have them in the order of billions, this one only has one: `K`. Can you find which is the default value that Seurat uses? 10? 20? 30?... Hint: `help` yourselves by reading the docs!
 
 ```{r}
 pbmc <- FindNeighbors(pbmc, dims = 1:10)
@@ -429,11 +443,11 @@ The clusters can be found using the `Idents()` function. Here, for example we ca
 head(Idents(pbmc), 5)
 ```
 
-POLL: How many clusters did we find?
+**Poll**: How many clusters did we find?
 
 NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html)
 
-# EXERCISES
+# Exercises
 
 > These are **not mandatory**, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills.
 
