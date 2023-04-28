@@ -119,11 +119,6 @@ if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
 
 For the later part of the course, we have preprocessed a couple of large datasets and would like you to download them from zenodo:
 
-```{r zenodo}
-if (!file.exists("datasets/preprocessed_rds/panc_sub.RDS")){
-utils::download.file("https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub.RDS",method="auto")}
-if (!file.exists("datasets/preprocessed_rds/ref.labels.RDS")){
-utils::download.file("https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1",destfile="datasets/preprocessed_rds/ref.labels.RDS",method="auto")}
-if (!file.exists("datasets/preprocessed_rds/pbmc_ref.seurat.RDS")){
-utils::download.file("https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1",destfile="datasets/preprocessed_rds/pbmc_ref.seurat.RDS",method="auto")}
-```
+1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1)
+1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1)
+1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1)
