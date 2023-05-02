@@ -31,6 +31,7 @@ output:
 - Identifying cells from UMAP manually
 - Batch Effects correction
 - Integration of multiple datasets
+- Alternative Normalization and Scaling
 - Querying Cell Identities
 
 
