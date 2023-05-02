@@ -92,7 +92,7 @@ Let's use it. We are going to install [Seurat](https://satijalab.org/seurat/) as
 
 ```{r}
 my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future","glmGamPoi"),
+  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future", "glmGamPoi"),
   coreLibraries = c("knitr", "RCurl", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "Nebulosa", "bookdown"),
   installed_pkgs = installed_pkgs
 )
@@ -144,3 +144,7 @@ For the later part of the course, we have preprocessed a couple of large dataset
 1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1)
 
 Depending on your bandwidth, the downloads may take 15-30 minutes.
+
+# Working Directory
+
+Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip). Put it in a folder, any folder but outside the `/home` partition!
