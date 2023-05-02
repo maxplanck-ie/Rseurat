@@ -76,8 +76,6 @@ my_load_namespaces(
 ```
 
 ```{r}
-if (interactive()) stopifnot(suppressMessages(BiocManager::valid()))
-
 set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE, format=TRUE)
 
@@ -93,19 +91,17 @@ myFlappy <- function(x, ...) {
 
 ## Load Data
 
-```{r}
-dataSourceURL <- "https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz"
-```
+We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. There are around 3 thousand single cells that were sequenced on the Illumina NextSeq 500. The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
 
-We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. There are 2,700 single cells that were sequenced on the Illumina NextSeq 500. The raw data can be found here: `r dataSourceURL`.
-
-For further details on the primary analysis pipeline, see [here](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger).
+For further details on the primary analysis pipeline that gives you the count data, please head over to [cellranger website](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger).
 
 The values in the **count matrix** represent the number of molecules for each feature (i.e. gene; row) that are detected in each cell (column).
 
 ```{r}
 pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
+
+POLL: How many genes and cells does this dataset have?
 
 Lets examine a few genes in the first thirty cells:
 
@@ -120,7 +116,11 @@ pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3
 pbmc
 ```
 
+The `min.cells` and `min.features` arguments are low-strigency filters. We are only loading cells with at least 200 genes detected, and we are only including those genes (features) that were detected in at least 3 cells. With these filters in this particular dataset, we are only reducing the number of genes from `33` to `14` thousands.
+
 The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
+
+POLL: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? <!-- Hint: subset the sparse matrix in pbmc@assays$RNA -->
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively. The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values. On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay object(s) via various dimensional reduction techniques such as PCA. For class-specific details, including more in depth description of the slots, please see the wiki sections for each class:
 
@@ -137,7 +137,7 @@ At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc
   - [Object Information](https://github.com/satijalab/seurat/wiki/DimReduc#object-information)
   - [Data Access](https://github.com/satijalab/seurat/wiki/DimReduc#data-access)
 
-### NOTE
+### Working with Multiple Experiments
 
 It's possible to load cells from multiple experiments (e.g. KO, WT) into separate variables, create multiple `SeuratObject` and then merge them. Here's an exemplary data preparation R script. The final instruction saves your file in a binary/ serialized format so that you only need to go through these steps once.
 
@@ -220,9 +220,9 @@ Let's visualize these broad metrics now as Violin plots.:
 VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
 
-The `VlnPlot()` function allows to see the probability density function, along with the actual values, for any variable.
+The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-`FeatureScatter()` is typically used to visualize feature-feature relationships, but can be used for anything calculated at the object, i.e. columns in object metadata, PC scores etc.
+`FeatureScatter()` is typically used to visualize relationships between features, but can be used for anything calculated at the object, i.e. columns in object metadata, PC scores etc.
 
 ```{r}
 plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt")
@@ -255,20 +255,26 @@ pbmc$CC.Difference <- pbmc$S.Score - pbmc$G2M.Score
 `` -->
 
 
-## Filter
+# Filtering and Transformation
 
-We'll filter cells that have:
+## Select Cells
+
+Based on cell-specific features we can subset our `SeuratObject` to keep only the 'cells' in good state. In this case, based on the previous Violin plots, we'll use the following criteria:
 
 - Unique feature counts over 2500 or below 200.
 - >5% mitochondrial counts.
 
-```{r}
+POLL: Which function, also present in base-R and/ or dplyr, would you use: select, filter, or subset?
+
+POLL: What's the current number of cells after this step? 2583, 2638, 2385?
+
+<!-- DON'T READ THE ANSWER -->
+
+```{r, echo=FALSE}
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 ```
 
-Note that the `subset()` function we just used is not the same than in base R!
-
-We started with 2700 cells. POLL: What's the current number of cells? 2583, 2638, 2385?
+<!-- DON'T READ THE ANSWER -->
 
 # Normalization
 
@@ -280,9 +286,9 @@ pbmc <- NormalizeData(pbmc)
 
 ## Feature Selection
 
-Next, we look at a subset of features that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). To identify highly variable features, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function.
+Next, we look at a subset of features (genes) that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). To identify highly variable features, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function.
 
-By default, it uses the "vst" methodology with 2000 features per dataset. First, fits a line to the relationship of log(variance) and log(mean) using local polynomial regression (loess). Then standardizes the feature values using the observed mean and expected variance (given by the fitted line). Feature variance is then calculated on the standardized values after clipping to a maximum (by default, square root of the number of cells). These will be used downstream in dimensional reductions like PCA. 
+By default, it uses the `vst` methodology with 2000 features per dataset. First, fits a line to the relationship of `log(variance)` and `log(mean)` using local polynomial regression (`loess`). Then standardizes the feature values using the observed mean and expected variance (given by the fitted line). Feature variance is then calculated on the standardized values after clipping to a maximum (by default, square root of the number of cells). These will be used downstream in dimensional reductions like PCA. 
 
 <!--Some relevant publications for Feature selection and its importance are: [[1](https://www.nature.com/articles/nmeth.2645)], and [[2](https://doi.org/10.1016/j.cell.2019.05.031)].-->
 
@@ -292,11 +298,15 @@ pbmc <- FindVariableFeatures(pbmc)
 
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
 
-Identify the 10 most highly variable genes:
+POLL: Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
 
-```{r}
-(top10 <- head(VariableFeatures(pbmc), 10))
+<!-- DON'T READ THE ANSWER -->
+
+```{r, echo=FALSE}
+(top10 <- VariableFeatures(pbmc) %>% head(10))
 ```
+
+<!-- DON'T READ THE ANSWER -->
 
 Plot variable features
 
