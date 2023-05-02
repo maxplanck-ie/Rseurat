@@ -8,15 +8,25 @@ output: html_document
 knitr::opts_chunk$set(eval=FALSE, format=TRUE, echo=FALSE)
 ```
 
-We are going to install [Seurat](https://satijalab.org/seurat/). Be sure to check out their [vignettes](https://satijalab.org/seurat/articles/)!
+PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get done with it.
 
-First, ensure you're running R `4.1.3`.
+Make sure you allow for 30-60 minutes to complete all the steps. The exact time will depend on network performance, and the current state of your package library (e.g., previous packages installed).
+
+Thanks for taking the time to do this before the course!
+
+> **Important**
+> - Ensure you're running R `4.1.3`.
+> - Run the blocks manually.
+> - If asked to compile packages, answer 'no'.
+> - Watch out for possible errors. It woud be wise to keep an eye on the text output at all time.
+> - To emphasize the last item, let's rephrase it: shouldn't be a surprise if you have a compilation error message in the middle of the whole text output.
+> - If asked to update packages, answer 'none'. We'll take care of package updates near the end.
+> - All code blocks may be executed more than once, if the packages are installed, there's no increase in the total duration of this whole process. So, do run them a couple of times before moving forward to the next block.
+> - If you see errors, re-run the code block again.
 
 # Main Packages
 
-The next code block only needs to be run **once**. If asked to update packages, answer `none`. We'll take care of it later.
-
-```{r}
+```{r mainpkgs}
 installed_pkgs <- installed.packages()
 
 if (! "tidyverse" %in% installed_pkgs) install.packages("tidyverse")
@@ -28,13 +38,11 @@ if (! "remotes" %in% installed_pkgs) install.packages("remotes")
 if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
 ```
 
-If you see errors, re-run the code block again. Actually, notice the conditionals, you may re-run this code block as many times as you would like, until no package installation is run by it. The same principle applies to all further code blocks.
-
 # Bioconductor
 
-With `BiocManager`, we can install Bioconductor `3.14`. If you are using R 4.2 or 4.3, then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version.
+With `BiocManager`, we can install Bioconductor `3.14`. If you are using R 4.2 or 4.3, then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version. If you really need it, you may use bioconductor `3.16`, but these lectures were only tested with the versions we are recommending (4.1.3 & 3.14).
 
-```{r}
+```{r bioc314}
 BiocManager::install(version='3.14')
 ```
 
@@ -54,9 +62,9 @@ BiocManager::install(version='3.14')
 
 # Core & Dependencies
 
-The next code block defines `my_load_namespaces` function that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
+The next code block defines a function, `my_load_namespaces()`, that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
 
-```{r}
+```{r my_load_namespaces}
 my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c(), installed_pkgs=installed_pkgs) {
   
   if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
@@ -72,7 +80,7 @@ my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c(), installed_
 }
 ```
 
-Let's use it! The whole process is going to take a couple of minutes...
+Let's use it. We are going to install [Seurat](https://satijalab.org/seurat/) as well as many other tools and dependencies that we will need throughout this course. The whole process is going to take 10-15 minutes... and, most probably, more than just one single execution.
 
 ```{r}
 my_load_namespaces(
@@ -108,7 +116,7 @@ if (! "ifnb.SeuratData" %in% installed_pkgs) SeuratData::InstallData("ifnb")
 if (! "pbmc3k.SeuratData" %in% installed_pkgs) SeuratData::InstallData("pbmc3k")
 ```
 
-We are going to use another package available on github:
+We are going to use another package that is only available on GitHub and not on Bioconductor or CRAN repos:
 
 ```{r}
 if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
@@ -117,8 +125,14 @@ if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
 
 ## Download preprocessed datasets from zenodo
 
-For the later part of the course, we have preprocessed a couple of large datasets and would like you to download them from zenodo:
+For the later part of the course, we have preprocessed a couple of large datasets. Depending on where you will be working, there are two alternative ways now...
+
+1: For those that will be using Workbench/ RStudio Server, the datasets will be already provided under `/scratch/local/rseurat/datasets`. You can have a symbolic link to this location, and skip the download.
+
+2: If you will be using RStudio from your laptop, then you may download from zenodo:
 
 1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1)
 1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1)
 1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1)
+
+Depending on your bandwidth, the downloads may take 15-30 minutes.
