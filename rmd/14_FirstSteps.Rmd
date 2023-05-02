@@ -367,27 +367,31 @@ Another one, is using the JackStraw procedure: We randomly permute a subset of t
 
 > Do you feel like you need a refresher on permutations? check this beautiful animation of permutations explained in the context of statistical testing (constructing a 'null distribution'): <https://www.jwilber.me/permutationtest/>
 
-```{r}
-# NOTE: This process can take a long time for big datasets,
-# There's nothing wrong with using ElbowPlot()!
+The next three code-block are skipped of evaluation because this process can take a long time for big datasets. Please note that there's nothing wrong with using `ElbowPlot()`!
+
+```{r, eval=FALSE}
 pbmc <- JackStraw(pbmc, num.replicate = 100)
 ```
 
-```{r}
+```{r, eval=FALSE}
 pbmc <- ScoreJackStraw(pbmc, dims = 1:15)
 ```
 
-```{r}
+```{r, eval=FALSE}
 JackStrawPlot(pbmc, dims = 1:15)
+```
+
+```{r, echo=FALSE}
+knitr::include_graphics("./images/jackstraw.png")
 ```
 
 Anything between 7-12 would be acceptable, and **it's better to err on the higher side**!
 
-```{r}
+```
 Ndim=10
 ```
 
-> EXERCISE: comment the `Ndim` code block, and convert this into a parameter of the current Rmarkdown document.
+> EXERCISE: Convert this `Ndim` into a parameter at the current Rmarkdown document YAML header, just like `Nthreads`.
 
 # Clustering
 
@@ -401,18 +405,21 @@ knitr::include_graphics("./images/KnnClassification.svg")
 
 The test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles. If k = 3 (solid line circle) it is assigned to the red triangles because there are 2 triangles and only 1 square inside the inner circle. If k = 5 (dashed line circle) it is assigned to the blue squares (3 squares vs. 2 triangles inside the outer circle).
 
-There's a drawback with the 'majority voting' scheme, the assignment of such clusters is biased towards the clusters that have greater number of members (especially when ties start appearing). For that reason, we'll refine the edge weights between any two cells based on the shared overlap in their local neighborhoods (Jaccard similarity). If two datasets share the exact same members, their Jaccard Similarity Index will be 1. Conversely, if they have no members in common then their similarity will be 0.
+There's a drawback with the 'majority voting' scheme, the assignment of such clusters is biased towards the clusters that have greater number of members (especially when ties start appearing). For that reason, we'll refine the process by using a graph, where edge weights between any two cells is based on the shared overlap in their local neighborhoods (Jaccard similarity).
 
 ```{r, echo=FALSE, fig.cap="Jaccard Index is calculated using the Union and the Intersection between sets."}
 knitr::include_graphics("./images/jaccard.svg")
 ```
 
-All the process described before is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
+**If two datasets share the exact same members, their Jaccard Similarity Index will be 1. Conversely, if they have no members in common then their similarity will be 0.**
+
+All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
 POLL: Machine learning algorithms have parameters and hyperparameters, Deep Learning Large Language Models have them in the order of billions, this one only has one: `K`. Can you find which is the default value that Seurat uses? 10? 20? 30?... Hint: `help` yourselves by reading the docs!
 
 ```{r}
-pbmc <- FindNeighbors(pbmc, dims = 1:10)
+Ndims=10
+pbmc <- FindNeighbors(pbmc, dims = seq_len(Ndims))
 ```
 
 We want to keep our clusters looking natural. That is, we want to have a modularity optimization on top of all. For that, we'll use the community search algorithm for graphs called Louvain. You can read more about it [here](https://scribe.froth.zone/louvain-algorithm-93fde589f58c?gi=8dce35ee2f75), or to read about it being applied to the biological problem at hand look into [this research paper](http://dx.doi.org/10.1088/1742-5468/2008/10/P10008).
@@ -442,7 +449,9 @@ NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat wil
 2. Did you just use a string to hardcode the path? How about adding the date inside the filename? E.g. `./RseuratCourseRootDir/config/Session_Tue_Mar__7_13-58-08_2023.log`... it would be cumbersome and error-prone to keep updating this each time!
 
 
-> Hint: `gsub(' ','_',gsub(':','-', date())` will get you the date in the format we just showed, using dashes and underscores for safety (POSIX principles?). Also, be sure to use `file.path()`, `getwd()`, `paste0()`, etc. to make it look fancy, and get around all the awkwardness and rough edges... e.g. Does `file.path` add or lack a trailing `/`? If we use `getwd` but this is run inside the notebook subfolder `./rmd/`, don't we need to append a `..`? Check the output of `getwd()` interactively and on the rendered markdown document (in fact, we added this command as the 2nd code block in this document just for this very reason :P)
+> Hint: `format(Sys.time(), '%d_%B__%H-%M-%S_%Y')` will get you the date in the format we just showed, using dashes and underscores for POSIX-compliance/ safety.
+> 
+> Extra points if you use `file.path()`, `getwd()`, `paste0()`, etc. to make it look fancy. WARNING: There are rough edges... e.g. Does `file.path` add, or lack, a trailing slash? `/`? If we use `getwd` but this is run inside the notebook subfolder `./rmd/`, don't we need to append a `..`? Check the output of `getwd()` interactively and on the rendered markdown document (in fact, we added this command as the 2nd code block in this document just for this very reason :P)
 
 3. Implement the definition of the remaining parameters (dimensionality of the dataset, and cluster resolution) in the YAML params R list object.
 
@@ -454,14 +463,14 @@ NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat wil
 > knit: (function(inputFile, encoding) {
 >   rmarkdown::render(inputFile, encoding = encoding,
 >   output_file = file.path(getwd(),
->   '../lectures', paste0(gsub(' ','_',gsub(':','-',
->   date())), '_results.html')))})
+>   '../lectures', paste0(format(Sys.time(),
+>   '%d_%B__%H-%M-%S_%Y')), '_results.html')))})
 > ```
 > 
 > NOTE: trailing slash in 'lectures' subfolder is implicit by the usage of multiple arguments within the call to `file.path()`...
 
 5. Implement a save function that writes your single `SeuratObject` to an RDS file, and name it with all the parameters in use.
 
-6. Confirm that you used the correct function (we asked for RDS file!), by reading the data into a new R session using the function `readRDS`.
+6. Confirm that you used the correct function (we asked for RDS file!), by reading the data into a new R session using the function `readRDS` and saving it in a variable with a new unused name. (You may remove variables with `rm()` if you want to keep the global environment tidy).
 
-7. Re-run this analysis with another set of parameters. See that files are not overwritten, and that you can track which RDS and HTML Report corresponds to; in each case.
+7. Re-run this analysis with another set of parameters. See that files are not overwritten, and that you can track which RDS, Session log, and HTML Report corresponds to each other; in each reiteration.
