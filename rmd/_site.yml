@@ -18,13 +18,13 @@ navbar:
         href: 12_Intro.html
       - text: First steps
         icon: fa-users
+      - text: Parallelization
+        icon: fa-clock-o
+        href: 13_FutureArrivedLongAgo.html
         href: 14_FirstSteps.html
       - text: Ontologies Enrichment
         icon: fa-arrows-alt
         href: 16_GSEA.html
-      - text: Parallelization
-        icon: fa-clock-o
-        href: 18_FutureArrivedLongAgo.html
       - text: Embeddings
         icon: fa-hand-spock-o
         href: 21_UMAP.html
