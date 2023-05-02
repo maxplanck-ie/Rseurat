@@ -6,7 +6,7 @@ output:
   bookdown::html_document2:
     theme: spacelab
     highlight: monochrome
-    code_folding: hide
+    code_folding: show
     toc: true
     toc_float: true
     toc_depth: 2
