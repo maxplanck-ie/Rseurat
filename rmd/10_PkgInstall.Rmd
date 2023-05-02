@@ -1,11 +1,19 @@
 ---
 title: "Package Installation"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+output:
+  bookdown::html_document2:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
 ---
 
 ```{r setup}
-knitr::opts_chunk$set(eval=FALSE, format=TRUE, echo=FALSE)
+knitr::opts_chunk$set(eval=FALSE, format=TRUE)
 ```
 
 PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get done with it.
