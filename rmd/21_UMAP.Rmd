@@ -75,8 +75,6 @@ my_load_namespaces(
 ```
 
 ```{r}
-if (interactive()) stopifnot(suppressMessages(BiocManager::valid()))
-
 set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE)
 
