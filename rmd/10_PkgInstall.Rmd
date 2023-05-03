@@ -113,7 +113,17 @@ retrieve_namespaces(
 )
 ```
 
-Sometimes, there are errors while installing packages in bulk that are easily solved by re-iterating the command. These error messages are difficult to track, since we get so much output from the ongoing process in bulk, and also because of all the dependencies. This is specially true for first-comers, because their library of packages is empty. Anyhow, just re-run the previous code block 2-3 times until its only output is: `TRUE`. It shouldn't come as a surprise if after many re-runs you needed to remove locks manually.
+Sometimes, there are errors while installing packages in bulk that are easily solved by re-iterating the command. These error messages are difficult to track, since we get so much output from the ongoing process. Installing 10-20 packages may look as a simple activity, but that's not the case when we consider all the dependencies between them.
+
+**Re-run the previous code block 2-3 times until its only output is: `TRUE`.**
+
+On workbench, after a couple of re-runs, we needed to remove locks manually, you may do so from your Terminal:
+
+```{bash, eval=FALSE}
+rm -rf /rstudio/${USER}/rstudio/R/workbench-library/4.1/00LOCK-*
+rm -rf /rstudio/${USER}/.rstudio/R/workbench-library/4.1/00LOCK-*
+```
+
 
 # Consistency
 
