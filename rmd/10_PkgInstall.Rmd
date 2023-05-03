@@ -157,11 +157,10 @@ if (! "kBET" %in% installed.packages()) remotes::install_github('theislab/kBET')
 
 For the later part of the course, we have preprocessed a couple of large datasets. Depending on where you will be working, there are two alternative ways now...
 
-1: For those that will be using Workbench/ RStudio Server, the datasets will be already provided under `/scratch/local/rseurat/datasets`. You can have a symbolic link to this location, and skip the download.
+1: For those that will be using Workbench/ RStudio Server, the datasets will be already provided under `/scratch/local/rseurat/datasets`. You can copy from this location, and skip the download.
 
 ```{bash, eval=FALSE}
-# NOT TESTED
-ln -s /scratch/local/rseurat/datasets/*.RDS /adjust_this_path/rmd/datasets/
+cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preprocessed_rds
 ```
 
 

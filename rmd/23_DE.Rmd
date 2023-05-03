@@ -59,6 +59,7 @@ cbind(params)
 
 ```{r}
 library(tidyverse)
+library(magrittr)
 library(openxlsx)
 library(Seurat)
 ```
@@ -318,7 +319,7 @@ For these functions, we need `totalNumberOfClusters` variable to be defined, let
 
 ```{r, fig.asp=0.1}
 totalNumberOfClusters <- length(levels(Idents(pbmc)))
-my_cols = brewer.pal(totalNumberOfClusters, "Set1")
+my_cols = RColorBrewer::brewer.pal(totalNumberOfClusters, "Set1")
 ggplot(data.frame(x=1:totalNumberOfClusters, type=1:totalNumberOfClusters), aes(x=x, fill=factor(type))) + geom_bar() + scale_fill_manual(values = my_cols) + theme_void() + NoLegend()
 ```
 
