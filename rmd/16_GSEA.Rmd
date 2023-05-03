@@ -82,21 +82,23 @@ The aim is to draw conclusions as to what's the functional implications that we 
 The PCA results are ready, let's make a dataframe with their first 9 components; and look at their first 20 rows:
 
 ```{r}
-pca <- as.data.frame(Loadings(pbmc[["pca"]])[,1:9])
+pca <- as.data.frame(Loadings(pbmc[["pca"]])[, 1:9])
 head(pca, 20)
 ```
 
 We'd want the top 50 genes from each component, let's just do it with the first component for now. In general, is easier to handle tasks in these modular form, and later expand to whole datasets.
 
 ```{r}
-gene.set.1 <- arrange(pca, -PC_1) %>% head(50) %>% rownames()
+gene.set.1 <- arrange(pca, -PC_1) %>%
+  head(50) %>%
+  rownames()
 ```
 
 
 EXERCISE: Wrap this into a function that takes 3 inputs: Seurat object with PCA already run, desired PC number (integer), and the quantity of  'top' gene names to extract. Such function should return a vector name of appropriate length with these gene names. Hint:
 
 ```{r,eval=FALSE}
-myWrap <- function(obj, pc_number="PC_1", gene_total=10) {
+myWrap <- function(obj, pc_number = "PC_1", gene_total = 10) {
   arrange(obj, desc(!!sym(pc_number))) %>%
     head(gene_total) %>%
     rownames()
@@ -121,9 +123,11 @@ all(result %in% gene.set.1)
 The package is already loaded. But we need to connect to the databases that we'll be using.
 
 ```{r}
-dbs <- c('GO_Biological_Process_2021',
-         'GO_Cellular_Component_2021',
-         'GO_Molecular_Function_2021')
+dbs <- c(
+  "GO_Biological_Process_2021",
+  "GO_Cellular_Component_2021",
+  "GO_Molecular_Function_2021"
+)
 ```
 
 
@@ -143,19 +147,23 @@ Instead of copying and pasting, and customizing each of the calls to `plotEnrich
 ```{r}
 retrieve_clean_title <- function(dbs, N) {
   # https://regexr.com/
-  gsub('^.{3}(.*).{5}$', '\\1', dbs[N])
+  gsub("^.{3}(.*).{5}$", "\\1", dbs[N])
 }
 
 filter_enrichment_results <- function(enriched, N) {
   enriched[[dbs[N]]] %>%
-    filter(Adjusted.P.value < 5e-2,
-    Odds.Ratio != 1) %>%
+    filter(
+      Adjusted.P.value < 5e-2,
+      Odds.Ratio != 1
+    ) %>%
     arrange(-Combined.Score)
 }
 
 enrichment_as_print_df <- function(enriched, N) {
-  df <- data.frame(filter_enrichment_results(enriched, N)[ ,
-                   c("Term", "Overlap", "Odds.Ratio", "Adjusted.P.value")])
+  df <- data.frame(filter_enrichment_results(enriched, N)[
+    ,
+    c("Term", "Overlap", "Odds.Ratio", "Adjusted.P.value")
+  ])
   row.names(df) <- df$Term
   df$Term <- NULL
   df
@@ -164,8 +172,10 @@ enrichment_as_print_df <- function(enriched, N) {
 my_plot_enrich <- function(enriched, dbs, N) {
   df <- filter_enrichment_results(enriched, N)
   if (dim(df)[1] > 0) {
-    plotEnrich(df, showTerms = 25, numChar = 75,
-               title = retrieve_clean_title(dbs, N))
+    plotEnrich(df,
+      showTerms = 25, numChar = 75,
+      title = retrieve_clean_title(dbs, N)
+    )
   } else {
     print("No pathway was enriched.")
   }

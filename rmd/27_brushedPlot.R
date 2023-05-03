@@ -25,10 +25,12 @@
 # brushData <- as.data.frame(myData@reductions$umap@cell.embeddings)
 # Remember to adjust xvar and yvar accordignly (UMAP_{1,2})...
 
-options(max.print=999)
+options(max.print = 999)
 
-brushData <- data.frame(nCount_RNA = seurat_data$nCount_RNA,
-                        nFeature_RNA = seurat_data$nFeature_RNA)
+brushData <- data.frame(
+  nCount_RNA = seurat_data$nCount_RNA,
+  nFeature_RNA = seurat_data$nFeature_RNA
+)
 
 ui <- shiny::basicPage(
   shiny::plotOutput("plot1", brush = "plot_brush"),
@@ -36,17 +38,19 @@ ui <- shiny::basicPage(
 )
 
 server <- function(input, output) {
-  
   output$plot1 <- shiny::renderPlot({
-    plot(brushData$nCount_RNA,
-         brushData$nFeature_RNA)
+    plot(
+      brushData$nCount_RNA,
+      brushData$nFeature_RNA
+    )
   })
-  
+
   output$info <- shiny::renderPrint({
     shiny::brushedPoints(brushData,
-                         input$plot_brush,
-                         xvar = "nCount_RNA",
-                         yvar = "nFeature_RNA")
+      input$plot_brush,
+      xvar = "nCount_RNA",
+      yvar = "nFeature_RNA"
+    )
   })
 }
 

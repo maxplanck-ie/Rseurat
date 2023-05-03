@@ -14,8 +14,8 @@ output:
 ---
 
 ```{r setup}
-knitr::opts_chunk$set(eval=FALSE, format=TRUE)
-options(warn=-1)
+knitr::opts_chunk$set(eval = FALSE, format = TRUE)
+options(warn = -1)
 ```
 
 PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get it done.
@@ -39,13 +39,13 @@ Thanks for taking the time to do this before the course!
 <Bioconductor.org> is a repository of bioinformatic packages, just like CRAN (which also has bioinformatic packages). The difference is that instead of GNU Public License, Bioc packages are under a license that allows commercial usage, widening its user-base (e.g. including private hospitals).
 
 ```{r BiocManager}
-if (! "BiocManager" %in% installed.packages()) install.packages("BiocManager")
+if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
 ```
 
 With `BiocManager`, we can install Bioconductor `3.14`. If you are using R 4.2 or 4.3, then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version. If you really need it, you may use bioconductor `3.16`, but these lectures were only tested with the versions we are recommending (4.1.3 & 3.14).
 
 ```{r bioc314}
-BiocManager::install(version='3.14')
+BiocManager::install(version = "3.14")
 ```
 
 > You can ignore the message:
@@ -68,12 +68,14 @@ The next code block defines a function, `retrieve_namespaces()`, that takes a ch
 
 ```{r retrieve_namespaces}
 retrieve_namespaces <- function(list_of_packages) {
-  lapply(list_of_packages,
-         function(x) {
-           if (!x %in% installed.packages()) {
-             BiocManager::install(x, ask = FALSE, update = FALSE)
-           }
-         })
+  lapply(
+    list_of_packages,
+    function(x) {
+      if (!x %in% installed.packages()) {
+        BiocManager::install(x, ask = FALSE, update = FALSE)
+      }
+    }
+  )
   TRUE
 }
 ```
@@ -146,15 +148,15 @@ Download all the course RMarkdown documents in a zip file from [the repository a
 R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
 
 ```{r}
-if (! "SeuratData" %in% installed.packages()) remotes::install_github('satijalab/seurat-data')
-if (! "ifnb.SeuratData" %in% installed.packages()) SeuratData::InstallData("ifnb")
-if (! "pbmc3k.SeuratData" %in% installed.packages()) SeuratData::InstallData("pbmc3k")
+if (!"SeuratData" %in% installed.packages()) remotes::install_github("satijalab/seurat-data")
+if (!"ifnb.SeuratData" %in% installed.packages()) SeuratData::InstallData("ifnb")
+if (!"pbmc3k.SeuratData" %in% installed.packages()) SeuratData::InstallData("pbmc3k")
 ```
 
 We are going to use another package that is only available on GitHub and not on Bioconductor or CRAN repos:
 
 ```{r}
-if (! "kBET" %in% installed.packages()) remotes::install_github('theislab/kBET')
+if (!"kBET" %in% installed.packages()) remotes::install_github("theislab/kBET")
 ```
 
 

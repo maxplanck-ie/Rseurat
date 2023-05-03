@@ -68,8 +68,10 @@ library(Seurat)
 set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-options(parallelly.fork.enable = params$fork,
-        future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
+options(
+  parallelly.fork.enable = params$fork,
+  future.globals.maxSize = params$Nmemgb * 1024^2 * 1000
+)
 
 plan("multicore", workers = params$Nthreads)
 
@@ -121,11 +123,13 @@ Seurat has different functions that do all Differential Expression (DE) tests fo
 Let's do a comparison between cells in clusters 1 (Naive CD4 T) and 2 (CD14+ Mono).
 
 ```{r}
-markers2v5 <- FindMarkers(object = pbmc,
-                          test.use = "MAST",
-                          ident.1 = "Naive CD4 T",
-                          ident.2 = "CD14+ Mono",
-                          verbose = FALSE)
+markers2v5 <- FindMarkers(
+  object = pbmc,
+  test.use = "MAST",
+  ident.1 = "Naive CD4 T",
+  ident.2 = "CD14+ Mono",
+  verbose = FALSE
+)
 ```
 
 The resulting object is a data frame with the following columns:
@@ -198,18 +202,18 @@ This functions are only to be used 'as is' (verbatim), if they serve your own pu
 Returns a vector of cell IDs after filtering seurat object with metadata. You'd need to adapt this to your needs in your own analyses, in this case we assumed 'treatment' meta.data is actually the `orig.ident`! ...we'll be using it in the next functions.
 
 ```{r}
-get_cell_ids <- function(obj, treatment=NULL, cluster=NULL, phase=NULL, group=NULL) {
+get_cell_ids <- function(obj, treatment = NULL, cluster = NULL, phase = NULL, group = NULL) {
   cell_ids <- colnames(obj)
-  if (! is.null(treatment)) {
+  if (!is.null(treatment)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, orig.ident == treatment)@meta.data))
   }
-  if (! is.null(group)) {
+  if (!is.null(group)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, groups == group)@meta.data))
   }
-  if (! is.null(phase)) {
+  if (!is.null(phase)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, Phase == phase)@meta.data))
   }
-  if (! is.null(cluster)) {
+  if (!is.null(cluster)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, seurat_clusters == cluster)@meta.data))
   }
   stopifnot(length(cell_ids) >= 1)
@@ -230,7 +234,8 @@ find_markers <- function(obj, ...) {
     min.pct = 0.05,
     only.pos = TRUE,
     densify = TRUE,
-    verbose = FALSE, ...))
+    verbose = FALSE, ...
+  ))
 }
 ```
 
@@ -246,7 +251,8 @@ find_all_markers <- function(obj, ...) {
     min.pct = 0.05,
     only.pos = TRUE,
     densify = TRUE,
-    verbose = FALSE, ...))
+    verbose = FALSE, ...
+  ))
 }
 ```
 
@@ -265,9 +271,10 @@ find_conserved_markers <- function(cluster, ...) {
     min.pct = 0.05,
     only.pos = TRUE,
     densify = TRUE,
-    verbose = FALSE, ...) %>%
-      tibble::rownames_to_column(var = "gene") %>%
-      cbind(cluster_id = cluster, .))
+    verbose = FALSE, ...
+  ) %>%
+    tibble::rownames_to_column(var = "gene") %>%
+    cbind(cluster_id = cluster, .))
 }
 ```
 
@@ -288,8 +295,9 @@ markers_within_clusters <- function(obj, totalNumberOfClusters,
     # cells__N, variables named with double underscores,
     # are only used internally!!
     markers <- find_markers(obj,
-                            ident.1 = cells__1,
-                            ident.2 = cells__2)
+      ident.1 = cells__1,
+      ident.2 = cells__2
+    )
     if (nrow(markers) > 0) {
       markers %<>% cbind(cluster = rep(i, nrow(.)))
       markers$gene <- rownames(markers)
@@ -319,10 +327,12 @@ process_markers <- function(markers) {
   if ("cluster" %in% colnames(markers)) {
     markers$cluster <- as.numeric(as.character(markers$cluster))
     markers %<>% arrange(Adjusted.P.value) %>% select(
-      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2)
+      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
   } else {
     markers %<>% arrange(Adjusted.P.value) %>% select(
-      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2)
+      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
   }
   markers
 }
@@ -332,8 +342,12 @@ For these functions, we need `totalNumberOfClusters` variable to be defined, let
 
 ```{r, fig.asp=0.1}
 totalNumberOfClusters <- length(levels(Idents(pbmc)))
-my_cols = RColorBrewer::brewer.pal(totalNumberOfClusters, "Set1")
-ggplot(data.frame(x=1:totalNumberOfClusters, type=1:totalNumberOfClusters), aes(x=x, fill=factor(type))) + geom_bar() + scale_fill_manual(values = my_cols) + theme_void() + NoLegend()
+my_cols <- RColorBrewer::brewer.pal(totalNumberOfClusters, "Set1")
+ggplot(data.frame(x = 1:totalNumberOfClusters, type = 1:totalNumberOfClusters), aes(x = x, fill = factor(type))) +
+  geom_bar() +
+  scale_fill_manual(values = my_cols) +
+  theme_void() +
+  NoLegend()
 ```
 
 ```{r}

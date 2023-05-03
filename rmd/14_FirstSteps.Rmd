@@ -357,7 +357,7 @@ ElbowPlot(pbmc)
 
 Another one, is using the JackStraw procedure: We randomly permute a subset of the data (1% by default) and rerun PCA, constructing a 'null distribution' of feature scores, and repeat this procedure. We identify 'significant' PCs as those who have a strong enrichment of low p-value features.
 
-> Do you feel like you need a refresher on permutations? check this beautiful animation of permutations explained in the context of statistical testing (constructing a 'null distribution'): <https://www.jwilber.me/permutationtest/>
+> Do you feel like you need a refresher on permutations? check this beautiful animation of permutations explained in the context of statistical testing (constructing a 'null distribution'): https://www.jwilber.me/permutationtest/
 
 The next three code-block are skipped of evaluation because this process can take a long time for big datasets. Please note that there's nothing wrong with using `ElbowPlot()`!
 

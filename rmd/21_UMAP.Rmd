@@ -66,8 +66,10 @@ library(Seurat)
 set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-options(parallelly.fork.enable = params$fork,
-        future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
+options(
+  parallelly.fork.enable = params$fork,
+  future.globals.maxSize = params$Nmemgb * 1024^2 * 1000
+)
 
 plan("multicore", workers = params$Nthreads)
 
@@ -159,8 +161,10 @@ Fortunately in the case of this dataset, we can use canonical markers to easily 
 Needless to say, normally you would check the expression of some signature genes and do a query. **This analysis will be shown another day of this course.**
 
 ```{r}
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono",
-    "NK", "DC", "Platelet")
+new.cluster.ids <- c(
+  "Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono",
+  "NK", "DC", "Platelet"
+)
 names(new.cluster.ids) <- levels(pbmc)
 pbmc <- RenameIdents(pbmc, new.cluster.ids)
 ```
