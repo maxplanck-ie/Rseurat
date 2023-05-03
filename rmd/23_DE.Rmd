@@ -169,8 +169,20 @@ VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
 ```
 
 ```{r}
-FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP",
-    "CD8A"))
+FeaturePlot(
+  pbmc,
+  features = c(
+    "MS4A1",
+    "GNLY",
+    "CD3E",
+    "CD14",
+    "FCER1A",
+    "FCGR3A",
+    "LYZ",
+    "PPBP",
+    "CD8A"
+  )
+)
 ```
 
 Usually, we'd be getting top DE genes to draw these plots, and to drive GSEA as a downstream analysis to ultimately draw our conclusions.
@@ -272,7 +284,8 @@ markers_within_clusters <- function(obj, totalNumberOfClusters,
     thisCluster_cells <- get_cell_ids(obj, cluster = i)
     cells__1 <- intersect(cells_1, thisCluster_cells)
     cells__2 <- intersect(cells_2, thisCluster_cells)
-    # cells_N, variable name with double underscore,
+    # NOTE:
+    # cells__N, variables named with double underscores,
     # are only used internally!!
     markers <- find_markers(obj,
                             ident.1 = cells__1,
