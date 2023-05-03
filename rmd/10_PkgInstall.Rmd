@@ -17,37 +17,29 @@ knitr::opts_chunk$set(eval=FALSE, format=TRUE)
 options(warn=-1)
 ```
 
-PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get done with it.
+PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get it done.
 
 Make sure you allow for 30-60 minutes to complete all the steps. The exact time will depend on network performance, and the current state of your package library (e.g., previous packages installed).
 
 Thanks for taking the time to do this before the course!
 
 > **Important**
-> - Ensure you're running R `4.1.3`.
-> - Run the blocks manually.
-> - If asked to compile packages, answer 'no'.
+> - Ensure you're running R `4.1.3`. The following procedure wasn't tested with recent versions.
+> - Run each of the code blocks manually, and ensure there were no errors before moving forward.
 > - Watch out for possible errors. It woud be wise to keep an eye on the text output at all time.
 > - To emphasize the last item, let's rephrase it: shouldn't be a surprise if you have a compilation error message in the middle of the whole text output.
 > - If asked to update packages, answer 'none'. We'll take care of package updates near the end.
+> - If asked to compile packages, answer 'no'.
 > - All code blocks may be executed more than once, if the packages are installed, there's no increase in the total duration of this whole process. So, do run them a couple of times before moving forward to the next block.
 > - If you see errors, re-run the code block again.
 
-# Main Packages
-
-```{r mainpkgs}
-installed_pkgs <- installed.packages()
-
-if (! "tidyverse" %in% installed_pkgs) install.packages("tidyverse")
-
-if (! "markdown" %in% installed_pkgs) install.packages("markdown") 
-
-if (! "remotes" %in% installed_pkgs) install.packages("remotes") 
-
-if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-```
-
 # Bioconductor
+
+<Bioconductor.org> is a repository of bioinformatic packages, just like CRAN (which also has bioinformatic packages). The difference is that instead of GNU Public License, Bioc packages are under a license that allows commercial usage, widening its user-base (e.g. including private hospitals).
+
+```{r BiocManager}
+if (! "BiocManager" %in% installed.packages()) install.packages("BiocManager")
+```
 
 With `BiocManager`, we can install Bioconductor `3.14`. If you are using R 4.2 or 4.3, then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version. If you really need it, you may use bioconductor `3.16`, but these lectures were only tested with the versions we are recommending (4.1.3 & 3.14).
 
@@ -71,20 +63,14 @@ BiocManager::install(version='3.14')
 
 # Core & Dependencies
 
-The next code block defines a function, `my_load_namespaces()`, that takes two named arguments: `packagesToLoad` and `coreLibraries`. Both are vectors of strings, corresponding to packages that need to be installed. Then, the function loads each of the packages specified in `packagesToLoad` vector, through the use of the `require` base R function. The `coreLibraries` are not explicitly loaded, but required anyway (e.g. dependencies). If the execution of the whole function is alright, it will simply return `TRUE`.
+The next code block defines a function, `retrieve_namespaces()`, that takes a character vector with package names, to be installed. If the execution of the whole function is not interrupted by an error, it will simply return `TRUE`.
 
-```{r my_load_namespaces}
-my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c(), installed_pkgs=installed_pkgs) {
-  
-  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-  
-  lapply(c(coreLibraries, packagesToLoad),
-         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
-  
-  lapply(packagesToLoad, function(pkg) {
-    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
-  })
-  
+```{r retrieve_namespaces}
+retrieve_namespaces <- function(list_of_packages=c()) {
+  lapply(list_of_packages,
+         function(x) {
+           if (! x %in% installed.packages()) {
+             BiocManager::install(x, update=FALSE) } } )
   TRUE
 }
 ```
@@ -92,10 +78,38 @@ my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c(), installed_
 Let's use it. We are going to install [Seurat](https://satijalab.org/seurat/) as well as many other tools and dependencies that we will need throughout this course. The whole process is going to take 10-15 minutes... and, most probably, more than just one single execution.
 
 ```{r}
-my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future", "glmGamPoi"),
-  coreLibraries = c("knitr", "RCurl", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "Nebulosa", "bookdown"),
-  installed_pkgs = installed_pkgs
+retrieve_namespaces(
+  list_of_packages = c(
+    # Utilities
+    "sessioninfo",
+    "remotes",
+    "shiny",
+    "knitr",
+    "rmarkdown",
+    "markdown",
+    "bookdown",
+    "formatR",
+    "DT",
+    # Core
+    "tidyverse",
+    "magrittr",
+    "future",
+    "future.apply",
+    "Seurat",
+    # DE
+    "enrichR",
+    "metap",
+    "openxlsx",
+    "glmGamPoi",
+    "DESeq2",
+    "limma",
+    "MAST",
+    # Viz
+    "Nebulosa",
+    "patchwork",
+    "RColorBrewer",
+    "scCustomize",
+  )
 )
 ```
 
@@ -116,15 +130,15 @@ If the above code block fails, is because according to BiocManager our current s
 R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
 
 ```{r}
-if (! "SeuratData" %in% installed_pkgs) remotes::install_github('satijalab/seurat-data')
-if (! "ifnb.SeuratData" %in% installed_pkgs) SeuratData::InstallData("ifnb")
-if (! "pbmc3k.SeuratData" %in% installed_pkgs) SeuratData::InstallData("pbmc3k")
+if (! "SeuratData" %in% installed.packages()) remotes::install_github('satijalab/seurat-data')
+if (! "ifnb.SeuratData" %in% installed.packages()) SeuratData::InstallData("ifnb")
+if (! "pbmc3k.SeuratData" %in% installed.packages()) SeuratData::InstallData("pbmc3k")
 ```
 
 We are going to use another package that is only available on GitHub and not on Bioconductor or CRAN repos:
 
 ```{r}
-if (! "kBET" %in% installed_pkgs) remotes::install_github('theislab/kBET')
+if (! "kBET" %in% installed.packages()) remotes::install_github('theislab/kBET')
 ```
 
 
