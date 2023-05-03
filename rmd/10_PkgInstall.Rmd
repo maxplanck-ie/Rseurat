@@ -91,6 +91,7 @@ retrieve_namespaces(
     "bookdown",
     "formatR",
     "DT",
+    "openxlsx",
     # Core
     "tidyverse",
     "magrittr",
@@ -100,7 +101,6 @@ retrieve_namespaces(
     # DE
     "enrichR",
     "metap",
-    "openxlsx",
     "glmGamPoi",
     "DESeq2",
     "limma",
