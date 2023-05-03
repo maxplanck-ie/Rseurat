@@ -35,21 +35,9 @@ cbind(params)
 ```
 
 ```{r}
-my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
-  installed_pkgs <- installed.packages()
-  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-  lapply(c(coreLibraries, packagesToLoad),
-         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
-  lapply(packagesToLoad, function(pkg) {
-    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
-  })
-  TRUE
-}
-
-my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "enrichR"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData")
-)
+library(tidyverse)
+library(enrichR)
+library(Seurat)
 ```
 
 ```{r}
