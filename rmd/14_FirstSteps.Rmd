@@ -390,6 +390,8 @@ Ndim=10
 
 > EXERCISE: Convert this `Ndim` into a parameter at the current Rmarkdown document YAML header, just like `Nthreads`.
 
+# BREAK
+
 # Clustering
 
 The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations. Building on these subpopulations, `PhenoGraph` authors developed additional methods to extract high-dimensional signaling phenotypes and infer differences in functional potential between subpopulations. For details, be sure to check the [research paper](http://www.ncbi.nlm.nih.gov/pubmed/26095251).
@@ -439,7 +441,7 @@ NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat wil
 
 # EXERCISES
 
-> These are **not mandatory**, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills.
+> These are **not mandatory**, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills. We'll start with these today, but we'll still need to allow for 30-45 minutes before the end of this class for one last lecture (titled: Enrichment).
 
 1. Save all your R session details (a.k.a. environment specification) using the function `sessioninfo::session_info()` and its `to_file` argument.
 
