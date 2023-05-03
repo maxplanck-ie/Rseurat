@@ -282,13 +282,18 @@ pbmc <- FindVariableFeatures(pbmc)
 
 POLL: Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
 
-<!-- DON'T READ THE ANSWER -->
-
 ```{r, echo=FALSE}
-(top10 <- VariableFeatures(pbmc) %>% head(10))
+## DON'T READ THE ANSWER
+# (top10 <- VariableFeatures(pbmc) %>% head(10))
 ```
 
-<!-- DON'T READ THE ANSWER -->
+POLL: What's the variance of the gene `PYCARD`? hint: use `HVFInfo()` over your `assay`.
+
+```{r, echo=FALSE}
+## DON'T READ THE ANSWER
+# HVFInfo(pbmc@assays$RNA, selection.method = "vst")["PYCARD",]$variance.standardized
+```
+
 
 Plot variable features
 
