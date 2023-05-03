@@ -154,6 +154,8 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 
 > EXERCISE: Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would it then be better, worse, or neutral?
 
+# BREAK
+
 ## Annotation
 
 Fortunately in the case of this dataset, we can use canonical markers to easily match the clusters to known cell types. Given that this dataset was downloaded, we already know its labels; so we can simply use a hardcoded vector to assign the correct identities.
