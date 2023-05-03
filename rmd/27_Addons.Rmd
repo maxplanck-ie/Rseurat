@@ -14,6 +14,33 @@ output:
     df_print: paged
 ---
 
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%", eval=FALSE, format=TRUE)
+```
+
+```{r retrieve_namespaces}
+retrieve_namespaces <- function(list_of_packages) {
+  lapply(list_of_packages,
+         function(x) {
+           if (!x %in% installed.packages()) {
+             BiocManager::install(x, ask = FALSE, update = FALSE)
+           }
+         })
+  TRUE
+}
+```
+
+```{r}
+retrieve_namespaces(
+  list_of_packages = c(
+    # Utilities
+    "shiny",
+    "openxlsx",
+  )
+)
+```
+
+
 ## Shiny
 
 ### Useful app
@@ -68,3 +95,52 @@ shinyApp(ui = ui, server = server)
 ### brushedPlot
 
 Check out `27_brushedPlot.R`.
+
+## openXLSX
+
+The following `save_XLSX()` function is to save all your DE tests results in a XLSX file (e.g. for sharing with a colleague that's not so proficient in R-language).
+
+```{r, eval=FALSE}
+#' Export Data Frames to a Microsoft Excel File
+#'
+#' Creates a workbook with different sheets, each corresponding to a data frame that was passed in the first argument. This would also split by clusters to different sheets, if this column is found.
+#' @param dfl A list of data frames, like the ones returned by your DE testing.
+#' @param filename A file.path with the extension XLSX.
+#' @return No return, just the side-effect of writing data to disk in the appropriate format to be shared with colleagues.
+#' @examples
+#' save_XLSX(list(PerCluster=markers.between.clusters, WithinClusters=markers.within.clusters), file.path(getwd(), paste0("../results/results_", format(Sys.time(), '%d_%B__%H-%M-%S_%Y'), ".xlsx")))
+save_XLSX <- function(dfl, filename) {
+  wb <- createWorkbook()
+  options(openxlsx.borderColour = "#4F80BD")
+  options(openxlsx.borderStyle = "thin")
+  modifyBaseFont(wb, fontSize = 14, fontName = "Arial Narrow")
+  for (df_id in names(dfl)) {
+    if ("cluster" %in% colnames(dfl[[df_id]])) {
+      for (cluster_n in seq_len(max(dfl[[df_id]]$cluster))) {
+        sheet_name <- paste(df_id, cluster_n, sep="_")
+        my_data <- dfl[[df_id]][dfl[[df_id]]$cluster == cluster_n, ]
+        my_data$gene <- sub(
+          '\\(.*\\)\\.[0-9]', '\1',
+          my_data$gene
+          )
+        my_data$cluster <- NULL
+        addWorksheet(wb, sheetName = sheet_name, gridLines = FALSE)
+        writeDataTable(wb, sheet = sheet_name,
+                       x = my_data,
+                       colNames = TRUE, rowNames = FALSE,
+                       tableStyle = "TableStyleLight9")
+      }
+    } else {
+      addWorksheet(wb, sheetName = df_id, gridLines = FALSE)
+      writeDataTable(wb, sheet = df_id,
+                     x = dfl[[df_id]],
+                     colNames = TRUE, rowNames = FALSE,
+                     tableStyle = "TableStyleLight9")
+    }
+  }
+  saveWorkbook(wb, filename, overwrite = TRUE)
+}
+```
+
+## Viz
+

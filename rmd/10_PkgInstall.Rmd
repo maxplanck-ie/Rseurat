@@ -86,14 +86,12 @@ retrieve_namespaces(
     # Utilities
     "sessioninfo",
     "remotes",
-    "shiny",
     "knitr",
     "rmarkdown",
     "markdown",
     "bookdown",
     "formatR",
     "DT",
-    "openxlsx",
     # Core
     "tidyverse",
     "magrittr",
