@@ -46,11 +46,13 @@ set.seed(params$seed)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 ```
 
-## Load Data
+## Load Data (WrapUp!)
 
 We'll be working with the data from our past notebook ("Introduction"), let's quickly re-load and re-process again:
 
 ```{r}
+# NOTE: This code block will be repeated throughout the course, and it has 5 parameters that are good candidates to be moved to the YAML header(s). If this were an actual research report, we would have probably done this.
+
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
@@ -95,20 +97,37 @@ gene.set.1 <- arrange(pca, -PC_1) %>%
 ```
 
 
-EXERCISE: Wrap this into a function that takes 3 inputs: Seurat object with PCA already run, desired PC number (integer), and the quantity of  'top' gene names to extract. Such function should return a vector name of appropriate length with these gene names. Hint:
+EXERCISE: Let's wrap this into a function that takes three inputs: (1) `seurat_obj`, Seurat object with PCA already run; (2) `pc_number`, an integer representing the desired PC number to use; (3) `gene_total`, the quantity of  'top' gene names to extract; and (4) `anticorrelation`, a Boolean representing that we want to get the top or the bottom genes in the PC. Such function should return a vector name of appropriate length, with the gene names. This has been already been programmed for you, but you'll need to fill-in the three `?` signs.
 
 ```{r,eval=FALSE}
-myWrap <- function(obj, pc_number = "PC_1", gene_total = 10) {
-  arrange(obj, desc(!!sym(pc_number))) %>%
-    head(gene_total) %>%
+myWrap <- function(seurat_obj,
+                   pc_number = 1,
+                   gene_total = 10,
+                   correlation = FALSE) {
+  
+  pc_number <- paste0("PC_", pc_number)
+  
+  pca_obj <- ?
+  
+  pulled_column <- pca_obj[pc_number]
+  
+  if (?) {
+    pulled_column <- arrange(pca_obj)
+  } else {
+    pulled_column <- arrange(pca_obj,
+                             desc(pca_obj[pc_number]))
+  }
+  
+  pulled_column %>%
+    ?(gene_total) %>%
     rownames()
 }
 
-result <- myWrap(pca)
+result <- myWrap(pbmc)
 all(result %in% gene.set.1)
 ```
 
-
+Equipped with this function, we are now able to take a look into the genes corresponding to the variability correlated (positively or negatively) to each of the first principal components.
 
 ## Gene Ontology
 
@@ -120,7 +139,7 @@ all(result %in% gene.set.1)
 
 ## enrichR
 
-The package is already loaded. But we need to connect to the databases that we'll be using.
+The package is already loaded. But we need to connect to the databases that we'll be using. There are more than 200 databases available, you can get a data frame with details of these using `listEnrichrDbs()`.
 
 ```{r}
 dbs <- c(
@@ -137,10 +156,11 @@ result.1 <- enrichr(gene.set.1, dbs)
 
 Currently, `result.1` is a list object (analogous to a python dictionary), with three dataframes as elements, each corresponding to one of the databases. The `enrichR` library provides functions to explore these. For example:
 
-```{r, eval=FALSE}
+```{r}
 plotEnrich(result.1[[1]], showTerms = 20, numChar = 40, y = "Count", orderBy = "P.value")
 ```
 
+The title is not so informative, right? And maybe there are a couple more of customiztions we'd like to do.
 
 Instead of copying and pasting, and customizing each of the calls to `plotEnrich()` is easier to encapsulate functionality into function wrappers that are then copied over each time you want to call your customized plot or table, for example:
 
@@ -162,7 +182,7 @@ filter_enrichment_results <- function(enriched, N) {
 enrichment_as_print_df <- function(enriched, N) {
   df <- data.frame(filter_enrichment_results(enriched, N)[
     ,
-    c("Term", "Overlap", "Odds.Ratio", "Adjusted.P.value")
+    c("Term", "Overlap", "Odds.Ratio", "Adjusted.P.value", "Combined.Score")
   ])
   row.names(df) <- df$Term
   df$Term <- NULL
@@ -180,11 +200,15 @@ my_plot_enrich <- function(enriched, dbs, N) {
     print("No pathway was enriched.")
   }
 }
+
+# Notes:
+# - Only showing enrichments with odds ratio &ne; `1` & p-value < `0.05` (fdr).
+# - The combined score is computed as `ln(p)*z`, and is used to arrange values in the tables.
+# - Tables are complete full list, and plots only show the top 25 pathways with biggest odds ratio.
+# - Color scale follows p-value (fdr).
 ```
 
 EXERCISE: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same output types?
-
-> Note: Only showing enrichments with odds ratio &ne; `1` & p-value < `0.05` (fdr). Tables are complete full list, and plots only show the top 25 pathways with biggest odds ratio, and color coding follows p-value (fdr). The combined score is computed as `ln(p)*z`, and is used to arrange values in the tables.
 
 ### Plots
 
