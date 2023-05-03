@@ -136,6 +136,10 @@ BiocManager::valid()
 
 If the above code block fails, is because according to BiocManager our current state is not valid (so, it didn't return `TRUE` to `stopifnot`). To correct this, you should run the `BiocManager::install()` command as it's stated by `BiocManager::valid()`.
 
+# Working Directory
+
+Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip). Put it in a folder, any folder but outside the `/home` partition! You will find all the lectures under `rmd/` subfolder. On the root you'll find an `Rproj` file, so you should **open the corresponding path as an existing project folder** in RStudio IDE. You should follow the next instructions using the 'raw' `./rmd/10_PkgInstall.Rmd` file now.
+
 # Datasets
 
 R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
@@ -159,6 +163,8 @@ For the later part of the course, we have preprocessed a couple of large dataset
 
 1: For those that will be using Workbench/ RStudio Server, the datasets will be already provided under `/scratch/local/rseurat/datasets`. You can copy from this location, and skip the download.
 
+Please note the use of working directory environment variable (`$PWD`) in the next command. This is supposed to be run inside the repository `./rmd/` subfolder.
+
 ```{bash, eval=FALSE}
 cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preprocessed_rds
 ```
@@ -172,6 +178,4 @@ cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preproces
 
 Depending on your bandwidth, the downloads may take 15-30 minutes.
 
-# Working Directory
-
-Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip). Put it in a folder, any folder but outside the `/home` partition! You will find all the lectures under `rmd/` subfolder. On the root you'll find an `Rproj` file, so you should **open the corresponding path as an existing project folder** in RStudio IDE.
+<!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/datasets/preprocessed_rds/ -->
