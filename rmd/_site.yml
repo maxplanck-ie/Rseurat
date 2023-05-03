@@ -16,11 +16,11 @@ navbar:
       - text: Introduction
         icon: fa-handshake-o
         href: 12_Intro.html
-      - text: First steps
-        icon: fa-users
       - text: Parallelization
         icon: fa-clock-o
         href: 13_FutureArrivedLongAgo.html
+      - text: First steps
+        icon: fa-users
         href: 14_FirstSteps.html
       - text: Ontologies Enrichment
         icon: fa-arrows-alt
@@ -52,7 +52,8 @@ navbar:
       href: https://github.com/maxplanck-ie/Rseurat
 
 output:
-  html_document:
+  bookdown::html_document2:
+    number_sections: false
     theme: spacelab
     highlight: monochrome
     code_folding: show
