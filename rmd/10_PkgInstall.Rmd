@@ -83,21 +83,12 @@ Let's use it. We are going to install [Seurat](https://satijalab.org/seurat/) as
 ```{r}
 retrieve_namespaces(
   list_of_packages = c(
-    # Utilities
-    "sessioninfo",
-    "remotes",
-    "knitr",
-    "rmarkdown",
-    "markdown",
-    "bookdown",
-    "formatR",
-    "DT",
     # Core
+    "Seurat",
     "tidyverse",
     "magrittr",
     "future",
     "future.apply",
-    "Seurat",
     # DE
     "enrichR",
     "metap",
@@ -107,9 +98,19 @@ retrieve_namespaces(
     "MAST",
     # Viz
     "Nebulosa",
-    "patchwork",
     "RColorBrewer",
-    "scCustomize",
+    # Utilities
+    "sessioninfo",
+    "remotes",
+    # Rendering to HTML/ Site
+    ## might as well prefer working with raw Rmd(s)
+    "knitr",
+    "rmarkdown",
+    "markdown",
+    "bookdown",
+    "styler",
+    "formatR",
+    "DT",
   )
 )
 ```
