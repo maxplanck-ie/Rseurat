@@ -25,7 +25,6 @@ output:
 ## Setup
 
 ```{r, setup, include=FALSE}
-# .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
 library(formatR)
 library(knitr)
 library(kableExtra)
@@ -48,64 +47,36 @@ packageVersion("Seurat")
 - The person performing the experiment
 
 
-## SeuratData
+## Problem description
 
-Pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates.
+We're going to work with a dataset comprised of pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates. We're first going to inspect the lowD embedding of the full dataset, and then we're going to work with a subset of the full dataset. We're going to inspect and attempt to mitigate known batch effects in the subset dataset.
 
-```{r SeuratData}
-#library(SeuratData)
-#panc <- LoadData("panc8", type = "default")
-#kable(table(panc$dataset)) %>% kable_classic_2(full_width = F)
-```
+
 
 ## What does the data look like out of the box?
 
-Lets process the dataset in a standard way, ignoring any possible batch effects.
+Lets have a look at the UMAP embedding of the full dataset processed in a standard way, ignoring any possible batch effects. Compare the cell separation by sequencing technology and by cell type.
 
-
-```{r process_noBER}
-#panc <- NormalizeData(panc)
-#panc <- FindVariableFeatures(panc, selection.method = "vst", nfeatures = 2000)
-#all.genes <- rownames(panc)
-#panc <- ScaleData(panc, features = all.genes)
-#panc <- RunPCA(panc, features = VariableFeatures(object = panc))
-#panc <- RunUMAP(panc, dims = 1:15)
-```
-
-## What does the data look like out of the box?
 
 ![Full dataset on umap](images/panc8full.umap.png)
 
-#```{r out_of_the_box_umap, echo = FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-#p1<-DimPlot(panc, reduction = "umap",label=TRUE)
-#p2<-DimPlot(panc, reduction = "umap",group.by="celltype")
-#p1+p2
-#ggplot2::ggsave("images/panc8full.umap.png",width=12,height=5)
-#```
 
-## Subset dataset 
+## Load the preprocessed subset dataset 
 
-```{r subset}
-#panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
-#saveRDS(panc_sub,"panc_sub.RDS")
-#if (!file.exists("datasets/preprocessed_rds/panc_sub.RDS")){
-#utils::download.file("https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub.RDS",method="wget")}
-panc_sub<-readRDS("datasets/preprocessed_rds/panc_sub.RDS")
+Instpect the datasets it contains.
+
+```{r load_subset}
+
+if (!file.exists("datasets/preprocessed_rds/panc_sub_processed.RDS")){
+utils::download.file("https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub_processed.RDS",method="wget")}
+panc_sub<-readRDS("datasets/preprocessed_rds/panc_sub_processed.RDS")
 kable(table(panc_sub$dataset)) %>%  kable_classic_2(full_width = F)
 ```
 
-## Redo normalization
-
-```{r norm_sub}
-panc_sub <- NormalizeData(panc_sub)
-panc_sub <- FindVariableFeatures(panc_sub, selection.method = "vst", nfeatures = 2000)
-all.genes <- rownames(panc_sub)
-panc_sub <- ScaleData(panc_sub, features = all.genes)
-panc_sub <- RunPCA(panc_sub, features = VariableFeatures(object = panc_sub))
-panc_sub <- RunUMAP(panc_sub, dims = 1:15)
-```
 
 ## Revisit UMAP
+
+Plot UMAP embedding for the subset dataset. Inspect the cell separation by cell type and by sequencing technology.
 
 ```{r umap_sub, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
 p1<-DimPlot(panc_sub, reduction = "umap",label=TRUE)
@@ -327,4 +298,34 @@ sessionInfo()
 Büttner, M., Miao, Z., Wolf, F.A. et al. A test metric for assessing single-cell RNA-seq batch correction. Nat Methods 16, 43–49 (2019). https://doi.org/10.1038/s41592-018-0254-1  
 
 Stuart T, Butler A, Hoffman P, Hafemeister C, Papalexi E, Mauck WM 3rd, Hao Y, Stoeckius M, Smibert P, Satija R. Comprehensive Integration of Single-Cell Data. Cell. 2019 Jun 13;177(7):1888-1902.e21. doi: 10.1016/j.cell.2019.05.031. Epub 2019 Jun 6. PMID: 31178118; PMCID: PMC6687398
+
+## Appendix
+
+This is how to reproduce generation of the UMAP embedding for the full dataset and further the generation of the subset dataset used in this course unit:
+
+```{=html}
+<code>
+library(SeuratData)
+panc <- LoadData("panc8", type = "default")
+kable(table(panc$dataset)) %>% kable_classic_2(full_width = F)
+panc <- NormalizeData(panc)
+panc <- FindVariableFeatures(panc, selection.method = "vst", nfeatures = 2000)
+all.genes <- rownames(panc)
+panc <- ScaleData(panc, features = all.genes)
+panc <- RunPCA(panc, features = VariableFeatures(object = panc))
+panc <- RunUMAP(panc, dims = 1:15)
+p1<-DimPlot(panc, reduction = "umap",label=TRUE)
+p2<-DimPlot(panc, reduction = "umap",group.by="celltype")
+p1+p2
+
+panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
+panc_sub <- NormalizeData(panc_sub)
+panc_sub <- FindVariableFeatures(panc_sub, selection.method = "vst", nfeatures = 2000)
+all.genes <- rownames(panc_sub)
+panc_sub <- ScaleData(panc_sub, features = all.genes)
+panc_sub <- RunPCA(panc_sub, features = VariableFeatures(object = panc_sub))
+panc_sub <- RunUMAP(panc_sub, dims = 1:15)
+saveRDS(panc_sub,"panc_sub_processed.RDS")
+</code>
+```
 
