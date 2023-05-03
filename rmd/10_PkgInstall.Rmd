@@ -14,6 +14,7 @@ output:
 
 ```{r setup}
 knitr::opts_chunk$set(eval=FALSE, format=TRUE)
+options(warn=-1)
 ```
 
 PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get done with it.
