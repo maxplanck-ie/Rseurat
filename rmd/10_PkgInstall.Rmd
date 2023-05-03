@@ -67,11 +67,13 @@ BiocManager::install(version='3.14')
 The next code block defines a function, `retrieve_namespaces()`, that takes a character vector with package names, to be installed. If the execution of the whole function is not interrupted by an error, it will simply return `TRUE`.
 
 ```{r retrieve_namespaces}
-retrieve_namespaces <- function(list_of_packages=c()) {
+retrieve_namespaces <- function(list_of_packages) {
   lapply(list_of_packages,
          function(x) {
-           if (! x %in% installed.packages()) {
-             BiocManager::install(x, ask=FALSE, update=FALSE) } } )
+           if (!x %in% installed.packages()) {
+             BiocManager::install(x, ask = FALSE, update = FALSE)
+           }
+         })
   TRUE
 }
 ```
