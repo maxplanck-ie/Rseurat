@@ -16,7 +16,11 @@ output:
 
 ## Shiny
 
+### Useful app
+
 <https://shiny.rstudio.com/gallery/shiny-wysiwyg.html>
+
+### Example app
 
 ```{r, eval=FALSE, format=TRUE}
 library(shiny)
@@ -61,3 +65,6 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 ```
 
+### brushedPlot
+
+Check out `27_brushedPlot.R`.

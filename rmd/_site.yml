@@ -34,9 +34,6 @@ navbar:
       - text: Data Viz.
         icon: fa-map-marker
         href: 25_Viz.html
-      - text: Shiny brushedPlot
-        icon: fa-eye
-        href: 27_brushedPlot.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
