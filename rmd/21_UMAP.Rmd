@@ -152,7 +152,7 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
   DimPlot(pbmc, reduction = "tsne") + NoLegend()
 ```
 
-POLL: Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would it then be better, worse, or neutral?
+> EXERCISE: Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would it then be better, worse, or neutral?
 
 ## Annotation
 
