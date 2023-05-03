@@ -158,6 +158,12 @@ For the later part of the course, we have preprocessed a couple of large dataset
 
 1: For those that will be using Workbench/ RStudio Server, the datasets will be already provided under `/scratch/local/rseurat/datasets`. You can have a symbolic link to this location, and skip the download.
 
+```{bash, eval=FALSE}
+# NOT TESTED
+ln -s /scratch/local/rseurat/datasets/*.RDS /adjust_this_path/rmd/datasets/
+```
+
+
 2: If you will be using RStudio from your laptop, then you may download from zenodo:
 
 1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1)
