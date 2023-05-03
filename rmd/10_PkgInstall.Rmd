@@ -143,6 +143,8 @@ If the above code block fails, is because according to BiocManager our current s
 
 Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip). Put it in a folder, any folder but outside the `/home` partition! You will find all the lectures under `rmd/` subfolder. On the root you'll find an `Rproj` file, so you should **open the corresponding path as an existing project folder** in RStudio IDE. You should follow the next instructions using the 'raw' `./rmd/10_PkgInstall.Rmd` file now.
 
+NOTE: We'll be working with RMarkdown files, mixing text (e.g. Word document) and code blocks (e.g. generating plots). Please not that whenever you see a code-block marked with `eval=FALSE` in the following lectures of this course, that's because you're not meant to execute that code. You would still see the green arrow, just don't click on it. There's no harm done, but you will only see error messages. And, if the code in one of such blocks is grayed-out and comes right after a question, then, that's the answer... We have helpful hints already, don't need to cheat. Also, there's no evaluation in this course.
+
 # Datasets
 
 R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
