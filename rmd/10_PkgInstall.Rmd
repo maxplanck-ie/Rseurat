@@ -70,7 +70,7 @@ retrieve_namespaces <- function(list_of_packages=c()) {
   lapply(list_of_packages,
          function(x) {
            if (! x %in% installed.packages()) {
-             BiocManager::install(x, update=FALSE) } } )
+             BiocManager::install(x, ask=FALSE, update=FALSE) } } )
   TRUE
 }
 ```
