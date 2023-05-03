@@ -14,7 +14,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
 ```
 
 > Please note: this is a summary of the information available at: <https://www.singlecellcourse.org/>

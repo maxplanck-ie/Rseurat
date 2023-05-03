@@ -73,7 +73,7 @@ library(Seurat)
 
 ```{r}
 set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE, format = TRUE)
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 options(parallelly.fork.enable = params$fork,
         future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)

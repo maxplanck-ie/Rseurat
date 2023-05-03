@@ -18,7 +18,7 @@ output:
 
 <https://shiny.rstudio.com/gallery/shiny-wysiwyg.html>
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, format=TRUE}
 library(shiny)
 
 # Define UI for application that draws a histogram

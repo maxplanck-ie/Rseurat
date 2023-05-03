@@ -43,7 +43,7 @@ library(Seurat)
 
 ```{r}
 set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE, format = TRUE)
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 ```
 
 ## Load Data
