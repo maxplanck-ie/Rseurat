@@ -25,7 +25,7 @@ upgrade:
 	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
 	git pull origin main && \
 		git push && echo "-- Commits were pushed" && sleep 3s && \
-		gh pr create --tile "quick upgrade" --fill -B main && \
+		gh pr create --title "quick upgrade" --fill -B main && \
 		echo "-- Pull Request was opened" && \
 		git checkout main && git pull && \
 		git merge $$CURRENT_BRANCH && sleep 3s && \
