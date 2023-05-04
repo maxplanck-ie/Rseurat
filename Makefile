@@ -22,7 +22,7 @@ style:  ## Format all code blocks.
 	@Rscript -e "styler::style_dir('rmd')"
 
 upgrade:
-	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
+	@export CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
 	git pull origin main && \
 		git push && echo "-- Commits were pushed" && sleep 3s && \
 		gh pr create --title "quick upgrade" --fill -B main && \
