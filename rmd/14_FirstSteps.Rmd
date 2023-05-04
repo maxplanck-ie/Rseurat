@@ -301,10 +301,15 @@ Plot variable features
 (plot1 <- VariableFeaturePlot(pbmc))
 ```
 
-Now with labels:
+Now with labels, taking top10 genes as in the recent exercise:
 
 ```{r}
-(plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE))
+(plot2 <-
+   LabelPoints(
+     plot = plot1,
+     points = head(VariableFeatures(pbmc), 10),
+     repel = TRUE
+   ))
 ```
 
 ## Scaling
