@@ -18,29 +18,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE, out.width = "100%", eval=FALSE, format=TRUE)
 ```
 
-```{r retrieve_namespaces}
-retrieve_namespaces <- function(list_of_packages) {
-  lapply(list_of_packages,
-         function(x) {
-           if (!x %in% installed.packages()) {
-             BiocManager::install(x, ask = FALSE, update = FALSE)
-           }
-         })
-  TRUE
-}
-```
-
-```{r}
-retrieve_namespaces(
-  list_of_packages = c(
-    "patchwork",
-    "scCustomize",
-    "shiny",
-    "openxlsx",
-  )
-)
-```
-
 ## Load Data
 
 We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:

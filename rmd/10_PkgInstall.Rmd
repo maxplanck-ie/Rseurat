@@ -116,7 +116,11 @@ retrieve_namespaces(
     # Viz
     "Nebulosa",
     "RColorBrewer",
+    "scCustomize",
+    "patchwork",
     # Utilities
+    "shiny",
+    "openxlsx",
     "sessioninfo",
     "remotes",
     # Rendering to HTML/ Site
