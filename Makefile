@@ -27,7 +27,7 @@ open-pr:
 	@echo "-- Pull Request OPENED"
 
 merge-pr:
-	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
+	@export CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
 	@git pull origin main
 	@git checkout main
 	@git merge $$CURRENT_BRANCH
