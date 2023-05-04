@@ -109,29 +109,45 @@ This abstract concept comes from either Geometry or Physics. Basically, **a mani
 
 ## The Problem:
 
-How can we visualize all our points (cells) across multiple dimensions (principal components)? Can we reduce 10 PCs into a 2D cartesian plane? Turns out we can, and there are two solutions that were developed in recent years. In these, the concept of manifold is key, in the sense that on our end result, **the distance between points has lower error when these points are close enough.** This suits our case, since we want to plot clusters of cells that are from a same cell type.
+How can we visualize all our points (cells) across multiple dimensions (principal components)? Can we reduce 10 PCs into a 2D Cartesian plane? Turns out we can, and there are two solutions that were developed. In these, the concept of manifold is key, in the sense that on our end result, **the distance between points has lower error when these points are close enough.** This suits our case, since we want to plot clusters of cells that are from a same cell type.
 
 ### t-distributed stochastic neighbor embedding (t-SNE)
 
-**The t-SNE algorithm that uses the Gaussian probability density function to calculate how likely a point (cell) will pick another one as its neighbor, and repeats this step for all points.** In the low dimension space, cells are rearranged according to these distances, creating the t-SNE plot. While the original algorithm uses the Euclidean distance between objects as the base of its similarity metric, this can be changed.
+**The t-SNE algorithm** uses the Gaussian probability density function to calculate how likely a point (cell) will pick another one as its neighbor, and repeats this step for all points. In the low dimension space, cells are rearranged according to these distances, creating the t-SNE plot. While the original algorithm uses the Euclidean distance between objects as the base of its similarity metric, this can be changed.
 
-t-SNE has been used for visualization in a wide range of applications. For further details, see the [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
+t-SNE has been used for visualization in a wide range of applications. For further details, see some of these resources:
+
+- [Google TechTalk](https://www.youtube.com/watch?v=RJVL80Gg3lA&list=UUtXKDgv1AVoG88PLl8nGXmw) (Duration 55 min.)
+- [StatQuest!](https://www.youtube.com/watch?v=NEaUSP4YerM) video (Durantion 10 min.)
+- [2019 paper](https://www.nature.com/articles/s41467-019-13056-x) summarizing the challenges for scRNA-seq data.
+- [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
 
 ### Uniform Manifold Approximation and Projection (UMAP)
 
 UMAP, in a more clever way, **creates a fuzzy graph that accurately reflects the topology (a.k.a shape) of the true high dimensional graph, calculates the weight for edges of this graph, then builds the low dimensional graph mimicking the fuzzy graph.** Since its development came 10 years later, it adds a bunch of advantages.
 
-For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) from 2018.
+For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) from 2018 or [this amazing website](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
 
-### Take Away
+### Comparison
 
-- t-SNE and UMAP are both non-linear, graph-based methods for dimensionality reduction in scRNA-seq analysis.
-- t-SNE and UMAP are both for data visualization. They are not meant to tell you about clustering or variation as much as methods like PCA do. 
+- Key parameters for t-SNE and UMAP are the **perplexity** and **number of neighbors**, respectively.
+- It's notable that t-SNE projections vary widely from run to run, with different pieces of the higher-dimensional data projected to different locations. While UMAP is also a stochastic algorithm, it's striking how similar the resulting projections are from run to run and with different parameters. This is due, again, to UMAP's increased emphasis on global structure in comparison to t-SNE.
 - t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure.
 - t-SNE moves the high dimensional graph to a lower dimensional space points by points. UMAP compresses that graph.
-- Key parameters for t-SNE and UMAP are the perplexity and number of neighbors, respectively. 
-- **UMAP is more time-saving due to the clever solution in creating a rough estimation of the high dimensional graph instead of measuring every point.**
-- **UMAP gives a better balance between local versus global structure, thus overall gives a more accurate presentation of the global structure.** This will come in handy in trajectory analysis. 
+- UMAP is more time-saving due to the clever solution in creating a rough estimation of the high dimensional graph instead of measuring every point.
+- UMAP gives a better balance between local versus global structure, thus overall gives a more accurate presentation of the global structure. This will come in handy in trajectory analysis.
+
+> Two-point Take Away:
+> 
+> - UMAP is often better at preserving global structure in the final projection. To compete, t-SNE would require a high 'perplexity' parameter, so the computatin time shoots.
+>
+> - Dimensionality reduction techniques are not perfect. By necessity, we're distorting the data to fit it into lower dimensions -- and UMAP is no exception.
+
+### Common Pitfalls
+
+- Cluster sizes in a UMAP plot mean nothing
+- Distances between clusters might not mean anything
+- You may need more than one plot, changing its hyperparameters.
 
 # Plotting High-Dimensional Data
 
@@ -162,16 +178,14 @@ Fortunately in the case of this dataset, we can use canonical markers to easily 
 
 Needless to say, normally you would check the expression of some signature genes and do a query. **This analysis will be shown another day of this course.**
 
-```{r}
+```{r, eval=FALSE}
 new.cluster.ids <- c(
   "Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono",
   "NK", "DC", "Platelet"
 )
 names(new.cluster.ids) <- levels(pbmc)
 pbmc <- RenameIdents(pbmc, new.cluster.ids)
-```
 
-```{r}
 DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 ```
 
