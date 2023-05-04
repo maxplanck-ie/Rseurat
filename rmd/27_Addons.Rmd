@@ -1,0 +1,235 @@
+---
+title: "Shiny brushedPlot"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+
+output:
+  bookdown::html_document2:
+    number_sections: false
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%", eval=FALSE, format=TRUE)
+```
+
+```{r retrieve_namespaces}
+retrieve_namespaces <- function(list_of_packages) {
+  lapply(list_of_packages,
+         function(x) {
+           if (!x %in% installed.packages()) {
+             BiocManager::install(x, ask = FALSE, update = FALSE)
+           }
+         })
+  TRUE
+}
+```
+
+```{r}
+retrieve_namespaces(
+  list_of_packages = c(
+    "patchwork",
+    "scCustomize",
+    "shiny",
+    "openxlsx",
+  )
+)
+```
+
+## Load Data
+
+We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:
+
+```{r}
+pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
+  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
+
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+pbmc <- NormalizeData(pbmc, verbose = FALSE)
+pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
+pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
+```
+
+## Shiny
+
+<!-- https://shiny.rstudio.com/gallery/shiny-wysiwyg.html -->
+
+Check out `27_brushedPlot.R`.
+
+## openXLSX
+
+The following `save_XLSX()` function is to save all your DE tests results in a XLSX file (e.g. for sharing with a colleague that's not so proficient in R-language).
+
+```{r, eval=FALSE}
+#' Export Data Frames to a Microsoft Excel File
+#'
+#' Creates a workbook with different sheets, each corresponding to a data frame that was passed in the first argument. This would also split by clusters to different sheets, if this column is found.
+#' @param dfl A list of data frames, like the ones returned by your DE testing.
+#' @param filename A file.path with the extension XLSX.
+#' @return No return, just the side-effect of writing data to disk in the appropriate format to be shared with colleagues.
+#' @examples
+#' save_XLSX(list(PerCluster=markers.between.clusters, WithinClusters=markers.within.clusters), file.path(getwd(), paste0("../results/results_", format(Sys.time(), '%d_%B__%H-%M-%S_%Y'), ".xlsx")))
+save_XLSX <- function(dfl, filename) {
+  wb <- createWorkbook()
+  options(openxlsx.borderColour = "#4F80BD")
+  options(openxlsx.borderStyle = "thin")
+  modifyBaseFont(wb, fontSize = 14, fontName = "Arial Narrow")
+  for (df_id in names(dfl)) {
+    if ("cluster" %in% colnames(dfl[[df_id]])) {
+      for (cluster_n in seq_len(max(dfl[[df_id]]$cluster))) {
+        sheet_name <- paste(df_id, cluster_n, sep="_")
+        my_data <- dfl[[df_id]][dfl[[df_id]]$cluster == cluster_n, ]
+        my_data$gene <- sub(
+          '\\(.*\\)\\.[0-9]', '\1',
+          my_data$gene
+          )
+        my_data$cluster <- NULL
+        addWorksheet(wb, sheetName = sheet_name, gridLines = FALSE)
+        writeDataTable(wb, sheet = sheet_name,
+                       x = my_data,
+                       colNames = TRUE, rowNames = FALSE,
+                       tableStyle = "TableStyleLight9")
+      }
+    } else {
+      addWorksheet(wb, sheetName = df_id, gridLines = FALSE)
+      writeDataTable(wb, sheet = df_id,
+                     x = dfl[[df_id]],
+                     colNames = TRUE, rowNames = FALSE,
+                     tableStyle = "TableStyleLight9")
+    }
+  }
+  saveWorkbook(wb, filename, overwrite = TRUE)
+}
+```
+
+## Viz
+
+This library provides with extra arguments, functions, and behaviors over the default Seurat. This isn't adding boilerplate code, but on the contrary. It will also provide us with an interface to enforce common plotting requirements.
+
+Using the customized plotting functions keep us away from reinventing the wheel. For example: Extracting the Top N=10 (or whatever `N`) genes per identity after running `Seurat::FindAllMarkers()` is very common and `scCustomize` provides `Extract_Top_Markers()` function to this end. This is extremely helpful to avoid introducing bugs.
+
+### QC
+
+#### Threshold lines
+
+```{r}
+pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
+  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
+
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+```
+
+
+```{r, fig.asp=1.5}
+QC_Plots_Genes(pbmc, high_cutoff = 2500, low_cutoff = 200)
+```
+
+#### Volcanoes
+
+```{r}
+pbmc <- FindVariableFeatures(pbmc)
+```
+
+Remember how we extracted feature names into a vector, `top10`, and then used Seurat's `LabelPoints()`? Don't you? No worries:
+
+```{r}
+VariableFeaturePlot_scCustom(pbmc, num_features = 10, repel = TRUE, y_axis_log = TRUE) + NoLegend()
+```
+
+
+#### UMI vs Features
+
+Remember our Scatter Plot? and the Percent of Mitochondrial genes Violinn Plot?
+
+```{r, fig.asp=1.2}
+QC_Plots_Mito(pbmc, high_cutoff = 15, mito_name = "percent.mt")
+```
+
+```{r, fig.asp=1.2}
+QC_Plot_UMIvsGene(pbmc, low_cutoff_gene = 200, high_cutoff_gene = 2500, meta_gradient_name = "percent.mt")
+```
+
+```{r}
+QC_Plot_GenevsFeature(pbmc, "percent.mt", low_cutoff_gene = 200, high_cutoff_gene = 2500, high_cutoff_feature = 15) + NoLegend()
+# EXERCISE: QC_Plot_UMIvsFeature()
+```
+
+
+```{r}
+# Idents(pbmc) <- "seurat_clusters"
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+pbmc <- NormalizeData(pbmc, verbose = FALSE)
+pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
+pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
+```
+
+With the same data, after the pipeline is applied, we can do some new plots. Some, are new takes on the same pair of axis, but with the novel advantage of having cell `Identities` set to the current `seurat_clusters`.
+
+EXERCISE: Plot "Mito Gene % per Cell/Nucleus" for each cell type. Hint: `group.by` argument from previously used function.
+
+Note: `scCustomize::Add_Mito_Ribo_Seurat()` is the built-in function to add percentage of mitochondrial and ribosomal genes in two different metadata columns. This could be prefered, and would change our arguments having the string `percent.mt` to the new string value: `percent_mito`.
+
+### UMAP
+
+```{r, fig.asp=1.1}
+DimPlot_scCustom(pbmc, split.by = "seurat_clusters", split_seurat = FALSE, num_columns = 3, pt.size = 0.5, repel = TRUE) + NoLegend()
+```
+
+```{r}
+FeaturePlot_scCustom(pbmc, features = "CD8A", alpha_exp = 0.5)  # CD8+ T cells
+```
+
+```{r}
+Plot_Density_Joint_Only(pbmc, features = c("GNLY", "NKG7"))  # NK cells
+```
+
+Note: There's `test.use = "ROC"` for DE analyses, this returns the 'classification power' for any individual marker (ranging from 0 - random, to 1 - perfect).
+
+On default `Seurat::FeaturePlot()`, we had either of these two:
+
+```{r, fig.asp=0.5}
+FeaturePlot(pbmc, features = c("GNLY", "NKG7"))
+```
+
+```{r, fig.asp=0.25}
+FeaturePlot(pbmc, features = c("GNLY", "NKG7"), blend = TRUE)
+```
+
+<!-- markers taken from literature/ here: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#assigning-cell-type-identity-to-clusters -->
+
+### DE
+
+```{r}
+myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
+```
+
+
+## Exercises
+
+1. Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
+
+2. Are there any differences in the results? If so, did you reset the seed between runs? What about the time it takes? You can measure with `microbenchmark` package.

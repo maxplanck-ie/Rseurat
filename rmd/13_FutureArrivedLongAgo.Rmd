@@ -1,4 +1,9 @@
-# Parallelization in Seurat
+---
+title: "Parallelization"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+# Futureverse
 
 The following functions take advantage of the [Future framework](https://www.futureverse.org): NormalizeData, ScaleData, JackStraw, FindMarkers, FindIntegrationAnchors, FindClusters.
 

@@ -4,6 +4,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
   bookdown::html_document2:
+    number_sections: false
     theme: spacelab
     highlight: monochrome
     code_folding: show
@@ -51,33 +52,14 @@ cbind(params)
 ```
 
 ```{r}
-my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
-  # coreLibraries = not explicitly loaded, but required anyway (e.g. dependencies)
-  installed_pkgs <- installed.packages()
-  
-  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-  
-  lapply(c(coreLibraries, packagesToLoad),
-         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
-  
-  lapply(packagesToLoad, function(pkg) {
-    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
-  })
-  
-  TRUE
-}
-```
-
-```{r}
-my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat", "future"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "uwot", "future.apply", "metap", "enrichR", "shiny", "SingleCellExperiment", "remotes", "bookdown")
-)
+library(tidyverse)
+library(future)
+library(Seurat)
 ```
 
 ```{r}
 set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE, format=TRUE)
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 options(parallelly.fork.enable = params$fork,
         future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
@@ -101,7 +83,7 @@ The values in the **count matrix** represent the number of molecules for each fe
 pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
-POLL: How many genes and cells does this dataset have?
+> EXERCISE: How many genes and cells does this dataset have?
 
 Lets examine a few genes in the first thirty cells:
 
@@ -120,7 +102,7 @@ The `min.cells` and `min.features` arguments are low-strigency filters. We are o
 
 The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
-POLL: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? <!-- Hint: subset the sparse matrix in pbmc@assays$RNA -->
+> EXERCISE: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? <!-- Hint: subset the sparse matrix in pbmc@assays$RNA -->
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively. The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values. On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay object(s) via various dimensional reduction techniques such as PCA. For class-specific details, including more in depth description of the slots, please see the wiki sections for each class:
 
@@ -264,9 +246,9 @@ Based on cell-specific features we can subset our `SeuratObject` to keep only th
 - Unique feature counts over 2500 or below 200.
 - >5% mitochondrial counts.
 
-POLL: Which function, also present in base-R and/ or dplyr, would you use: select, filter, or subset?
+> EXERCISE: Which function, also present in base-R and/ or dplyr, would you use: select, filter, or subset?
 
-POLL: What's the current number of cells after this step? 2583, 2638, 2385?
+> EXERCISE: What's the current number of cells after this step? 2583, 2638, 2385?
 
 <!-- DON'T READ THE ANSWER -->
 
@@ -298,15 +280,20 @@ pbmc <- FindVariableFeatures(pbmc)
 
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
 
-POLL: Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
-
-<!-- DON'T READ THE ANSWER -->
+> EXERCISE: Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
 
 ```{r, echo=FALSE}
-(top10 <- VariableFeatures(pbmc) %>% head(10))
+## DON'T READ THE ANSWER
+# (top10 <- VariableFeatures(pbmc) %>% head(10))
 ```
 
-<!-- DON'T READ THE ANSWER -->
+> EXERCISE: What's the variance of the gene `PYCARD`? hint: use `HVFInfo()` over your `assay`.
+
+```{r, echo=FALSE}
+## DON'T READ THE ANSWER
+# HVFInfo(pbmc@assays$RNA, selection.method = "vst")["PYCARD",]$variance.standardized
+```
+
 
 Plot variable features
 
@@ -365,7 +352,7 @@ DimHeatmap(pbmc, dims = 1:9, cells = 500, balanced = TRUE)
 
 To overcome the extensive technical noise in any single feature for scRNA-seq data, Seurat clusters cells based on their PCA scores, with each PC essentially representing a 'metafeature' that combines information across a correlated feature set. The top principal components therefore represent a robust compression of the dataset.
 
-POLL: How many components should we choose to include? 10? 20? 100?
+> EXERCISE: How many components should we choose to include? 10? 20? 100?
 
 One quick way to determine the 'dimensionality' of the dataset is by eyeballing how the percentage of variance explained decreases:
 
@@ -375,7 +362,7 @@ ElbowPlot(pbmc)
 
 Another one, is using the JackStraw procedure: We randomly permute a subset of the data (1% by default) and rerun PCA, constructing a 'null distribution' of feature scores, and repeat this procedure. We identify 'significant' PCs as those who have a strong enrichment of low p-value features.
 
-> Do you feel like you need a refresher on permutations? check this beautiful animation of permutations explained in the context of statistical testing (constructing a 'null distribution'): <https://www.jwilber.me/permutationtest/>
+> Do you feel like you need a refresher on permutations? check this beautiful animation of permutations explained in the context of statistical testing (constructing a 'null distribution'): https://www.jwilber.me/permutationtest/
 
 The next three code-block are skipped of evaluation because this process can take a long time for big datasets. Please note that there's nothing wrong with using `ElbowPlot()`!
 
@@ -403,6 +390,8 @@ Ndim=10
 
 > EXERCISE: Convert this `Ndim` into a parameter at the current Rmarkdown document YAML header, just like `Nthreads`.
 
+# BREAK
+
 # Clustering
 
 The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations. Building on these subpopulations, `PhenoGraph` authors developed additional methods to extract high-dimensional signaling phenotypes and infer differences in functional potential between subpopulations. For details, be sure to check the [research paper](http://www.ncbi.nlm.nih.gov/pubmed/26095251).
@@ -425,7 +414,7 @@ knitr::include_graphics("./images/jaccard.svg")
 
 All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
-POLL: Machine learning algorithms have parameters and hyperparameters, Deep Learning Large Language Models have them in the order of billions, this one only has one: `K`. Can you find which is the default value that Seurat uses? 10? 20? 30?... Hint: `help` yourselves by reading the docs!
+> EXERCISE: Machine learning algorithms have parameters and hyperparameters, Deep Learning Large Language Models have them in the order of billions, this one only has one: `K`. Can you find which is the default value that Seurat uses? 10? 20? 30?... Hint: `help` yourselves by reading the docs!
 
 ```{r}
 Ndims=10
@@ -446,13 +435,13 @@ The clusters can be found using the `Idents()` function. Here, for example we ca
 head(Idents(pbmc), 5)
 ```
 
-POLL: How many clusters did we find?
+> EXERCISE: How many clusters did we find?
 
 NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html)
 
 # EXERCISES
 
-> These are **not mandatory**, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills.
+> These are **not mandatory**, and barely related to scRNAseq... we hope it will add to your 'Working with RMarkdown' skills. We'll start with these today, but we'll still need to allow for 30-45 minutes before the end of this class for one last lecture (titled: Enrichment).
 
 1. Save all your R session details (a.k.a. environment specification) using the function `sessioninfo::session_info()` and its `to_file` argument.
 

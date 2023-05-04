@@ -4,6 +4,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
   bookdown::html_document2:
+    number_sections: false
     theme: spacelab
     highlight: monochrome
     code_folding: show
@@ -57,29 +58,20 @@ cbind(params)
 ```
 
 ```{r}
-my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
-  installed_pkgs <- installed.packages()
-  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-  lapply(c(coreLibraries, packagesToLoad),
-         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
-  lapply(packagesToLoad, function(pkg) {
-    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
-  })
-  TRUE
-}
-
-my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "Seurat"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "enrichR", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData", "MAST", "glmGamPoi")
-)
+library(tidyverse)
+library(magrittr)
+library(openxlsx)
+library(Seurat)
 ```
 
 ```{r}
 set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE, format = TRUE)
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-options(parallelly.fork.enable = params$fork,
-        future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
+options(
+  parallelly.fork.enable = params$fork,
+  future.globals.maxSize = params$Nmemgb * 1024^2 * 1000
+)
 
 plan("multicore", workers = params$Nthreads)
 
@@ -131,11 +123,13 @@ Seurat has different functions that do all Differential Expression (DE) tests fo
 Let's do a comparison between cells in clusters 1 (Naive CD4 T) and 2 (CD14+ Mono).
 
 ```{r}
-markers2v5 <- FindMarkers(object = pbmc,
-                          test.use = "MAST",
-                          ident.1 = "Naive CD4 T",
-                          ident.2 = "CD14+ Mono",
-                          verbose = FALSE)
+markers2v5 <- FindMarkers(
+  object = pbmc,
+  test.use = "MAST",
+  ident.1 = "Naive CD4 T",
+  ident.2 = "CD14+ Mono",
+  verbose = FALSE
+)
 ```
 
 The resulting object is a data frame with the following columns:
@@ -148,7 +142,7 @@ The resulting object is a data frame with the following columns:
 
 You may inspect the results with either `View()` or `DT::datatable()`, according to your situation (e.g. working interactively at RStudio IDE or, rendering an HTML Report).
 
-POLL: What would happen if we used `ident.1 = "CD14+ Mono"`, and `ident.2 = "Naive CD4 T"` instead?
+> EXERCISE: What would happen if we used `ident.1 = "CD14+ Mono"`, and `ident.2 = "Naive CD4 T"` instead?
 
 **If the `ident.2` parameter is omitted or set to `NULL`, `FindMarkers()` will test for differentially expressed features between the group specified by `ident.1` and all other cells.** You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all the cells of clusters oen and three, pooled together.
 
@@ -179,8 +173,20 @@ VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
 ```
 
 ```{r}
-FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP",
-    "CD8A"))
+FeaturePlot(
+  pbmc,
+  features = c(
+    "MS4A1",
+    "GNLY",
+    "CD3E",
+    "CD14",
+    "FCER1A",
+    "FCGR3A",
+    "LYZ",
+    "PPBP",
+    "CD8A"
+  )
+)
 ```
 
 Usually, we'd be getting top DE genes to draw these plots, and to drive GSEA as a downstream analysis to ultimately draw our conclusions.
@@ -196,18 +202,18 @@ This functions are only to be used 'as is' (verbatim), if they serve your own pu
 Returns a vector of cell IDs after filtering seurat object with metadata. You'd need to adapt this to your needs in your own analyses, in this case we assumed 'treatment' meta.data is actually the `orig.ident`! ...we'll be using it in the next functions.
 
 ```{r}
-get_cell_ids <- function(obj, treatment=NULL, cluster=NULL, phase=NULL, group=NULL) {
+get_cell_ids <- function(obj, treatment = NULL, cluster = NULL, phase = NULL, group = NULL) {
   cell_ids <- colnames(obj)
-  if (! is.null(treatment)) {
+  if (!is.null(treatment)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, orig.ident == treatment)@meta.data))
   }
-  if (! is.null(group)) {
+  if (!is.null(group)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, groups == group)@meta.data))
   }
-  if (! is.null(phase)) {
+  if (!is.null(phase)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, Phase == phase)@meta.data))
   }
-  if (! is.null(cluster)) {
+  if (!is.null(cluster)) {
     cell_ids <- intersect(cell_ids, rownames(subset(obj, seurat_clusters == cluster)@meta.data))
   }
   stopifnot(length(cell_ids) >= 1)
@@ -228,7 +234,8 @@ find_markers <- function(obj, ...) {
     min.pct = 0.05,
     only.pos = TRUE,
     densify = TRUE,
-    verbose = FALSE, ...))
+    verbose = FALSE, ...
+  ))
 }
 ```
 
@@ -244,7 +251,8 @@ find_all_markers <- function(obj, ...) {
     min.pct = 0.05,
     only.pos = TRUE,
     densify = TRUE,
-    verbose = FALSE, ...))
+    verbose = FALSE, ...
+  ))
 }
 ```
 
@@ -263,9 +271,10 @@ find_conserved_markers <- function(cluster, ...) {
     min.pct = 0.05,
     only.pos = TRUE,
     densify = TRUE,
-    verbose = FALSE, ...) %>%
-      tibble::rownames_to_column(var = "gene") %>%
-      cbind(cluster_id = cluster, .))
+    verbose = FALSE, ...
+  ) %>%
+    tibble::rownames_to_column(var = "gene") %>%
+    cbind(cluster_id = cluster, .))
 }
 ```
 
@@ -282,11 +291,13 @@ markers_within_clusters <- function(obj, totalNumberOfClusters,
     thisCluster_cells <- get_cell_ids(obj, cluster = i)
     cells__1 <- intersect(cells_1, thisCluster_cells)
     cells__2 <- intersect(cells_2, thisCluster_cells)
-    # cells_N, variable name with double underscore,
+    # NOTE:
+    # cells__N, variables named with double underscores,
     # are only used internally!!
     markers <- find_markers(obj,
-                            ident.1 = cells__1,
-                            ident.2 = cells__2)
+      ident.1 = cells__1,
+      ident.2 = cells__2
+    )
     if (nrow(markers) > 0) {
       markers %<>% cbind(cluster = rep(i, nrow(.)))
       markers$gene <- rownames(markers)
@@ -316,10 +327,12 @@ process_markers <- function(markers) {
   if ("cluster" %in% colnames(markers)) {
     markers$cluster <- as.numeric(as.character(markers$cluster))
     markers %<>% arrange(Adjusted.P.value) %>% select(
-      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2)
+      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
   } else {
     markers %<>% arrange(Adjusted.P.value) %>% select(
-      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2)
+      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
   }
   markers
 }
@@ -329,8 +342,12 @@ For these functions, we need `totalNumberOfClusters` variable to be defined, let
 
 ```{r, fig.asp=0.1}
 totalNumberOfClusters <- length(levels(Idents(pbmc)))
-my_cols = brewer.pal(totalNumberOfClusters, "Set1")
-ggplot(data.frame(x=1:totalNumberOfClusters, type=1:totalNumberOfClusters), aes(x=x, fill=factor(type))) + geom_bar() + scale_fill_manual(values = my_cols) + theme_void() + NoLegend()
+my_cols <- RColorBrewer::brewer.pal(totalNumberOfClusters, "Set1")
+ggplot(data.frame(x = 1:totalNumberOfClusters, type = 1:totalNumberOfClusters), aes(x = x, fill = factor(type))) +
+  geom_bar() +
+  scale_fill_manual(values = my_cols) +
+  theme_void() +
+  NoLegend()
 ```
 
 ```{r}
@@ -366,52 +383,4 @@ Since `process_markers` is not **idempontent**, running the above codeblock woul
 
 3. Explore the number of cells from each treatment level in each cluster? Do we have underrepresented classes in any of these? Would it affect our downstream DE analyses? Hint: use a code block with this one-liner: `DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters, treatment))`
 
-4. Add a `root_name` parameter of type `input: text`, and implement the following `save_XLSX()` to save all your DE tests results in a XLSX file:
-
-```{r, eval=FALSE}
-my.file.name <- paste(params$root_name,
-                      gsub(' ','_',gsub(':','-',date())),
-                      sep="_")
-
-#' Export Data Frames to a Microsoft Excel File
-#'
-#' Creates a workbook with different sheets, each corresponding to a data frame that was passed in the first argument. This would also split by clusters to different sheets, if this column is found.
-#' @param dfl A list of data frames, like the ones returned by your DE testing.
-#' @param filename A file.path with the extension XLSX.
-#' @return No return, just the side-effect of writing data to disk in the appropriate format to be shared with colleagues.
-#' @examples
-#' save_XLSX(list(PerCluster=markers.between.clusters, WithinClusters=markers.within.clusters), file.path(getwd(), paste0("../results/", my.file.name, ".xlsx")))
-save_XLSX <- function(dfl, filename) {
-  wb <- createWorkbook()
-  options(openxlsx.borderColour = "#4F80BD")
-  options(openxlsx.borderStyle = "thin")
-  modifyBaseFont(wb, fontSize = 14, fontName = "Arial Narrow")
-  for (df_id in names(dfl)) {
-    if ("cluster" %in% colnames(dfl[[df_id]])) {
-      for (cluster_n in seq_len(max(dfl[[df_id]]$cluster))) {
-        sheet_name <- paste(df_id, cluster_n, sep="_")
-        my_data <- dfl[[df_id]][dfl[[df_id]]$cluster == cluster_n, ]
-        my_data$gene <- sub(
-          '\\(.*\\)\\.[0-9]', '\1',
-          my_data$gene
-          )
-        my_data$cluster <- NULL
-        addWorksheet(wb, sheetName = sheet_name, gridLines = FALSE)
-        writeDataTable(wb, sheet = sheet_name,
-                       x = my_data,
-                       colNames = TRUE, rowNames = FALSE,
-                       tableStyle = "TableStyleLight9")
-      }
-    } else {
-      addWorksheet(wb, sheetName = df_id, gridLines = FALSE)
-      writeDataTable(wb, sheet = df_id,
-                     x = dfl[[df_id]],
-                     colNames = TRUE, rowNames = FALSE,
-                     tableStyle = "TableStyleLight9")
-    }
-  }
-  saveWorkbook(wb, filename, overwrite = TRUE)
-}
-```
-
-5. Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
+4. Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>

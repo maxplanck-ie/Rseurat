@@ -16,3 +16,5 @@ render:  ## Generate all the HTML files.
 	@Rscript -e "rmarkdown::render_site('rmd')"
 	@echo "$$ ls -halt rmd/site/" && echo ""
 
+style:  ## Format all code blocks.
+	@Rscript -e "styler::style_dir('rmd')"

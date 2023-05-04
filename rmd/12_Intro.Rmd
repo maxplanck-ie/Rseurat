@@ -1,11 +1,20 @@
 ---
 title: "Introduction to Sequencing Techniques"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: bookdown::html_document2
+output:
+  bookdown::html_document2:
+    number_sections: true
+    theme: spacelab
+    highlight: monochrome
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
 ```
 
 > Please note: this is a summary of the information available at: <https://www.singlecellcourse.org/>
