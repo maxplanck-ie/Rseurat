@@ -145,7 +145,7 @@ QC_Plot_UMIvsGene(pbmc, low_cutoff_gene = 200, high_cutoff_gene = 2500, meta_gra
 QC_Plot_GenevsFeature(pbmc, "percent.mt", low_cutoff_gene = 200, high_cutoff_gene = 2500, high_cutoff_feature = 15) + NoLegend()
 ```
 
-> ⌨🔥 Exercise:: Try plotting with QC_Plot_UMIvsFeature()
+> ⌨🔥 Exercise: Try plotting with QC_Plot_UMIvsFeature()
 
 
 ```{r}
@@ -167,7 +167,7 @@ rm(new.cluster.ids)
 
 With the same data, after the pipeline is applied, we can do some new plots. Some, are new takes on the same pair of axis, but with the novel advantage of having cell `Identities` set to the current `seurat_clusters`.
 
-> ⌨🔥 Exercise:: Plot "Mito Gene % per Cell/Nucleus" for each cell type. Hint: `group.by` argument from previously used function.
+> ⌨🔥 Exercise: Plot "Mito Gene % per Cell/Nucleus" for each cell type. Hint: `group.by` argument from previously used function.
 
 Note: `scCustomize::Add_Mito_Ribo_Seurat()` is the built-in function to add percentage of mitochondrial and ribosomal genes in two different metadata columns. This could be prefered, and would change our arguments having the string `percent.mt` to the new string value: `percent_mito`.
 
@@ -206,7 +206,7 @@ myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
 ```
 
 
-> ⌨🔥 Exercise:S:
+> ⌨🔥 Exercise(s):
 
 > 1. Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
 

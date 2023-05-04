@@ -97,7 +97,7 @@ gene.set.1 <- arrange(pca, -PC_1) %>%
 ```
 
 
-> ⌨🔥 Exercise:: Let's wrap this into a function that takes three inputs: (1) `seurat_obj`, Seurat object with PCA already run; (2) `pc_number`, an integer representing the desired PC number to use; (3) `gene_total`, the quantity of  'top' gene names to extract; and (4) `anticorrelation`, a Boolean representing that we want to get the top or the bottom genes in the PC. Such function should return a vector name of appropriate length, with the gene names. This has been already been programmed for you, but you'll need to fill-in the three `?` signs.
+> ⌨🔥 Exercise: Let's wrap this into a function that takes three inputs: (1) `seurat_obj`, Seurat object with PCA already run; (2) `pc_number`, an integer representing the desired PC number to use; (3) `gene_total`, the quantity of  'top' gene names to extract; and (4) `anticorrelation`, a Boolean representing that we want to get the top or the bottom genes in the PC. Such function should return a vector name of appropriate length, with the gene names. This has been already been programmed for you, but you'll need to fill-in the three `?` signs.
 
 ```{r,eval=FALSE}
 myWrap <- function(seurat_obj,
@@ -208,7 +208,7 @@ my_plot_enrich <- function(enriched, dbs, N) {
 # - Color scale follows p-value (fdr).
 ```
 
-> ⌨🔥 Exercise:: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same output types?
+> ⌨🔥 Exercise: Write specifications for each of the functions, what are their inputs types? What are their outputs types? Are all functions always returning the same output types?
 
 ### Plots
 
@@ -246,4 +246,4 @@ enrichment_as_print_df(result.1, 3) %>% DT::datatable()
 
 # End
 
-> ⌨🔥 Exercise:: Explore all first 9 PCs using `my_plot_enrich` and `enrichment_as_print_df`.
+> ⌨🔥 Exercise: Explore all first 9 PCs using `my_plot_enrich` and `enrichment_as_print_df`.
