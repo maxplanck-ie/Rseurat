@@ -43,6 +43,9 @@ navbar:
       - text: Cell Annotation
         icon: fa-paintbrush
         href: 40_CellAnnotation.html
+      - text: Dataset Challenge
+        icon: fa-mountain
+        href: 41_DatasetChallenge.html
   right:
     - text: "Source"
       icon: fa-github
