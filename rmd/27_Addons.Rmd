@@ -18,6 +18,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE, out.width = "100%", eval=FALSE, format=TRUE)
 ```
 
+Consider these extra notes after learning Seurat.
+
 ## Load Data
 
 We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
@@ -94,7 +96,13 @@ save_XLSX <- function(dfl, filename) {
 }
 ```
 
-## Viz
+## Viz: scCustomize
+
+<!-- https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
+
+https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
+
+https://samuel-marsh.github.io/scCustomize/reference/index.html -->
 
 This library provides with extra arguments, functions, and behaviors over the default Seurat. This isn't adding boilerplate code, but on the contrary. It will also provide us with an interface to enforce common plotting requirements.
 
