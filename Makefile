@@ -32,4 +32,3 @@ upgrade:
 		git push -u origin main && sleep 1s && \
 		echo "-- Pull Request was merged" && \
 		git checkout $$CURRENT_BRANCH
-
