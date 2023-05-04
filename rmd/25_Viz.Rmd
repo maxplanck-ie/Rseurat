@@ -41,24 +41,8 @@ params:
     value: 0.5
 ---
 
-<!-- 
-https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
-
-https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
-
-https://samuel-marsh.github.io/scCustomize/reference/index.html
--->
 
 # Setup
-
-```{r}
-timestamp()
-```
-
-```{r}
-getwd()
-```
-
 
 ```{r}
 cbind(params)
@@ -81,10 +65,6 @@ options(
 )
 
 plan("multicore", workers = params$Nthreads)
-
-myFlappy <- function(x, ...) {
-  future.apply::future_lapply(x, ..., future.seed = TRUE)
-}
 ```
 
 ## Load Data

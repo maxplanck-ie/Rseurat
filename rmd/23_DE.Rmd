@@ -45,22 +45,12 @@ params:
 # Setup
 
 ```{r}
-timestamp()
-```
-
-```{r}
-getwd()
-```
-
-
-```{r}
 cbind(params)
 ```
 
 ```{r}
 library(tidyverse)
 library(magrittr)
-library(openxlsx)
 library(Seurat)
 ```
 
@@ -74,10 +64,6 @@ options(
 )
 
 plan("multicore", workers = params$Nthreads)
-
-myFlappy <- function(x, ...) {
-  future.apply::future_lapply(x, ..., future.seed = TRUE)
-}
 ```
 
 ## Load Data
@@ -105,11 +91,6 @@ pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FAL
 pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
 
 pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
-
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
-names(new.cluster.ids) <- levels(pbmc)
-pbmc <- RenameIdents(pbmc, new.cluster.ids)
-rm(new.cluster.ids)
 ```
 
 # Markers

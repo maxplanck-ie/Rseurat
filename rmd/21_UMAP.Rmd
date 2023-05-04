@@ -45,15 +45,6 @@ params:
 # Setup
 
 ```{r}
-timestamp()
-```
-
-```{r}
-getwd()
-```
-
-
-```{r}
 cbind(params)
 ```
 
@@ -72,10 +63,6 @@ options(
 )
 
 plan("multicore", workers = params$Nthreads)
-
-myFlappy <- function(x, ...) {
-  future.apply::future_lapply(x, ..., future.seed = TRUE)
-}
 ```
 
 ## Load Data

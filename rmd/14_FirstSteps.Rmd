@@ -65,10 +65,6 @@ options(parallelly.fork.enable = params$fork,
         future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
 
 plan("multicore", workers = params$Nthreads)
-
-myFlappy <- function(x, ...) {
-  future.apply::future_lapply(x, ..., future.seed = TRUE)
-}
 ```
 
 ## Load Data

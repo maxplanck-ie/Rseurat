@@ -23,15 +23,6 @@ params:
 # Setup
 
 ```{r}
-timestamp()
-```
-
-```{r}
-getwd()
-```
-
-
-```{r}
 cbind(params)
 ```
 
