@@ -10,7 +10,9 @@ display-warning:
 	@echo "Else, please run:"
 	@echo "          mamba env create -n Rseurat -f configs/conda.yml"
 	@echo "Plus, any dependencies unavailable through conda channels:"
-	@cat .github/workflows/deploy.yml | grep Rscript | sed '$$d'
+	@cat .github/workflows/deploy.yml | grep Rscript | grep -v zenodo | sed '$$d'
+	@echo "And last, you'd need the manually-curated datasets:"
+	@echo -n "          " && cat rmd/10_PkgInstall.Rmd | grep cp
 
 render:  ## Generate all the HTML files.
 	@Rscript -e "rmarkdown::render_site('rmd')"
