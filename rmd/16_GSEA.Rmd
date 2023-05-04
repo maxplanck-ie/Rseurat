@@ -48,7 +48,7 @@ knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 ## Load Data (WrapUp!)
 
-We'll be working with the data from our past notebook ("Introduction"), let's quickly re-load and re-process again:
+We'll be working with the data from our past notebook ("First steps"), let's quickly re-load and re-process again:
 
 ```{r}
 # NOTE: This code block will be repeated throughout the course, and it has 5 parameters that are good candidates to be moved to the YAML header(s). If this were an actual research report, we would have probably done this.

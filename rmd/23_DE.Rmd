@@ -82,7 +82,7 @@ myFlappy <- function(x, ...) {
 
 ## Load Data
 
-We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:
+We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
 
 ```{r}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
