@@ -208,31 +208,6 @@ plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"
 plot1 + plot2
 ```
 
-<!-- ## Cell-Cycle scoring
-
-This is a bit of a de-tour. To keep the analysis simple and up to the most standard way, we won't be trying to mitigate the effects of cell cycle heterogeneity in the dataset today. Follow the [tutorial](https://satijalab.org/seurat/articles/cell_cycle_vignette.html) if the need arises when working with your own dataset.
-
-We assign scores in the `CellCycleScoring()` function, which stores S and G2/M scores in object meta data, along with the predicted classification of each cell in either G2M, S or G1 phase.
-
-``{r}
-standardize.gene.name <- function(gene_name, sp) {
-  if (sp == "mouse") {
-    x <- tools::toTitleCase(tolower(gene_name))
-  } else if (sp == "human") {
-    x <- toupper(gene_name)
-  }
-  x
-} 
-
-pbmc %<>% CellCycleScoring(s.features = standardize.gene.name(cc.genes$s.genes, sp="human"),
-                           g2m.features = standardize.gene.name(cc.genes$g2m.genes, sp="human"),
-                           nbin = 20)
-
-# To allow using 'alternate' cell-cycle regress-out @ PCA
-pbmc$CC.Difference <- pbmc$S.Score - pbmc$G2M.Score
-`` -->
-
-
 # Filtering and Transformation
 
 ## Select Cells

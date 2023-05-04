@@ -44,6 +44,35 @@ pbmc <- RenameIdents(pbmc, new.cluster.ids)
 rm(new.cluster.ids)
 ```
 
+## Cell-Cycle Scoring
+
+We didn't try to mitigate the effects of cell cycle heterogeneity in the pbmc3k dataset. Follow the [tutorial](https://satijalab.org/seurat/articles/cell_cycle_vignette.html) if the need arises when working with your own dataset.
+
+We assign scores in the `CellCycleScoring()` function, which stores S and G2/M scores in object meta data, along with the predicted classification of each cell in either G2M, S or G1 phase. This function uses some custom lists of genes that are already bundled, it's mainly a wrapper around `AddModuleScore()`.
+
+```{r}
+# Better safe than sorry. Avoid false-positives.
+standardize.gene.name <- function(gene_name, sp) {
+  if (sp == "mouse") {
+    x <- tools::toTitleCase(tolower(gene_name))
+  } else if (sp == "human") {
+    x <- toupper(gene_name)
+  }
+  x
+} 
+
+pbmc %<>% CellCycleScoring(s.features = standardize.gene.name(cc.genes$s.genes, sp="human"),
+                           g2m.features = standardize.gene.name(cc.genes$g2m.genes, sp="human"),
+                           nbin = 20)
+
+# To allow using 'alternate' cell-cycle regress-out @ PCA
+pbmc$CC.Difference <- pbmc$S.Score - pbmc$G2M.Score
+```
+
+To understand how these scores are calculated, take a look at the [original research paper](https://doi.org/10.1126/science.aad0501). Here's an excerpt:
+
+> The top 100 MITF-correlated genes across the entire set of malignant cells were defined as the MITF program, and their average relative expression as the MITF-program cell score. The average expression of the top 100 genes that negatively correlate with the MITF program scores were defined as the AXL program and used to define AXL program cell score. To decrease the effect that the quality and complexity of each cell’s data might have on its MITF/AXL scores we defined control gene-sets and their average relative expression as control scores, for both the MITF and AXL programs. These control cell scores were subtracted from the respective MITF/AXL cell scores. The control gene-sets were defined by first binning all analyzed genes into 25 bins of aggregate expression levels and then, for each gene in the MITF/AXL gene-set, randomly selecting 100 genes from the same expression bin as that gene. In this way, a control gene-sets have a comparable distribution of expression levels to that of the MITF/AXL gene-set and the control gene set is 100-fold larger, such that its average expression is analogous to averaging over 100 randomly-selected gene-sets of the same size as the MITF/AXL gene-set.
+
 ## Shiny
 
 <!-- https://shiny.rstudio.com/gallery/shiny-wysiwyg.html -->
