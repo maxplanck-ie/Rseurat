@@ -25,6 +25,7 @@ output:
 ## Setup
 
 ```{r, setup, include=FALSE}
+.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
 library(formatR)
 library(knitr)
 library(kableExtra)
