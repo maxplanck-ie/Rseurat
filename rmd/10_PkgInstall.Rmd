@@ -18,29 +18,36 @@ knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
 ```
 
-> If you are going to use Workbench, the package installation may be skipped by executing the following shell command in a Terminal **inside the server** (on RStudio IDE, you can open this using the 'Tools' menu).
->
-> `cp -r /scratch/local/rseurat/pkg-lib-4.1.3 /rstudio/${USER}/rstudio/R/workbench-library/4.1`
->
-> The package library you just copied over is a snapshot taken the 4th of May 2023. For safety, you should still run the Bioconductor validation as described below under the 'Consistency' subtitle. **Note that the sections that follow after that would still be required.**
+Thanks for taking the time to do this before the course!
+
+Make sure you allow for ~45 minutes to complete all the steps. The exact time will depend on network performance, and the current state of your package library (e.g., previous packages installed). If all goes well, it will be less than 15 minutes.
+
+# Working Directory
+
+Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip). Put it in a folder, any folder but outside the `/home` partition! You will find all the lectures under `rmd/` subfolder. On the root you'll find an `Rproj` file, so you should **open the corresponding path as an existing project folder** in RStudio IDE. You should follow the next instructions using the 'raw' `./rmd/10_PkgInstall.Rmd` file now. Remember to READ ALL THE INSTRUCTIONS, the following installation steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each RMarkdown code block and just get all the process done. Expect to see error messages!
 
 # Installation
 
-PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each RMarkdown code block and just get it done.
+## Important Notes
 
-Make sure you allow for 30-60 minutes to complete all the steps. The exact time will depend on network performance, and the current state of your package library (e.g., previous packages installed).
+- Ensure you're running R `4.1.3`. The following procedure wasn't tested with recent versions.
+- Run each of the code blocks manually, and ensure there were no errors before moving forward.
+- Watch out for possible errors. It would be wise to keep an eye on the text output at all time.
+- To emphasize the last item, let's rephrase it: shouldn't be a surprise if you have a compilation error message in the middle of the whole text output.
+- If asked to update packages, answer 'none'. We'll take care of package updates near the end.
+- If asked to compile packages, answer 'no'.
+- All code blocks may be executed more than once, if the packages are installed, there's no increase in the total duration of this whole process. So, do run them a couple of times before moving forward to the next block.
+- If you see errors, re-run the code block again.
 
-Thanks for taking the time to do this before the course!
+#### Workbench Users
 
-> **Important**
-> - Ensure you're running R `4.1.3`. The following procedure wasn't tested with recent versions.
-> - Run each of the code blocks manually, and ensure there were no errors before moving forward.
-> - Watch out for possible errors. It woud be wise to keep an eye on the text output at all time.
-> - To emphasize the last item, let's rephrase it: shouldn't be a surprise if you have a compilation error message in the middle of the whole text output.
-> - If asked to update packages, answer 'none'. We'll take care of package updates near the end.
-> - If asked to compile packages, answer 'no'.
-> - All code blocks may be executed more than once, if the packages are installed, there's no increase in the total duration of this whole process. So, do run them a couple of times before moving forward to the next block.
-> - If you see errors, re-run the code block again.
+The package installation may be accelerated A LOT by executing the following shell command in a Terminal **inside the server** (on RStudio IDE, you can open this using the 'Tools' menu).
+
+`cp -r /scratch/local/rseurat/pkg-lib-4.1.3 /rstudio/${USER}/rstudio/R/workbench-library/4.1`
+
+The package library you just copied over is a snapshot taken the 4th of May 2023.
+
+For safety, **you should still run the code blocks**, since we're using conditionals anyway. Only missing packages are really downloaded, compiled (sometimes), and installed.
 
 ## Bioconductor
 
@@ -113,7 +120,6 @@ retrieve_namespaces(
     "sessioninfo",
     "remotes",
     # Rendering to HTML/ Site
-    ## might as well prefer working with raw Rmd(s)
     "knitr",
     "rmarkdown",
     "markdown",
@@ -147,12 +153,6 @@ BiocManager::valid()
 
 If the above code block fails, is because according to BiocManager our current state is not valid (so, it didn't return `TRUE` to `stopifnot`). To correct this, you should run the `BiocManager::install()` command as it's stated by `BiocManager::valid()`.
 
-# Working Directory
-
-Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip). Put it in a folder, any folder but outside the `/home` partition! You will find all the lectures under `rmd/` subfolder. On the root you'll find an `Rproj` file, so you should **open the corresponding path as an existing project folder** in RStudio IDE. You should follow the next instructions using the 'raw' `./rmd/10_PkgInstall.Rmd` file now.
-
-NOTE: We'll be working with RMarkdown files, mixing text (e.g. Word document) and code blocks (e.g. generating plots). Please not that whenever you see a code-block marked with `eval=FALSE` in the following lectures of this course, that's because you're not meant to execute that code. You would still see the green arrow, just don't click on it. There's no harm done, but you will only see error messages. And, if the code in one of such blocks is grayed-out and comes right after a question, then, that's the answer... We have helpful hints already, don't need to cheat. Also, there's no evaluation in this course.
-
 # Datasets
 
 R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
@@ -172,18 +172,9 @@ if (!"kBET" %in% installed.packages()) remotes::install_github("theislab/kBET")
 
 ## Download preprocessed datasets from zenodo
 
-For the later part of the course, we have preprocessed a couple of large datasets. Depending on where you will be working, there are two alternative ways now...
+For the later part of the course, we have preprocessed a couple of large datasets. Depending on where you will be working, there are two alternative ways now. So, if you are a Workbench user, go to the next subtitle.
 
-1: For those that will be using Workbench/ RStudio Server, the datasets will be already provided under `/scratch/local/rseurat/datasets`. You can copy from this location, and skip the download.
-
-Please note the use of working directory environment variable (`$PWD`) in the next command. This is supposed to be run inside the repository `./rmd/` subfolder.
-
-```{bash, eval=FALSE}
-cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preprocessed_rds
-```
-
-
-2: If you will be using RStudio from your laptop, then you may download from zenodo:
+If you will be using RStudio from your laptop, then you may download from zenodo:
 
 1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1)
 1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1)
@@ -191,4 +182,14 @@ cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preproces
 
 Depending on your bandwidth, the downloads may take 15-30 minutes.
 
-<!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/datasets/preprocessed_rds/ -->
+#### Workbench Users
+
+The datasets are already provided under `/scratch/local/rseurat/datasets`. You can copy from this location, and skip the download.
+
+Please note the use of working directory environment variable (`$PWD`) in the next command. This is supposed to be run inside the repository `./rmd/` subfolder. Adjust accordingly, or use `mv` to fix it.
+
+```{bash, eval=FALSE}
+cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preprocessed_rds
+```
+
+<!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/rseurat/datasets/preprocessed_rds/ -->
