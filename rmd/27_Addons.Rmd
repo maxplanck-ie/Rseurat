@@ -236,12 +236,26 @@ FeaturePlot(pbmc, features = c("GNLY", "NKG7"), blend = TRUE)
 
 <!-- markers taken from literature/ here: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#assigning-cell-type-identity-to-clusters -->
 
-### DE
+### DE FeaturePlots
+
+Use a better resolution by the means of a color scale and some smoothing.
 
 ```{r}
 myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
 ```
 
+
+## Markers
+
+You may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
+
+For example, to take all cells in cluster 2, and find markers that separate cells in the 'g1' group (metadata variable 'group'):
+
+```{r}
+markers.2.g1 <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', subset.ident = "2")
+```
+
+# End
 
 > ⌨🔥 Exercise(s):
 
