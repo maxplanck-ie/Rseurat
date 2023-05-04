@@ -59,6 +59,7 @@ dependencies:
   - bioconductor-multtest
   - bioconductor-limma
   - bioconductor-deseq2
+  - bioconductor-mast
   - bioconductor-ensdb.hsapiens.v75
   - bioconductor-BiocFileCache
   - bioconductor-biomaRt
@@ -70,6 +71,4 @@ dependencies:
   - bioconductor-scran
   - bioconductor-scater
   - bioconductor-glmGamPoi
-  # SeuratData  ## install manually using remotes::install_github('satijalab/seurat-data')
-  # kBET  ## install manually using remotes::install_github('theislab/kBET')
   - r-gh
