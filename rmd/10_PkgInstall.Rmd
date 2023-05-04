@@ -18,7 +18,15 @@ knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
 ```
 
-PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each code block and just get it done.
+> If you are going to use Workbench, the package installation may be skipped by executing the following shell command in a Terminal **inside the server** (on RStudio IDE, you can open this using the 'Tools' menu).
+>
+> `cp -r /scratch/local/rseurat/pkg-lib-4.1.3 /rstudio/${USER}/rstudio/R/workbench-library/4.1`
+>
+> The package library you just copied over is a snapshot taken the 4th of May 2023. For safety, you should still run the Bioconductor validation as described below under the 'Consistency' subtitle. **Note that the sections that follow after that would still be required.**
+
+# Installation
+
+PLEASE READ ALL THE TEXT, the following steps are rather sensitive. So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each RMarkdown code block and just get it done.
 
 Make sure you allow for 30-60 minutes to complete all the steps. The exact time will depend on network performance, and the current state of your package library (e.g., previous packages installed).
 
@@ -34,7 +42,7 @@ Thanks for taking the time to do this before the course!
 > - All code blocks may be executed more than once, if the packages are installed, there's no increase in the total duration of this whole process. So, do run them a couple of times before moving forward to the next block.
 > - If you see errors, re-run the code block again.
 
-# Bioconductor
+## Bioconductor
 
 <Bioconductor.org> is a repository of bioinformatic packages, just like CRAN (which also has bioinformatic packages). The difference is that instead of GNU Public License, Bioc packages are under a license that allows commercial usage, widening its user-base (e.g. including private hospitals).
 
@@ -62,7 +70,7 @@ BiocManager::install(version = "3.14")
 >     spatial, survival
 > ```
 
-# Core & Dependencies
+## Core & Dependencies
 
 The next code block defines a function, `retrieve_namespaces()`, that takes a character vector with package names, to be installed. If the execution of the whole function is not interrupted by an error, it will simply return `TRUE`.
 
@@ -129,7 +137,7 @@ rm -rf /rstudio/${USER}/.rstudio/R/workbench-library/4.1/00LOCK-*
 ```
 
 
-# Consistency
+## Consistency
 
 - Finally, we want our installation to be coherent:
 
