@@ -6,6 +6,7 @@ dependencies:
   - r-base=4.1.3
   - r-essentials
   - r-formatR
+  - r-styler
   - r-sessioninfo
   - r-remotes
   - r-biocmanager
