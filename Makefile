@@ -23,13 +23,14 @@ style:  ## Format all code blocks.
 
 upgrade:
 	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
-	git pull origin main
-	git push
+	# Push commits
+	git pull origin main && git push
+	# Open PR
 	gh pr create --fill -B main
-	git checkout main
-	#test -e DIRTY_STAGE && git stash push -m auto123
+	# Merge PR
+	git checkout main && git pull
 	git merge $$CURRENT_BRANCH
 	git push -u origin main
+	# Get back to were you belong
 	git checkout $$CURRENT_BRANCH
-	#test -e DIRTY_STAGE && git stash pop
 
