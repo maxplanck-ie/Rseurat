@@ -46,6 +46,9 @@ navbar:
       - text: Dataset Challenge
         icon: fa-mountain
         href: 41_DatasetChallenge.html
+      - text: Analysis Extentions
+        icon: fa-planet-moon
+        href: 42_AnalysisExtentions.html
   right:
     - text: "Source"
       icon: fa-github
