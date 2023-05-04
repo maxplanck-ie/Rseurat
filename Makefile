@@ -26,7 +26,7 @@ upgrade:
 	# Push commits
 	git pull origin main && git push
 	# Open PR
-	gh pr create --fill -B main
+	gh pr create --fill -B main --title "quick upgrade" && sleep 10s
 	# Merge PR
 	git checkout main && git pull
 	git merge $$CURRENT_BRANCH
