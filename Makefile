@@ -21,14 +21,15 @@ render:  ## Generate all the HTML files.
 style:  ## Format all code blocks.
 	@Rscript -e "styler::style_dir('rmd')"
 
-upgrade:
-	@export CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
-	git pull origin main && \
-		git push && echo "-- Commits were pushed" && sleep 3s && \
+open-pr:
+	@git pull && git push && git pull origin main && \
 		gh pr create --title "quick upgrade" --fill -B main && \
-		echo "-- Pull Request was opened" && \
-		git checkout main && git pull && \
-		git merge $$CURRENT_BRANCH && sleep 3s && \
-		git push -u origin main && sleep 1s && \
+		echo "-- Pull Request was opened"
+
+upgrade:
+	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD); \
+	  git checkout main && git pull && \
+		git merge $$CURRENT_BRANCH && \
+		git push -u origin main && \
 		echo "-- Pull Request was merged" && \
 		git checkout $$CURRENT_BRANCH
