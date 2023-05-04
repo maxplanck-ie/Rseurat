@@ -27,10 +27,10 @@ open-pr:
 	@echo "-- Pull Request OPENED"
 
 merge-pr:
-	@export CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
-	@git pull origin main
-	@git checkout main
-	@git merge $$CURRENT_BRANCH
-	@git push -u origin main
-	@echo "-- Pull Request MERGED"
-	@git checkout $$CURRENT_BRANCH
+	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD) \
+    && git pull origin main \
+    && git checkout main \
+    && git merge $$CURRENT_BRANCH \
+    && git push -u origin main \
+    && echo "-- Pull Request MERGED" \
+    && git checkout $$CURRENT_BRANCH
