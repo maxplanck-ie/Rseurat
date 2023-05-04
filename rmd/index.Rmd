@@ -73,18 +73,22 @@ Course language: English
 
 ## 2nd Day
 
-- UMAP (2h)
-- DE (2h)
-- Addons?
+- Any questions from past day or its exercises?
+- UMAP ('20)
+- DE (3h) + incl. exercises
+- Viz ('20)
+- Addons ('20)
 
 ## 3rd Day
 
+- Any questions from past day or its exercises?
 - Batch Effects (kBET)
 - SCTransform
 - Annotation
 
 ## 4th Day
 
+- Any questions from past day or its exercises?
 - BYOD!
 
 -->
