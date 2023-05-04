@@ -34,6 +34,9 @@ navbar:
       - text: Data Viz.
         icon: fa-map-marker
         href: 25_Viz.html
+      - text: (Optional) Add-ons
+        icon: fa-puzzle-piece
+        href: 27_Addons.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
