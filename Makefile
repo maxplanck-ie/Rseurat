@@ -23,14 +23,13 @@ style:  ## Format all code blocks.
 
 upgrade:
 	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
-	# Push commits
-	git pull origin main && git push
-	# Open PR
-	gh pr create --fill -B main
-	# Merge PR
-	git checkout main && git pull
-	git merge $$CURRENT_BRANCH
-	git push -u origin main
-	# Get back to were you belong
-	git checkout $$CURRENT_BRANCH
+	git pull origin main && \
+		git push && echo "-- Commits were pushed" && sleep 3s && \
+		gh pr create --tile "quick upgrade" --fill -B main && \
+		echo "-- Pull Request was opened" && \
+		git checkout main && git pull && \
+		git merge $$CURRENT_BRANCH && sleep 3s && \
+		git push -u origin main && sleep 1s && \
+		echo "-- Pull Request was merged" && \
+		git checkout $$CURRENT_BRANCH
 
