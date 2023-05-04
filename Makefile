@@ -20,3 +20,15 @@ render:  ## Generate all the HTML files.
 
 style:  ## Format all code blocks.
 	@Rscript -e "styler::style_dir('rmd')"
+
+upgrade:
+	@CURRENT_BRANCH=$$(git rev-parse --abbrev-ref HEAD)
+	git pull origin main
+	git push
+	gh pr create --fill -B main
+	git checkout main
+	#test -e DIRTY_STAGE && git stash push -m auto123
+	git merge $$CURRENT_BRANCH
+	git push -u origin main
+	git checkout $$CURRENT_BRANCH
+	#test -e DIRTY_STAGE && git stash pop
