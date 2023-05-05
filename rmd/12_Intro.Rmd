@@ -1,11 +1,19 @@
 ---
 title: "Introduction to Sequencing Techniques"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: bookdown::html_document2
+output:
+  bookdown::html_document2:
+    number_sections: false
+    global_numbering: true
+    theme: spacelab
+    highlight: pygments
+    code_folding: hide
+    toc: false
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
 ```
 
 > Please note: this is a summary of the information available at: <https://www.singlecellcourse.org/>
@@ -52,7 +60,7 @@ Besides differences in throughput and sensitivity between protocols, cost may al
 
 > **SMART-seq2** is a popular low-throughput method, providing full-length transcript quantification. It is ideally suited for studying a smaller group of cells in greater detail (e.g. differential isoform usage, characterisation of lowly-expressed transcripts).
 >
-> **10x Chromium** is a popular high-throughput method, using UMIs for transcript quantification (from either 3’ or 5’ ends). It is ideally suited to study highly heterogeneous tissues and sample large populations of cells at scale.
+> **10x Chromium** is a popular high-throughput method, using UMIs for transcript quantification (from either 3' or 5' ends). It is ideally suited to study highly heterogeneous tissues and sample large populations of cells at scale.
 
 #### Challenges
 
@@ -74,6 +82,6 @@ Another consideration is to ensure that there is replication of tissue samples. 
 
 **In summary, all the common best practices in experimental design should be taken into account when performing scRNA-seq.**
 
-```{r, echo=FALSE, fig.cap="Illustration of a confounded (top panels) and balanced (bottom panels) designs. Shapes denote different sample types (e.g. tissues or patients) and colours processing batches. In the confounded design it’s impossible to disentangle biological variation from variation due to the processing batch. In the balanced design, by using tissue replicates and mixing them across batches, it is possible to distinguish between biological and batch-related variation. ([source](https://doi.org/10.1093/biostatistics/kxx053))"}
+```{r, echo=FALSE, fig.cap="Illustration of a confounded (top panels) and balanced (bottom panels) designs. Shapes denote different sample types (e.g. tissues or patients) and colours processing batches. In the confounded design it's impossible to disentangle biological variation from variation due to the processing batch. In the balanced design, by using tissue replicates and mixing them across batches, it is possible to distinguish between biological and batch-related variation. ([source](https://doi.org/10.1093/biostatistics/kxx053))"}
 knitr::include_graphics("./images/balanced_design.png")
 ```

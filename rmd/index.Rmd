@@ -1,21 +1,46 @@
 ---
-title: "Single Cell RNA Analysis Course"
+title: "Analysis of Single-Cell Transcriptomes"
 author: "Bioinfo-Core @ MPI-IE"
 output:
   html_document:
     toc: false
 ---
 
+In this course we will use R and the Seurat package to introduce the basic analysis steps and quality controls for single-cell RNA data. The target audience are PhD students and post-docs who have previous experience with R language.
+
 > Seurat is an R package designed for QC, analysis, and exploration of
 > single-cell RNA-seq data. Seurat aims to enable users to identify and
 > interpret sources of heterogeneity from single-cell transcriptomic
 > measurements, and to integrate diverse types of single-cell data. All methods
-> emphasize clear, attractive, and interpretable visualizations, and were
-> designed to be easily used by both dry-lab and wet-lab researchers. Seurat is
+> emphasize clear, attractive, and interpretable visualizations. Seurat is
 > developed and maintained by the Satija lab and is released under the MIT
 > license.
 
-### Requirements
+**Goal:** After the course, you will understand the challenges of single-cell RNA datasets, be able to conduct quality control of such data, and use Seurat to conduct your own analysis.
+
+
+## Outlook
+
+- Single-cell sequencing protocols
+- Importing 10X Chromium Data
+- Quality Control
+- Running Seurat
+- Normalization, and Scaling Data
+- Dimensional Reduction
+- Clustering Cells with their Neighborhoods
+- Identification of Marker genes
+- Data transformations and Batch Effects correction
+- Integration of multiple datasets
+- Querying Cell Identities
+
+
+#### Requirements
+
+This is a hands-on course and requires **(1)** a WLAN-capable laptop with Internet access (your device needs to be registered with Core-IT). **(2)** An account for [Workbench](https://workbench.ie-freiburg.mpg.de). We will use the Rstudio server at the MPI-IE. If you do not have an account yet, you will need to request a 'linux' account from core-IT (please do so well before the course starts). We will be using R `4.1.3` and Bioconductor `3.14` during this course.
+
+Even though a simple laptop may not be powerful enough to handle larger analysis, you can use a local installation of R as well. Download it from here for your platform: [Linux](https://cran.rstudio.com/bin/linux/), [Mac](https://cran.rstudio.com/bin/macosx/base/), [Windows](https://cran.rstudio.com/bin/windows/base/old/).
+
+Some previous knowledge is assumed:
 
 * **R-language**: has been covered by our introductory
   [course](https://maxplanck-ie.github.io/Rintro).
@@ -23,13 +48,47 @@ output:
 * **Bulk RNA-seq**: has been covered by our introductory
   [course](https://maxplanck-ie.github.io/Rdeseq2).
 
-* an **account for [workbench](https://workbench.ie-freiburg.mpg.de)**: We will
-  use the Rstudio server at the MPI-IE. If you do not have an account yet, you
-  will need to request a 'linux' account from core-IT. Please do so well before
-  the course starts. You can use a local installation of R as well. Note that
-  we will be using R 4.1.3 during this course.
-
-* **Know your keyboard!** Special characters will be needed throughout the
+* **Your keyboard!** Special characters will be needed throughout the
   course, e.g. $ , | , [, ], {, }, >, <, #, ~, &, ^, %, !, ?
 
-***
+
+Course language: English
+
+<!--
+
+# Roadmap
+
+## 1st Day
+
+- Installation ('30)
+- Sequencing protocols ('10)
+- RMarkdown = YAML + Markdown + Code ('5)
+- Futureverse ('5)
+- First half of the Pipeline
+  - QC, Filter, Normalization, Scaling, PCA. ('60)
+  - BREAK ('10), after it, 2h gone by.
+  - Clustering ('45)
+  - Exercises ('15), we may not do all 5!
+- Odds ratio, Enrichment Analysis ('45)
+
+## 2nd Day
+
+- Any questions from past day or its exercises?
+- UMAP ('20)
+- DE (3h) + incl. exercises
+- Viz ('20)
+
+## 3rd Day
+
+- Any questions from past day or its exercises?
+- Batch Effects (kBET)
+- SCTransform
+- Annotation
+
+## 4th Day
+
+- Any questions from past day or its exercises?
+- Addons ('20) ?
+- BYOD!
+
+-->

@@ -16,15 +16,15 @@ navbar:
       - text: Introduction
         icon: fa-handshake-o
         href: 12_Intro.html
+      - text: Parallelization
+        icon: fa-clock-o
+        href: 13_FutureArrivedLongAgo.html
       - text: First steps
         icon: fa-users
         href: 14_FirstSteps.html
       - text: Ontologies Enrichment
         icon: fa-arrows-alt
         href: 16_GSEA.html
-      - text: Parallelization
-        icon: fa-clock-o
-        href: 18_FutureArrivedLongAgo.html
       - text: Embeddings
         icon: fa-hand-spock-o
         href: 21_UMAP.html
@@ -34,9 +34,6 @@ navbar:
       - text: Data Viz.
         icon: fa-map-marker
         href: 25_Viz.html
-      - text: Shiny brushedPlot
-        icon: fa-eye
-        href: 27_brushedPlot.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
@@ -46,13 +43,20 @@ navbar:
       - text: Cell Annotation
         icon: fa-paintbrush
         href: 40_CellAnnotation.html
+      - text: Dataset Challenge
+        icon: fa-mountain
+        href: 41_DatasetChallenge.html
+      - text: (Optional) Add-ons
+        icon: fa-puzzle-piece
+        href: 99_Addons.html
   right:
     - text: "Source"
       icon: fa-github
       href: https://github.com/maxplanck-ie/Rseurat
 
 output:
-  html_document:
+  bookdown::html_document2:
+    number_sections: false
     theme: spacelab
     highlight: monochrome
     code_folding: show

@@ -4,9 +4,11 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
   bookdown::html_document2:
+    number_sections: false
+    global_numbering: true
     theme: spacelab
-    highlight: monochrome
-    code_folding: hide
+    highlight: pygments
+    code_folding: show
     toc: true
     toc_float: true
     toc_depth: 2
@@ -40,66 +42,35 @@ params:
     value: 0.5
 ---
 
-<!-- 
-https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
-
-https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
-
-https://samuel-marsh.github.io/scCustomize/reference/index.html
--->
 
 # Setup
-
-```{r}
-timestamp()
-```
-
-```{r}
-getwd()
-```
-
 
 ```{r}
 cbind(params)
 ```
 
 ```{r}
-my_load_namespaces <- function(packagesToLoad=c(), coreLibraries=c()) {
-  installed_pkgs <- installed.packages()
-  if (! "BiocManager" %in% installed_pkgs) install.packages("BiocManager")
-  lapply(c(coreLibraries, packagesToLoad),
-         function(x) if (! x %in% installed_pkgs) BiocManager::install(x, ask = FALSE))
-  lapply(packagesToLoad, function(pkg) {
-    suppressPackageStartupMessages(require(pkg, character.only = TRUE))
-  })
-  TRUE
-}
-
-my_load_namespaces(
-  packagesToLoad = c("openxlsx", "readr", "magrittr", "dplyr", "RColorBrewer", "ggplot2", "patchwork", "scCustomize", "Seurat"),
-  coreLibraries = c("knitr", "rmarkdown", "formatR", "DT", "reticulate", "sessioninfo", "limma", "DESeq2", "enrichR", "future", "uwot", "future.apply", "metap", "shiny", "SingleCellExperiment", "remotes", "bookdown", "SeuratData", "Nebulosa")
-)
+library(tidyverse)
+library(patchwork)
+library(scCustomize)
+library(Seurat)
 ```
 
 ```{r}
-if (interactive()) stopifnot(suppressMessages(BiocManager::valid()))
-
 set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE, format = TRUE)
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-options(parallelly.fork.enable = params$fork,
-        future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
+options(
+  parallelly.fork.enable = params$fork,
+  future.globals.maxSize = params$Nmemgb * 1024^2 * 1000
+)
 
 plan("multicore", workers = params$Nthreads)
-
-myFlappy <- function(x, ...) {
-  future.apply::future_lapply(x, ..., future.seed = TRUE)
-}
 ```
 
 ## Load Data
 
-We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:
+We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
 
 ```{r}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
@@ -164,120 +135,3 @@ DotPlot(pbmc, features = features) + RotatedAxis()
 ```{r}
 DoHeatmap(subset(pbmc, downsample = 100), features = features, size = 3)
 ```
-
-# scCustomize
-
-This library provides with extra arguments, functions, and behaviors over the default Seurat. This isn't adding boilerplate code, but on the contrary. It will also provide us with an interface to enforce common plotting requirements.
-
-Using the customized plotting functions keep us away from reinventing the wheel. For example: Extracting the Top N=10 (or whatever `N`) genes per identity after running `Seurat::FindAllMarkers()` is very common and `scCustomize` provides `Extract_Top_Markers()` function to this end. This is extremely helpful to avoid introducing bugs.
-
-## QC
-
-### Threshold lines
-
-```{r}
-pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
-  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
-
-pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
-```
-
-
-```{r, fig.asp=1.5}
-QC_Plots_Genes(pbmc, high_cutoff = 2500, low_cutoff = 200)
-```
-
-### Volcanoes
-
-```{r}
-pbmc <- FindVariableFeatures(pbmc)
-```
-
-Remember how we extracted feature names into a vector, `top10`, and then used Seurat's `LabelPoints()`? Don't you? No worries:
-
-```{r}
-VariableFeaturePlot_scCustom(pbmc, num_features = 10, repel = TRUE, y_axis_log = TRUE) + NoLegend()
-```
-
-
-### UMI vs Features
-
-Remember our Scatter Plot? and the Percent of Mitochondrial genes Violinn Plot?
-
-```{r, fig.asp=1.2}
-QC_Plots_Mito(pbmc, high_cutoff = 15, mito_name = "percent.mt")
-```
-
-```{r, fig.asp=1.2}
-QC_Plot_UMIvsGene(pbmc, low_cutoff_gene = 200, high_cutoff_gene = 2500, meta_gradient_name = "percent.mt")
-```
-
-```{r}
-QC_Plot_GenevsFeature(pbmc, "percent.mt", low_cutoff_gene = 200, high_cutoff_gene = 2500, high_cutoff_feature = 15) + NoLegend()
-# EXERCISE: QC_Plot_UMIvsFeature()
-```
-
-
-```{r}
-# Idents(pbmc) <- "seurat_clusters"
-pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
-pbmc <- NormalizeData(pbmc, verbose = FALSE)
-pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
-pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
-pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
-pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
-pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
-pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
-
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
-names(new.cluster.ids) <- levels(pbmc)
-pbmc <- RenameIdents(pbmc, new.cluster.ids)
-rm(new.cluster.ids)
-```
-
-With the same data, after the pipeline is applied, we can do some new plots. Some, are new takes on the same pair of axis, but with the novel advantage of having cell `Identities` set to the current `seurat_clusters`.
-
-EXERCISE: Plot "Mito Gene % per Cell/Nucleus" for each cell type. Hint: `group.by` argument from previously used function.
-
-Note: `scCustomize::Add_Mito_Ribo_Seurat()` is the built-in function to add percentage of mitochondrial and ribosomal genes in two different metadata columns. This could be prefered, and would change our arguments having the string `percent.mt` to the new string value: `percent_mito`.
-
-## UMAP
-
-```{r, fig.asp=1.1}
-DimPlot_scCustom(pbmc, split.by = "seurat_clusters", split_seurat = FALSE, num_columns = 3, pt.size = 0.5, repel = TRUE) + NoLegend()
-```
-
-```{r}
-FeaturePlot_scCustom(pbmc, features = "CD8A", alpha_exp = 0.5)  # CD8+ T cells
-```
-
-```{r}
-Plot_Density_Joint_Only(pbmc, features = c("GNLY", "NKG7"))  # NK cells
-```
-
-Note: There's `test.use = "ROC"` for DE analyses, this returns the 'classification power' for any individual marker (ranging from 0 - random, to 1 - perfect).
-
-On default `Seurat::FeaturePlot()`, we had either of these two:
-
-```{r, fig.asp=0.5}
-FeaturePlot(pbmc, features = c("GNLY", "NKG7"))
-```
-
-```{r, fig.asp=0.25}
-FeaturePlot(pbmc, features = c("GNLY", "NKG7"), blend = TRUE)
-```
-
-<!-- markers taken from literature/ here: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#assigning-cell-type-identity-to-clusters -->
-
-## DE
-
-```{r}
-myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
-```
-
-
-# EXERCISES
-
-1. Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
-
-2. Are there any differences in the results? If so, did you reset the seed between runs? What about the time it takes? You can measure with `microbenchmark` package.
