@@ -20,9 +20,14 @@ knitr::opts_chunk$set(echo = TRUE, out.width = "100%", eval=FALSE, format=TRUE)
 
 Consider these extra notes after learning Seurat.
 
+**Goal:** get inspired. The next sections will partially present to you the large diversity of tools that are available.
+
+Note one the goal: we'll be looking mostly to what's available within the R-language in general, and Seurat in particular. That means we are skipping on the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).) Also, we may be skipping on part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
+
+
 ## Load Data
 
-We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
+Let's have the data from Day 1 ("First steps"), quickly loading and reprocessing it again so that we can try all the stuff that comes down (e.g. new plotting functions that extend the basic functionality):
 
 ```{r}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
@@ -43,6 +48,16 @@ names(new.cluster.ids) <- levels(pbmc)
 pbmc <- RenameIdents(pbmc, new.cluster.ids)
 rm(new.cluster.ids)
 ```
+
+## Index of Wrappers
+
+Much of what we're about to show come from Seurat itself or community-maintained extensions, [Seurat-wrappers](https://github.com/satijalab/seurat-wrappers#seuratwrappers). Be aware that much of the extra packages are not having much attention by their original developers, so don't be surprised if you try something and it's no longer working out-of-the-box. In such cases, the least you could do is open an issue in the appropriate code repository. Certainly, that's not Seurat itself!... and often, it would mean looking into the upstream tool that's being wrapped. In a nutshell, the wrappers are a good way to get an idea of where you want to go, sometime, the package take you there. On another occasions, it's just a source of inspiration of what's available.
+
+## Indexes of Datasets
+
+- [CELLxGENE](https://cellxgene.cziscience.com/datasets)
+- [SingleCellMultiModal](https://bioconductor.org/packages/release/data/experiment/vignettes/SingleCellMultiModal/inst/doc/scMultiome.html), this package has several vignettes, each dedicated to a different dataset. This is for combining, for example, scATAC and scRNA-seq.
+- corresponding [BiocView](https://bioconductor.org/packages/release/BiocViews.html#___SingleCellData) at Bioconductor repository of packages.
 
 ## Cell-Cycle Scoring
 
@@ -257,9 +272,4 @@ markers.2.g1 <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', sub
 
 # End
 
-> ⌨🔥 Exercise(s):
-
-> 1. Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
-
-
-> 2. Are there any differences in the results? If so, did you reset the seed between runs? What about the time it takes? You can measure with `microbenchmark` package.
+> ⌨🔥 Exercise: Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
