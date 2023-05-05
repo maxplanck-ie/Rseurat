@@ -67,6 +67,13 @@ The package library you just copied over is a snapshot taken the 4th of May 2023
 
 For safety, **you should still run the code blocks**, since we're using conditionals anyway. Only missing packages are really downloaded, compiled (sometimes), and installed.
 
+<!--
+TODO: explain setting RSTUDIO_WHICH_R=... R_LIBS=...
+
+#### Important note for those working on their laptops
+
+If you don't know Conda, just ignore this. If you do have it set up, and have a bare minimum experience with it, you may go ahead and create an environment using the YAML file under the `configs/` subfolder of this repo. -->
+
 ### Bioconductor
 
 Our first installation is in regards to the core packages of Bioconductor, a repository of bioinformatic packages, just like CRAN (which also has bioinformatic packages). The difference is that instead of GNU Public License, Bioc packages are under a license that allows commercial usage, widening its user-base (e.g. including private hospitals).
@@ -164,6 +171,12 @@ rm -rf /rstudio/${USER}/rstudio/R/workbench-library/4.1/00LOCK-*
 rm -rf /rstudio/${USER}/.rstudio/R/workbench-library/4.1/00LOCK-*
 ```
 
+Finally, we are going to use another package that is only available on GitHub and not on either Bioconductor or CRAN repositories. Install it with:
+
+```{r}
+if (!"kBET" %in% installed.packages()) remotes::install_github("theislab/kBET")
+```
+
 
 ### Consistency
 
@@ -186,7 +199,9 @@ We'll be working with Seurat version 4.
 
 # Datasets
 
-R packages bundle data with them, usually for testing purposes. In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
+R packages bundle data with them, usually for testing purposes.
+
+In the case of `Seurat`, there is a package (`SeuratData`) specifically designed to download some datasets. You may use `SeuratData::AvailableData()` to get a table of all these 'educational' datasets. Let's get a dataset:
 
 ```{r}
 if (!"SeuratData" %in% installed.packages()) remotes::install_github("satijalab/seurat-data")
@@ -194,12 +209,15 @@ if (!"ifnb.SeuratData" %in% installed.packages()) SeuratData::InstallData("ifnb"
 if (!"pbmc3k.SeuratData" %in% installed.packages()) SeuratData::InstallData("pbmc3k")
 ```
 
-We are going to use another package that is only available on GitHub and not on Bioconductor or CRAN repos:
+There is also another set of packages for single cell data analysis that are part of the Bioconductor framework (we'll mention more about this in the optional 'Addons' document, have a look at it after the course ends).
+
+Anyway, for that set of packages, there's an analog meta-package, called `scRNAseq`, that allows you to download datasets. You can use `scRNAseq::listDatasets()` to get a table of all these 'educational' datasets. Let's install it:
 
 ```{r}
-if (!"kBET" %in% installed.packages()) remotes::install_github("theislab/kBET")
+if (! "scRNAseq" %in% installed.packages()) {
+  BiocManager::install("scRNAseq", ask = FALSE, update = FALSE)
+}
 ```
-
 
 ## Download preprocessed datasets from zenodo
 

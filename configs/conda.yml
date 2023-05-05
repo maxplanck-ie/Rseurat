@@ -69,6 +69,7 @@ dependencies:
   - r-kableExtra
   - r-sctransform
   - bioconductor-SingleR
+  - bioconductor-scRNAseq
   - bioconductor-scran
   - bioconductor-scater
   - bioconductor-glmGamPoi
