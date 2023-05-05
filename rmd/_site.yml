@@ -34,9 +34,6 @@ navbar:
       - text: Data Viz.
         icon: fa-map-marker
         href: 25_Viz.html
-      - text: (Optional) Add-ons
-        icon: fa-puzzle-piece
-        href: 27_Addons.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
@@ -49,6 +46,9 @@ navbar:
       - text: Dataset Challenge
         icon: fa-mountain
         href: 41_DatasetChallenge.html
+      - text: (Optional) Add-ons
+        icon: fa-puzzle-piece
+        href: 99_Addons.html
   right:
     - text: "Source"
       icon: fa-github
