@@ -59,6 +59,19 @@ Much of what we're about to show come from Seurat itself or community-maintained
 - [SingleCellMultiModal](https://bioconductor.org/packages/release/data/experiment/vignettes/SingleCellMultiModal/inst/doc/scMultiome.html), this package has several vignettes, each dedicated to a different dataset. This is for combining, for example, scATAC and scRNA-seq.
 - corresponding [BiocView](https://bioconductor.org/packages/release/BiocViews.html#___SingleCellData) at Bioconductor repository of packages.
 
+## Tidytranscriptomics
+
+It's a new package, briging SingleCellExperiment (not SeuratObject!) to the tidyverse.
+
+Websites to have a look:
+
+- [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/)
+- [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
+- [tidybulk](https://stemangiola.github.io/tidybulk/) for tidy bulk RNA-seq data analysis
+- [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
+- [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
+- [tidyHeatmap](https://stemangiola.github.io/tidyHeatmap/) for heatmaps produced with tidy principles
+
 ## Cell-Cycle Scoring
 
 We didn't try to mitigate the effects of cell cycle heterogeneity in the pbmc3k dataset. Follow the [tutorial](https://satijalab.org/seurat/articles/cell_cycle_vignette.html) if the need arises when working with your own dataset.
