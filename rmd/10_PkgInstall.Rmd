@@ -159,7 +159,7 @@ retrieve_namespaces(
     "bookdown",
     "styler",
     "formatR",
-    "DT",
+    "DT"
   )
 )
 ```
