@@ -137,7 +137,9 @@ For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) 
 1. Distances between clusters _might_ not mean anything.
 1. You should look to more than one plot, changing its hyperparameters.
 
-# High-Dimensional Plotting with Seurat
+# Code
+
+## High-Dimensional Plotting with Seurat
 
 ```{r}
 pbmc <- RunTSNE(pbmc, dims = seq_len(params$dimensionality))
