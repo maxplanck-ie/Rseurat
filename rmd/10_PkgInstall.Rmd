@@ -32,7 +32,7 @@ Download all the course RMarkdown documents in a zip file from [the repository a
 On Workbench, you may skip all the package installation by loading from a common package library we have provided. For that matter, you'll need to run the following line of code at the start of any R session (e.g. each morning when the course starts).
 
 ```{r}
-.libPaths(new="/scratch/local/rseurat/pkg-lib-4.1.3")
+.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 ```
 
 If you choose this route, then you can execute that line now and move forward to the 'Check Installation' section below. If all went well, you're ready to get into downloading the datasets (section that comes after checking, so keep reading from there).
@@ -215,7 +215,7 @@ There is also another set of packages for single cell data analysis that are par
 Anyway, for that set of packages, there's an analog meta-package, called `scRNAseq`, that allows you to download datasets. You can use `scRNAseq::listDatasets()` to get a table of all these 'educational' datasets. Let's install it:
 
 ```{r}
-if (! "scRNAseq" %in% installed.packages()) {
+if (!"scRNAseq" %in% installed.packages()) {
   BiocManager::install("scRNAseq", ask = FALSE, update = FALSE)
 }
 ```
