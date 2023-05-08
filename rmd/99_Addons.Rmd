@@ -105,7 +105,7 @@ To understand how these scores are calculated, take a look at the [original rese
 
 <!-- https://shiny.rstudio.com/gallery/shiny-wysiwyg.html -->
 
-Check out `27_brushedPlot.R`.
+Check out `rmd/brushedPlot.R`, an interactive app that allows you to select cells from any 2D plot, and get their names for downstream removal (e.g. cleaning doublets).
 
 ## openXLSX
 
