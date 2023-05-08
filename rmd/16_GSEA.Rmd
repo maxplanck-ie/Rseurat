@@ -89,33 +89,32 @@ gene.set.1 <- arrange(pca, -PC_1) %>%
 ```
 
 
-> ⌨🔥 Exercise: Let's wrap this into a function that takes three inputs: (1) `seurat_obj`, Seurat object with PCA already run; (2) `pc_number`, an integer representing the desired PC number to use; (3) `gene_total`, the quantity of  'top' gene names to extract; and (4) `anticorrelation`, a Boolean representing that we want to get the top or the bottom genes in the PC. Such function should return a vector name of appropriate length, with the gene names. This has been already been programmed for you, but you'll need to fill-in the three `?` signs.
+> ⌨🔥 Exercise: Let's wrap this into a function, `extractComponentGeneSet()`, that takes three inputs: (1) `seurat_obj`, Seurat object with PCA already run; (2) `pc_number`, an integer representing the desired PC number to use; (3) `gene_total`, the quantity of  'top' gene names to extract; and (4) `anticorrelation`, a Boolean representing that we want to get the top or the bottom genes in the PC. Such function should return a vector name of appropriate length, with the gene names. This has been already been programmed for you, but you'll need to fill-in the three `?` signs.
 
 ```{r,eval=FALSE}
-myWrap <- function(seurat_obj,
-                   pc_number = 1,
-                   gene_total = 10,
-                   correlation = FALSE) {
+extractComponentGeneSet <- function(seurat_obj,
+                                    pc_number = 1,
+                                    gene_total = 10,
+                                    anticorrelation = FALSE) {
   
   pc_number <- paste0("PC_", pc_number)
   
-  pca_obj <- ?
+  pca_obj <- ?  # <-- How do we extract this data?
   
   pulled_column <- pca_obj[pc_number]
   
-  if (?) {
-    pulled_column <- arrange(pca_obj)
+  if (?) {  # <-- Fill in the conditional.
+    result <- arrange(pca_obj, pca_obj[pc_number])
   } else {
-    pulled_column <- arrange(pca_obj,
-                             desc(pca_obj[pc_number]))
+    result <- arrange(pca_obj, desc(pca_obj[pc_number]))
   }
   
-  pulled_column %>%
-    ?(gene_total) %>%
+  result %>%
+    ?(gene_total) %>%  # <-- Which function?
     rownames()
 }
 
-result <- myWrap(pbmc)
+result <- extractComponentGeneSet(pbmc)
 all(result %in% gene.set.1)
 ```
 
