@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     theme: spacelab
-    highlight: monochrome
+    highlight: pygments
     code_folding: show
     toc: true
     toc_float: true
@@ -56,15 +56,30 @@ packageVersion("Seurat")
 
 ## SCTransform: @scale.data
 
-$equation \begin{array}{*{20}l} x_{gc} &\sim \text{NB}(\mu_{gc}, \theta_{g})\\ \ln \mu_{gc} &= \beta_{g0} + \ln n_{c}, \end{array} $
+$$
+\begin{array}{*{20}l} x_{gc} &\sim \text{NB}(\mu_{gc}, \theta_{g})\\ \ln \mu_{gc} &= \beta_{g0} + \ln n_{c}, \end{array} 
+$$
 
-where θ_g is the gene-specific dispersion parameter, $n_{c}=\sum _{g} x_{gc}$ is the total sequencing depth and the variance of the negative binomial (NB) is given by $ \mu _{gc} + \mu _{gc}^{2}/\theta _{g} $
+where $\theta_g$ is the gene-specific dispersion parameter, $n_{c}=\sum _{g} x_{gc}$ is the total sequencing depth of cell $c$ and the variance of the negative binomial (NB) is given by $ \mu_{gc} + \mu_{gc}^{2}/\theta_{g} $
 
 For each gene-cell combination, the Pearson residuals Z_gc are given by:
-$ \begin{array}{*{20}l} Z_{gc} &= \frac{x_{gc}-\mu_{gc}}{\sigma_{gc}}\\ \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{c}}} \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}}, \end{array} $
+
+$$ 
+\begin{array}{*{20}l} 
+Z_{gc} &= \frac{x_{gc}-\mu_{gc}}{\sigma_{gc}}\\ 
+\mu_{gc} &= \exp{\beta_{g0} + \ln{n_{c}}} \\ 
+\sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{g}}}, 
+\end{array} 
+$$
 
 ## SCTransform: @counts
-$ \begin{array}{*{20}l} \mu_{gc} &= \exp{\beta_{g0} + \ln{n_{0}}}, \\ \sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}},\\ y_{gc} &= \text{floor}(Z_{gc} \sigma_{gc} + \mu_{gc}), \end{array} $
+$$
+\begin{array}{*{20}l} 
+\mu_{gc} &= \exp{\beta_{g0} + \ln{n_{0}}}, \\ 
+\sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}},\\ 
+y_{gc} &= \text{floor}(Z_{gc} \sigma_{gc} + \mu_{gc}), 
+\end{array} 
+$$
 
 ## SCTransform: gene counts ~ cell counts
 
@@ -90,7 +105,7 @@ We're going to work with IFNB-Stimulated and Control human PBMCs and downsample 
 ```{r SeuratData}
 library(SeuratData)
 ifnb <- LoadData("ifnb")
-ifnb_sub<-subset(x = ifnb, downsample = 1000)
+ifnb_sub <-subset(x = ifnb, downsample = 1000)
 table(ifnb_sub$stim)
 ifnb.list <- SplitObject(ifnb_sub, split.by = "stim")
 
@@ -100,7 +115,7 @@ stim <- ifnb.list[["STIM"]]
 
 ## Standard normalization?
 
-Lets process the dataset in a standard way.
+Lets process the control dataset in a standard way.
 
 ```{r process_noBER}
 ctrl <- NormalizeData(ctrl)
@@ -114,8 +129,8 @@ ctrl <- RunUMAP(ctrl, dims = 1:15)
 ## What does the data look like out of the box?
 
 ```{r out_of_the_box_umap, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
-p1<-DimPlot(ctrl, reduction = "umap",group.by="seurat_annotations",label=TRUE) + theme(legend.position = "bottom")
-p2<-FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "top")
+p1<-DimPlot(ctrl, group.by="seurat_annotations") + theme(legend.position = "bottom")
+p2<-FeaturePlot(ctrl,features="nCount_RNA") + theme(legend.position = "right")
 p1+p2
 
 ```
@@ -136,26 +151,28 @@ ctrl <- SCTransform(ctrl, method = "glmGamPoi",vst.flavor = "v2", verbose = FALS
 ## Recalculate Dimensional Reductions
 
 ```{r sct_umap_calc}
-DefaultAssay(ctrl)<-"SCT"
+DefaultAssay(ctrl)<-"SCT"        # explain
 ctrl <- RunPCA(ctrl, verbose = FALSE)
 ctrl <- RunUMAP(ctrl, dims = 1:30, verbose = FALSE)
-
 ```
 
 
 ## Revisit UMAP
 
 ```{r sct_umap_plot, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
-
-p1<-DimPlot(ctrl, reduction = "umap",group.by="seurat_annotations",label=TRUE) + theme(legend.position = "bottom")
-p2<-FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "top")
+p1 <- DimPlot(ctrl, group.by="seurat_annotations") + theme(legend.position = "bottom")
+p2 <- FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "right")
 p1+p2
 
 ```
 
-## Assignment
+## Task
 
-Apply SCTransform to the IfnB-stimulated dataset as well. How does the lowD representation change using SCT versus log-Norm ?
+Apply SCTransform to the IfnB-stimulated dataset as well. 
+
+**Poll:** How does the lowD representation change using SCT versus log-Norm ?
+
+
 
 ## Prepare both datasets for integration
 
@@ -206,7 +223,7 @@ b.interferon.response <- FindMarkers(immune.combined.sct, assay = "SCT", ident.1
 head(b.interferon.response, n = 10)
 ```
 
-## Assignment
+## Task
 
 Plot SCT "corrected counts" for one of the DE genes on a lowD representation, splitting by the stimulation status.
 
@@ -214,9 +231,10 @@ Plot SCT "corrected counts" for one of the DE genes on a lowD representation, sp
 
 ```{r DE_plot,fig.height=4, fig.width=8}
 Idents(immune.combined.sct) <- "seurat_annotations"
+inf_genes <- rownames(b.interferon.response)
 DefaultAssay(immune.combined.sct) <- "SCT"
-FeaturePlot(immune.combined.sct, features = rownames(b.interferon.response)[1], split.by = "stim", max.cutoff = 3,
-    cols = c("grey", "red"))
+FeaturePlot(immune.combined.sct, features = inf_genes[1], split.by = "stim",
+    cols = c("grey", "red")) + theme(legend.position = "right")
 
 ```
 

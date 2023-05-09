@@ -5,8 +5,9 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   bookdown::html_document2:
     number_sections: false
+    global_numbering: true
     theme: spacelab
-    highlight: monochrome
+    highlight: pygments
     code_folding: show
     toc: true
     toc_float: true
@@ -41,24 +42,8 @@ params:
     value: 0.5
 ---
 
-<!-- 
-https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
-
-https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
-
-https://samuel-marsh.github.io/scCustomize/reference/index.html
--->
 
 # Setup
-
-```{r}
-timestamp()
-```
-
-```{r}
-getwd()
-```
-
 
 ```{r}
 cbind(params)
@@ -81,15 +66,11 @@ options(
 )
 
 plan("multicore", workers = params$Nthreads)
-
-myFlappy <- function(x, ...) {
-  future.apply::future_lapply(x, ..., future.seed = TRUE)
-}
 ```
 
 ## Load Data
 
-We'll be working with the data from Day 1, `14_FirstSteps.Rmd`, let's quickly re-load and re-process again:
+We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
 
 ```{r}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%

@@ -49,6 +49,9 @@ navbar:
       - text: Analysis Extentions
         icon: fa-planet-moon
         href: 42_AnalysisExtentions.html
+      - text: (Optional) Add-ons
+        icon: fa-puzzle-piece
+        href: 99_Addons.html
   right:
     - text: "Source"
       icon: fa-github

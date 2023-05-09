@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     theme: spacelab
-    highlight: monochrome
+    highlight: pygments
     code_folding: show
     toc: true
     toc_float: true
@@ -30,13 +30,13 @@ library(formatR)
 library(knitr)
 library(kableExtra)
 library(magrittr)
+library(RColorBrewer)
 knitr::opts_chunk$set(fig.width=6, fig.height=5,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
 ```
 
 ```{r seuratVersion,warning=FALSE,message=FALSE}
 library(Seurat)
 packageVersion("Seurat")
-
 ```
 ## Sources of batch effects
 
@@ -53,25 +53,24 @@ packageVersion("Seurat")
 We're going to work with a dataset comprised of pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates. We're first going to inspect the lowD embedding of the full dataset, and then we're going to work with a subset of the full dataset. We're going to inspect and attempt to mitigate known batch effects in the subset dataset.
 
 
-
 ## What does the data look like out of the box?
 
 Lets have a look at the UMAP embedding of the full dataset processed in a standard way, ignoring any possible batch effects. Compare the cell separation by sequencing technology and by cell type.
 
-
 ![Full dataset on umap](images/panc8full.umap.png)
+
 
 
 ## Load the preprocessed subset dataset 
 
-Instpect the datasets it contains.
 
 ```{r load_subset}
+forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
+fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
 
-if (!file.exists("datasets/preprocessed_rds/panc_sub_processed.RDS")){
-utils::download.file("https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1",destfile="datasets/preprocessed_rds/panc_sub_processed.RDS",method="wget")}
-panc_sub<-readRDS("datasets/preprocessed_rds/panc_sub_processed.RDS")
-kable(table(panc_sub$dataset)) %>%  kable_classic_2(full_width = F)
+if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="wget") }
+panc_sub <- readRDS(fdest)
+table(panc_sub$dataset)
 ```
 
 
@@ -79,9 +78,11 @@ kable(table(panc_sub$dataset)) %>%  kable_classic_2(full_width = F)
 
 Plot UMAP embedding for the subset dataset. Inspect the cell separation by cell type and by sequencing technology.
 
-```{r umap_sub, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-p1<-DimPlot(panc_sub, reduction = "umap",label=TRUE)
-p2<-DimPlot(panc_sub, reduction = "umap",group.by="celltype")
+```{r umap_sub, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
+my_cols <- brewer.pal(panc_sub@meta.data$tech %>% unique() %>% length(),"Dark2")
+
+p1<-DimPlot(panc_sub, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
+p2<-DimPlot(panc_sub, reduction = "umap", group.by="celltype")
 p1+p2
 ```
 
@@ -99,9 +100,16 @@ We can see various amounts of batch effect by eye. Let's try to calculate some m
 library(kBET)
 library(ggplot2)
 
-d<-t(as.matrix(GetAssayData(panc_sub,slot="data",assay="RNA")))
-b<-as.vector(t(panc_sub[["dataset"]]))
-batch.estimate <- kBET(df=d, batch=b, plot=FALSE)
+d <- GetAssayData(panc_sub) %>% as.matrix() %>% t() 
+#d<-t(as.matrix(GetAssayData(panc_sub,slot="data",assay="RNA")))
+
+#b<-as.vector(t(panc_sub[["dataset"]]))
+b <- panc_sub$tech   # technical batch = dataset
+
+# explain batch.estimate object (what is obs and exp.)
+batch.estimate <- kBET(df=d, batch=b, plot=FALSE) 
+
+
 plot.data <- data.frame(class=rep(c('observed', 'expected'), 
                                   each=length(batch.estimate$stats$kBET.observed)), 
                         data =  c(batch.estimate$stats$kBET.observed,
@@ -165,21 +173,21 @@ FeaturePlot(panc_sub,features="PC_1")
 
 ![Seurat](images/fx1_lrg.jpg){width=70%,height=70%}
 
-## Seurat Integration: theory
+## Seurat Integration: anchors
 
 Here, we develop a strategy to “anchor” diverse datasets together, enabling us to integrate single-cell measurements not only across scRNA-seq technologies, but also across different modalities. Through the identification of cell pairwise correspondences between single cells across datasets, termed “anchors,” we can transform datasets into a shared space, even in the presence of extensive technical and/or biological differences.   
 
-## Seurat Integration: theory
+## Seurat Integration: joint dim reduction
 
 We first jointly reduce the dimensionality of both datasets using diagonalized CCA, then apply L2-normalization to the canonical correlation vectors. We next search for MNNs in this shared low-dimensional representation. We refer to the resulting cell pairs as anchors, as they encode the cellular relationships across datasets that will form the basis for all subsequent integration analyses . Our anchors can successfully recover matching cell states even in the presence of significant dataset differences, as CCA can effectively identify shared biological markers and conserved gene correlation patterns.
 
-## Seurat Integration: theory
+## Seurat Integration: cellular neighbourhoods
 
 Obtaining an accurate set of anchors is paramount to successful integration. Aberrant anchors that form between different biological cell states across datasets are analogous to noisy edges that occur in k-nearest neighbor (KNN) graphs and can confound downstream analyses. This has motivated the use of shared nearest neighbor (SNN) graphs, where the similarity between two cells is assessed by the overlap in their local neighborhoods.    
 
 As this measure effectively pools neighbor information across many cells, the result is robust to aberrant connections in the neighbor graph.   
 
-## Seurat Integration: theory
+## Seurat Integration: robust anchors
 
 We introduced an analogous procedure for the scoring of anchors, where each anchor pair was assigned a score based on the shared overlap of mutual neighborhoods for the two cells in a pair. High-scoring correspondences therefore represent cases where many similar cells in one dataset are predicted to correspond to the same group of similar cells in a second dataset, reflecting increased robustness in the association between the anchor cells.    
 
@@ -238,8 +246,9 @@ p1+p2
 We can see that the cells from different datasets overlap, and there appears to be one major cluster per cell type. Let's try to calculate some metrics using the kBET package from Theis lab.
 
 ```{r integrated_kBET1}
-d<-t(as.matrix(GetAssayData(panc.combined,slot="scale.data",assay="integrated")))
-b<-as.vector(t(panc.combined[["dataset"]]))
+d <- GetAssayData(panc.combined, slot="scale.data", assay="integrated") %>% as.matrix() %>% t() 
+b <- panc.combined$dataset
+
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE)
 
 plot.data <- data.frame(class=rep(c('observed', 'expected'), 
