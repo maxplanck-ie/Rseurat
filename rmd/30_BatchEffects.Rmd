@@ -143,7 +143,10 @@ z<-batch.pca["r2"]
 z$r2[which.max(z$r2[,"R.squared"]),]
 
 ```
+```{r before_r2_hist}
+hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=500,main=sprintf("Batch correlation with top 50 PCs \n Before batch effect removal"))
 
+```
 
 ## Inspect the result
 
@@ -293,6 +296,11 @@ pca.data <- prcomp(d, center=FALSE)
 batch.pca <- pcRegression(pca.data, b)
 z<-batch.pca["r2"]
 z$r2[which.max(z$r2[,"R.squared"]),]
+```
+
+```{r before_r2_hist}
+hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=500,main=sprintf("Batch correlation with top 50 PCs \n After batch effect removal"))
+
 ```
 
 ## Inspect the result
