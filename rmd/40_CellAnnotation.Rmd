@@ -32,6 +32,7 @@ You have a 'query' pbmc dataset and you would like to annotate the cell types us
 
 ```{r, setup, include=FALSE}
 # .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+.libPaths()
 library(formatR)
 library(knitr)
 library(magrittr)

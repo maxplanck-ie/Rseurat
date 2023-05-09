@@ -26,6 +26,7 @@ output:
 
 ```{r, setup, include=FALSE}
 #.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+.libPaths()
 library(formatR)
 library(knitr)
 library(magrittr)
@@ -102,7 +103,7 @@ In addition to kBET rejection rate, we're going to inspect the degree of batch e
 library(kBET)
 library(ggplot2)
 
-d <- GetAssayData(panc_sub,slot-"data",assay="RNA") %>% as.matrix() %>% t() 
+d <- GetAssayData(panc_sub,slot="data",assay="RNA") %>% as.matrix() %>% t() 
 b <- panc_sub$tech   # technical batch = dataset
 
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE) 
