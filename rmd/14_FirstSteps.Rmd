@@ -18,59 +18,34 @@ params:
   seed:
     label: 'Random seed:'
     value: 8211673
-  Nthreads:
-    label: 'Number of Threads:'
-    value: 8
-    input: slider
-    min: 4
-    max: 96
-  Nmemgb:
-    label: 'Gigabytes of Memory per Thread:'
-    value: 8
-    input: slider
-    min: 4
-    max: 16
-  fork:
-    label: 'Fork processes (not GUI)'
-    value: FALSE
-    input: checkbox
 ---
-
-<!-- https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html -->
 
 ## Setup
 
-```{r}
-timestamp()
-```
+```{r setup}
+set.seed(params$seed)
 
-```{r}
-getwd()
-```
 
-```{r}
-cbind(params)
-```
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-```{r}
+
 library(tidyverse)
 library(future)
 library(Seurat)
-```
 
-```{r}
-set.seed(params$seed)
-knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-options(parallelly.fork.enable = params$fork,
-        future.globals.maxSize = params$Nmemgb * 1024^2 * 1000)
+# Seurat relies on Future Framework for speeding up computations
+options(parallelly.fork.enable = FALSE,
+        future.globals.maxSize = 8 * 1024^2 * 1000)
+plan("multicore", workers = 8)
 
-plan("multicore", workers = params$Nthreads)
+
+getwd()
 ```
 
 # Load Data
 
-We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. There are around 3 thousand single cells that were sequenced on the Illumina NextSeq 500. The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
+We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. There are around 3000 single cells that were sequenced on the Illumina NextSeq 500. The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
 
 For further details on the primary analysis pipeline that gives you the count data, please head over to [cellranger website](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger).
 
@@ -80,7 +55,6 @@ The values in the **count matrix** represent the number of molecules for each fe
 pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
-
 > ⌨🔥 Exercise: How many genes and cells does this dataset have?
 
 Lets examine a few genes in the first thirty cells:
@@ -88,17 +62,22 @@ Lets examine a few genes in the first thirty cells:
 ```{r}
 pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
 ```
-**Poll**: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"
+
+> ⌨🔥 Exercise: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"
+
+> ⌨🔥 Exercise: Which are the top 3 genes with a higher row-wise mean? Hint: `apply(dgCMatrix, 1, FUN)`.
 
 
 # Create Seurat Object
+
 Initialize the Seurat object with the raw count data (and some filtering)
 
 ```{r}
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
 ```
-**Poll**: What is the dimensionalty of pbmc.data and pbmc?
+
+> ⌨🔥 Exercise: What is the dimensionalty of `pbmc.data` and `pbmc`?
 
 The `min.cells` and `min.features` arguments are low-strigency filters. We are only loading cells with at least 200 genes detected, and we are only including those genes (features) that were detected in at least 3 cells. With these filters in this particular dataset, we are only reducing the number of genes from `33` to `14` thousands.
 
