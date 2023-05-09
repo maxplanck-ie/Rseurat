@@ -28,7 +28,6 @@ output:
 #.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
 library(formatR)
 library(knitr)
-library(kableExtra)
 library(magrittr)
 library(RColorBrewer)
 knitr::opts_chunk$set(fig.width=6, fig.height=5,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
@@ -100,10 +99,7 @@ We can see various amounts of batch effect by eye. Let's try to calculate some m
 library(kBET)
 library(ggplot2)
 
-d <- GetAssayData(panc_sub) %>% as.matrix() %>% t() 
-#d<-t(as.matrix(GetAssayData(panc_sub,slot="data",assay="RNA")))
-
-#b<-as.vector(t(panc_sub[["dataset"]]))
+d <- GetAssayData(panc_sub,slot-"data",assay="RNA") %>% as.matrix() %>% t() 
 b <- panc_sub$tech   # technical batch = dataset
 
 # explain batch.estimate object (what is obs and exp.)
@@ -317,7 +313,7 @@ This is how to reproduce generation of the UMAP embedding for the full dataset a
 <code>
 library(SeuratData)
 panc <- LoadData("panc8", type = "default")
-kable(table(panc$dataset)) %>% kable_classic_2(full_width = F)
+table(panc$dataset)
 panc <- NormalizeData(panc)
 panc <- FindVariableFeatures(panc, selection.method = "vst", nfeatures = 2000)
 all.genes <- rownames(panc)
