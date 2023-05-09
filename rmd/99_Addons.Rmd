@@ -105,7 +105,7 @@ To understand how these scores are calculated, take a look at the [original rese
 
 <!-- https://shiny.rstudio.com/gallery/shiny-wysiwyg.html -->
 
-Check out `27_brushedPlot.R`.
+Check out `rmd/brushedPlot.R`, an interactive app that allows you to select cells from any 2D plot, and get their names for downstream removal (e.g. cleaning doublets).
 
 ## openXLSX
 
@@ -273,7 +273,172 @@ myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
 ```
 
 
-## Markers
+## Function Wrappers for Finding Markers
+
+Next, we'll define three function wrappers that should be helpful to further refine DE analysis.
+
+This functions are only to be used 'as is' (verbatim), if they serve your own purposes. Likely, this is not the case. But the idea is to equip you with the skill set to adjust and further develop your toolbox. Our first function, `get_cell_ids()`, is the greatest candidate to be further customized. If you keep its logic, and the type of the output is the same, your customized version will work flawlessly with the other `find_*()` functions.
+
+### get_cell_ids
+
+Returns a vector of cell IDs after filtering seurat object with metadata. You'd need to adapt this to your needs in your own analyses, in this case we assumed 'treatment' meta.data is actually the `orig.ident`! ...we'll be using it in the next functions.
+
+```{r}
+get_cell_ids <- function(obj, treatment = NULL, cluster = NULL, phase = NULL, group = NULL) {
+  cell_ids <- colnames(obj)
+  if (!is.null(treatment)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, orig.ident == treatment)@meta.data))
+  }
+  if (!is.null(group)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, groups == group)@meta.data))
+  }
+  if (!is.null(phase)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, Phase == phase)@meta.data))
+  }
+  if (!is.null(cluster)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, seurat_clusters == cluster)@meta.data))
+  }
+  stopifnot(length(cell_ids) >= 1)
+  cell_ids
+}
+```
+
+
+### find_markers
+
+wrapper around `FindMarkers` that allows definition of arguments. Nothing extraordinary, just the DRY principle application:
+
+```{r}
+find_markers <- function(obj, ...) {
+  suppressMessages(FindMarkers(obj,
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...
+  ))
+}
+```
+
+### find_all_markers
+
+idem, with `FindAllMarkers`:
+
+```{r}
+find_all_markers <- function(obj, ...) {
+  suppressMessages(FindAllMarkers(obj,
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...
+  ))
+}
+```
+
+
+### find_conserved_markers
+
+idem, with `FindConservedMarkers`, it also does some pre-processing of the resulting table, adding a column with the cluster number, this way we can call the function with 'apply' or 'map' and get a table with all the results.
+
+```{r}
+find_conserved_markers <- function(cluster, ...) {
+  suppressMessages(FindConservedMarkers(combined,
+    ident.1 = cluster,
+    grouping.var = "treatment",
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...
+  ) %>%
+    tibble::rownames_to_column(var = "gene") %>%
+    cbind(cluster_id = cluster, .))
+}
+```
+
+
+### markers_within_clusters
+
+uses `find_markers()` to compare inside a cluster, cells IDs (defined with `get_cell_ids()`) from some grouping metadata with two levels. For example, we can survey markers after a treatment (say, KO and WT) inside each cluster.
+
+```{r}
+markers_within_clusters <- function(obj, totalNumberOfClusters,
+                                    cells_1, cells_2) {
+  result <- data.frame()
+  for (i in seq_len(totalNumberOfClusters)) {
+    thisCluster_cells <- get_cell_ids(obj, cluster = i)
+    cells__1 <- intersect(cells_1, thisCluster_cells)
+    cells__2 <- intersect(cells_2, thisCluster_cells)
+    # NOTE:
+    # cells__N, variables named with double underscores,
+    # are only used internally!!
+    markers <- find_markers(obj,
+      ident.1 = cells__1,
+      ident.2 = cells__2
+    )
+    if (nrow(markers) > 0) {
+      markers %<>% cbind(cluster = rep(i, nrow(.)))
+      markers$gene <- rownames(markers)
+      result %<>% rbind(markers, make.row.names = FALSE)
+    }
+  }
+  result
+}
+```
+
+### process_markers
+
+Finally, we'd like to rearrange columns, adjust p-values with a more sensitive/ modern approach, convert cluster column (if there is one) to character instead of factor, etc.
+
+```{r}
+process_markers <- function(markers) {
+  x <- markers$p_val == 0
+  if (any(x)) {
+    markers[x, ]$p_val <- .Machine$double.xmin
+  }
+  markers$Adjusted.P.value <- p.adjust(markers$p_val)
+  stopifnot(all(markers$Adjusted.P.value != 0))
+  if (not("gene" %in% colnames(markers))) {
+    markers$gene <- rownames(markers)
+  }
+  markers %<>% filter(Adjusted.P.value < 5e-2)
+  if ("cluster" %in% colnames(markers)) {
+    markers$cluster <- as.numeric(as.character(markers$cluster))
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
+  } else {
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
+  }
+  markers
+}
+```
+
+For these functions, we need `totalNumberOfClusters` variable to be defined, let's do it and use it also as an excuse to have a 🌈 colorful plot too:
+
+```{r, fig.asp=0.1}
+totalNumberOfClusters <- length(levels(Idents(pbmc)))
+my_cols <- RColorBrewer::brewer.pal(totalNumberOfClusters, "Set1")
+ggplot(data.frame(x = 1:totalNumberOfClusters, type = 1:totalNumberOfClusters), aes(x = x, fill = factor(type))) +
+  geom_bar() +
+  scale_fill_manual(values = my_cols) +
+  theme_void() +
+  NoLegend()
+```
+
+Finally, let's look at how many cells we have in each cluster.
+
+```{r}
+DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters))
+```
+
+### Combining group-defining metadata
 
 You may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
 
