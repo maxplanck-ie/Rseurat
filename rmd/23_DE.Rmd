@@ -188,16 +188,16 @@ markers.between.clusters <- FindAllMarkers(
 print(markers.between.clusters)
 ```
 
-We'd like to rearrange columns, adjust p-values with a more sensitive/ modern approach, convert cluster column (if there is one) to character instead of factor, etc.
+We'd like to rearrange columns, adjust p-values with a more sensitive approach, convert cluster column (if there is one) to character instead of factor, etc.
 
 ```{r}
 process_markers <- function(markers) {
   # first, let's get a boolean vector with values 'T'
   # on the positions where p_val is misrepresented as a zero
-  x <- markers$p_val == 0
-  if (any(x)) {
+  nulls <- markers$p_val == 0
+  if (any(nulls)) {
     # assign to these, the minimum positive value we can represent
-    markers[x, ]$p_val <- .Machine$double.xmin
+    markers[nulls, ]$p_val <- .Machine$double.xmin
   }
   # re-run adjustment with default values
   markers$Adjusted.P.value <- p.adjust(markers$p_val)
