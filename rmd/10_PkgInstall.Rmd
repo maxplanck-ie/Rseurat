@@ -18,6 +18,7 @@ output:
 knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
 ```
+# Preparation
 
 Thanks for taking the time to do this before the course!
 
@@ -88,7 +89,6 @@ With `BiocManager`, we can install Bioconductor `3.14`. If you are using R 4.2 o
 ```{r bioc314}
 BiocManager::install(version = "3.14")
 ```
-
 > You can ignore the message:
 > 
 > ```
@@ -102,6 +102,7 @@ BiocManager::install(version = "3.14")
 >     MASS, Matrix, mgcv, nlme, nnet, rpart,
 >     spatial, survival
 > ```
+
 
 ### Core & Dependencies
 
