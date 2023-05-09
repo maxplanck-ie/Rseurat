@@ -103,7 +103,7 @@ In addition to kBET rejection rate, we're going to inspect the degree of batch e
 library(kBET)
 library(ggplot2)
 
-d <- GetAssayData(panc_sub,slot="data",assay="RNA") %>% as.matrix() %>% t() 
+d <- GetAssayData(panc_sub,slot="scale.data",assay="RNA") %>% as.matrix() %>% t() 
 b <- panc_sub$tech   # technical batch = dataset
 
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE) 
@@ -136,7 +136,8 @@ batch.estimate$average.pval
 ## Which PC is the major source of batch effect?
 
 ```{r kBET3}
-pca.data <- prcomp(d, center=TRUE) 
+#the data is already centered and scaled
+pca.data <- prcomp(d, center=FALSE) 
 batch.pca <- pcRegression(pca.data, b)
 z<-batch.pca["r2"]
 z$r2[which.max(z$r2[,"R.squared"]),]
@@ -150,12 +151,19 @@ z$r2[which.max(z$r2[,"R.squared"]),]
 
 head(z$r2)
 which.max(z$r2[,"R.squared"])
+
 ```
 
 ## Inspect the result
 
 ```{r kBET3_plot}
-FeaturePlot(panc_sub,features="PC_1")
+#fist check which the corresponding component in Seurat Embeddings is
+pe<-Embeddings(panc_sub,reduction="pca")
+n<-names(which.max(z$r2[,"R.squared"]))
+n_seurat<-names(which.max(apply(pe,2,function(X)cor(abs(X),abs(pca.data$x[,n])))))
+n_seurat
+
+FeaturePlot(panc_sub,features=n_seurat)
 
 ```
 
@@ -278,7 +286,8 @@ batch.estimate$average.pval
 ## Which PC is the major source of batch effect?
 
 ```{r integrated_kBET3}
-pca.data <- prcomp(d, center=TRUE) 
+#the data is already centered and scaled
+pca.data <- prcomp(d, center=FALSE) 
 batch.pca <- pcRegression(pca.data, b)
 z<-batch.pca["r2"]
 z$r2[which.max(z$r2[,"R.squared"]),]
