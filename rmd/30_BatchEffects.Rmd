@@ -91,6 +91,9 @@ We can see various amounts of batch effect by eye. Let's try to calculate some m
 
 ![kbet](images/kbet.png){width=80%,height=80%}
 
+The algorithm creates k-nearest neighbour matrix and choses 10% of the samples to check the batch label distribution in its neighbourhood. If the local batch label distribution is sufficiently similar to the global batch label distribution, the -test does not reject the null hypothesis (that is "all batches are well-mixed"). The result of kBET is the average test rejection rate. The lower the test result, the less bias is introduced by the batch effect. kBET is very sensitive to any kind of bias. If the batch size is large, we recommend to subsample the data.
+
+In addition to kBET rejection rate, we're going to inspect the degree of batch effect by leveraging PCA.
 
 
 ## Run kBET
@@ -102,7 +105,6 @@ library(ggplot2)
 d <- GetAssayData(panc_sub,slot-"data",assay="RNA") %>% as.matrix() %>% t() 
 b <- panc_sub$tech   # technical batch = dataset
 
-# explain batch.estimate object (what is obs and exp.)
 batch.estimate <- kBET(df=d, batch=b, plot=FALSE) 
 
 
