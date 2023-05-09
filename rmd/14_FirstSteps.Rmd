@@ -38,7 +38,7 @@ params:
 
 <!-- https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html -->
 
-# Setup
+## Setup
 
 ```{r}
 timestamp()
@@ -68,7 +68,7 @@ options(parallelly.fork.enable = params$fork,
 plan("multicore", workers = params$Nthreads)
 ```
 
-## Load Data
+# Load Data
 
 We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. There are around 3 thousand single cells that were sequenced on the Illumina NextSeq 500. The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
 
@@ -80,6 +80,7 @@ The values in the **count matrix** represent the number of molecules for each fe
 pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
+
 > ⌨🔥 Exercise: How many genes and cells does this dataset have?
 
 Lets examine a few genes in the first thirty cells:
@@ -87,13 +88,17 @@ Lets examine a few genes in the first thirty cells:
 ```{r}
 pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
 ```
+**Poll**: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"
 
-Initialize the Seurat object with the raw (non-normalized data):
+
+# Create Seurat Object
+Initialize the Seurat object with the raw count data (and some filtering)
 
 ```{r}
 pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc
 ```
+**Poll**: What is the dimensionalty of pbmc.data and pbmc?
 
 The `min.cells` and `min.features` arguments are low-strigency filters. We are only loading cells with at least 200 genes detected, and we are only including those genes (features) that were detected in at least 3 cells. With these filters in this particular dataset, we are only reducing the number of genes from `33` to `14` thousands.
 
@@ -115,6 +120,7 @@ At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc
   - [Slots](https://github.com/satijalab/seurat/wiki/DimReduc#slots)
   - [Object Information](https://github.com/satijalab/seurat/wiki/DimReduc#object-information)
   - [Data Access](https://github.com/satijalab/seurat/wiki/DimReduc#data-access)
+
 
 ### Working with Multiple Experiments
 
@@ -163,6 +169,7 @@ saveRDS(myData, file = file.path(getwd(), "resources/raw_data/myData.rds"))
 
 This way, `orig.ident` will be set accordingly. We'll need to come back to this later... for now, let's keep it simple and work with only one level. The pipeline would stay the same at its core, with some extra steps (e.g. batch effects correction, we'll see these on the second half of the course).
 
+
 # Quality Control
 
 A few QC metrics commonly used, include:
@@ -189,6 +196,7 @@ The `[[` operator can add columns to object metadata. This is a great place to s
 
 ```{r}
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+head(pbmc@meta.data, 5)
 ```
 
 `PercentageFeatureSet()` function calculates the percentage of counts originating from a set of features.
@@ -198,6 +206,7 @@ Let's visualize these broad metrics now as Violin plots.:
 ```{r}
 VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
+
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
@@ -230,15 +239,15 @@ pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent
 
 <!-- DON'T READ THE ANSWER -->
 
-# Normalization
+
+## Normalization
 
 After removing unwanted cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10000 by default), and log-transforms the result. Normalized values are stored in `pbmc[["RNA"]]@data`.
 
-```{r}
+```{r normalizedata}
 pbmc <- NormalizeData(pbmc)
 ```
 
-## Feature Selection
 
 Next, we look at a subset of features (genes) that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). To identify highly variable features, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function.
 
@@ -246,11 +255,12 @@ By default, it uses the `vst` methodology with 2000 features per dataset. First,
 
 <!--Some relevant publications for Feature selection and its importance are: [[1](https://www.nature.com/articles/nmeth.2645)], and [[2](https://doi.org/10.1016/j.cell.2019.05.031)].-->
 
-```{r}
+```{r findvariablefeatures}
 pbmc <- FindVariableFeatures(pbmc)
 ```
 
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
+
 
 > ⌨🔥 Exercise: Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
 
@@ -269,7 +279,7 @@ pbmc <- FindVariableFeatures(pbmc)
 
 Plot variable features
 
-```{r}
+```{r plot1}
 (plot1 <- VariableFeaturePlot(pbmc))
 ```
 
@@ -328,6 +338,7 @@ DimHeatmap(pbmc, dims = 1:9, cells = 500, balanced = TRUE)
 ```
 
 To overcome the extensive technical noise in any single feature for scRNA-seq data, Seurat clusters cells based on their PCA scores, with each PC essentially representing a 'metafeature' that combines information across a correlated feature set. The top principal components therefore represent a robust compression of the dataset.
+
 
 > ⌨🔥 Exercise: How many components should we choose to include? 10? 20? 100?
 
@@ -389,6 +400,7 @@ knitr::include_graphics("./images/jaccard.svg")
 
 **If two datasets share the exact same members, their Jaccard Similarity Index will be 1. Conversely, if they have no members in common then their similarity will be 0.**
 
+
 All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
 > ⌨🔥 Exercise: Machine learning algorithms have parameters and hyperparameters, Deep Learning Large Language Models have them in the order of billions, this one only has one: `K`. Can you find which is the default value that Seurat uses? 10? 20? 30?... Hint: `help` yourselves by reading the docs!
@@ -411,6 +423,7 @@ The clusters can be found using the `Idents()` function. Here, for example we ca
 ```{r}
 head(Idents(pbmc), 5)
 ```
+
 
 > ⌨🔥 Exercise: How many clusters did we find?
 
