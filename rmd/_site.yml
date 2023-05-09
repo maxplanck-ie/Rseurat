@@ -28,12 +28,12 @@ navbar:
       - text: Embeddings
         icon: fa-hand-spock-o
         href: 21_UMAP.html
-      - text: Diff. Expression
-        icon: fa-question-circle
-        href: 23_DE.html
       - text: Data Viz.
         icon: fa-map-marker
-        href: 25_Viz.html
+        href: 23_Viz.html
+      - text: Diff. Expression
+        icon: fa-question-circle
+        href: 27_DE.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
