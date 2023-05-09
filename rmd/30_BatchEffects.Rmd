@@ -53,39 +53,9 @@ packageVersion("Seurat")
 We're going to work with a dataset comprised of pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates. We're first going to inspect the lowD embedding of the full dataset, and then we're going to work with a subset of the full dataset. We're going to inspect and attempt to mitigate known batch effects in the subset dataset.
 
 
-```{r SeuratData, eval=FALSE, echo=FALSE}
-# This was used during pre-processing
-library(SeuratData)
-SeuratData::InstallData("panc8")
-panc <- LoadData("panc8", type = "default")
-table(panc$dataset)
-```
-
 ## What does the data look like out of the box?
 
 Lets have a look at the UMAP embedding of the full dataset processed in a standard way, ignoring any possible batch effects. Compare the cell separation by sequencing technology and by cell type.
-
-```{r full_umap, eval=FALSE, echo = FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-# This code was run to produce the figure
-my_cols = brewer.pal(panc@meta.data$tech %>% unique() %>% length(),"Dark2")
-
-panc <- panc %>% 
-  NormalizeData() %>%
-  FindVariableFeatures()
-
-ag <- rownames(panc)                
-vg <- VariableFeatures(panc)
-
-panc <- panc %>%
-  ScaleData(features=ag)  %>%
-  RunPCA(features=vg)  %>%
-  RunUMAP(dim=1:30)
-
-p1<-DimPlot(panc, group.by="tech", cols=scales::alpha(my_cols,0.3))
-p2<-DimPlot(panc, group.by="celltype")
-p1+p2
-ggplot2::ggsave("images/panc8full.umap.png",width=12,height=5)
-```
 
 ![Full dataset on umap](images/panc8full.umap.png)
 
