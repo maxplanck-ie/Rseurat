@@ -64,15 +64,6 @@ Lets have a look at the UMAP embedding of the full dataset processed in a standa
 ## Load the preprocessed subset dataset 
 
 
-## Subset dataset 
-
-For faster processing, we have prepared a subsampled dataset which contains only cells from three experiments
-```{r create_subset, eval=FALSE, echo=TRUE}
-panc_sub <- subset(x=panc,subset = dataset == c("celseq","celseq2","smartseq2"))
-saveRDS(panc_sub,"panc_sub.RDS")
-```
-
-
 ```{r load_subset}
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
 fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
