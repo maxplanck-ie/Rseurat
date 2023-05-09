@@ -99,7 +99,7 @@ $$
 
 ## SeuratData
 
-IFNB-Stimulated and human controls.
+We're going to work with IFNB-Stimulated and Control human PBMCs and downsample the datasets for the purpose of the excercise.
 
 
 ```{r SeuratData}
