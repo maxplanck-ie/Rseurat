@@ -160,7 +160,9 @@ which.max(z$r2[,"R.squared"])
 #fist check which the corresponding component in Seurat Embeddings is
 pe<-Embeddings(panc_sub,reduction="pca")
 n<-names(which.max(z$r2[,"R.squared"]))
-n_seurat<-names(which.max(apply(pe,2,function(X)cor(abs(X),abs(pca.data$x[,n])))))
+pca.cor<-apply(pe,2,function(X)cor(abs(X),abs(pca.data$x[,n])))
+sum(pca.cor>0.5)
+n_seurat<-names(which.max(pca.cor))
 n_seurat
 
 FeaturePlot(panc_sub,features=n_seurat)
@@ -298,6 +300,17 @@ z$r2[which.max(z$r2[,"R.squared"]),]
 ```{r integrated_kBET3_inspect}
 head(z$r2)
 which.max(z$r2[,"R.squared"])
+```
+
+## Inspect the result
+
+```{r kBET3_integrated_plot}
+#fist check which the corresponding component in Seurat Embeddings is
+pe<-Embeddings(panc.combined,reduction="pca")
+n<-names(which.max(z$r2[,"R.squared"]))
+pca.cor<-apply(pe,2,function(X)cor(abs(X),abs(pca.data$x[,n])))
+sum(pca.cor>0.5)
+
 ```
 
 ## Outlook
