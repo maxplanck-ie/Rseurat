@@ -235,6 +235,11 @@ if ("Adjusted.P.value" %in% names(markers.between.clusters)) {
 
 Since `process_markers` is not **idempontent**, running the above codeblock would be troublesome if it weren't for the conditional (`if-else`) in place. Since we may sometime re-run cells as part of using the button left to the green triangle at each block... this structure can save us some headaches.
 
+
+```{r}
+DT::datatable(markers.between.clusters, rownames=NULL)
+```
+
 # End
 
 > ⌨🔥 Exercise(s):
