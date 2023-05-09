@@ -144,7 +144,7 @@ z$r2[which.max(z$r2[,"R.squared"]),]
 
 ```
 ```{r before_r2_hist}
-hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=500,main=sprintf("Batch correlation with top 50 PCs \n Before batch effect removal"))
+hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=100,main=sprintf("Batch correlation with top 50 PCs \n Before batch effect removal"))
 
 ```
 
@@ -299,7 +299,7 @@ z$r2[which.max(z$r2[,"R.squared"]),]
 ```
 
 ```{r after_r2_hist}
-hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=500,main=sprintf("Batch correlation with top 50 PCs \n After batch effect removal"))
+hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=100,main=sprintf("Batch correlation with top 50 PCs \n After batch effect removal"))
 
 ```
 
