@@ -13,60 +13,39 @@ output:
     toc_float: true
     toc_depth: 2
     df_print: paged
-
-params:
-  Nthreads:
-    label: 'Number of Threads:'
-    value: 8
-    input: slider
-    min: 4
-    max: 96
-  Nmemgb:
-    label: 'Gigabytes of Memory per Thread:'
-    value: 8
-    input: slider
-    min: 4
-    max: 16
-  fork:
-    label: 'Fork processes (not GUI)'
-    value: FALSE
-    input: checkbox
-  seed:
-    label: 'Random seed:'
-    value: 8211673
-  dimensionality:
-    label: 'Dimensionality of single-cell dataset:'
-    value: 10
-  cluster_resolution:
-    label: 'Parameter for clustering algorithm:'
-    value: 0.5
 ---
-
 
 # Setup
 
-```{r}
-cbind(params)
-```
+```{r setup}
+# .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
-```{r}
-library(tidyverse)
-library(Seurat)
-```
+suppressMessages({
+  library(magrittr)
+  library(tidyverse)
+  library(future)
+  library(Seurat)
+})
 
-```{r}
-set.seed(params$seed)
+
+set.seed(8211673)
+
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
-options(
-  parallelly.fork.enable = params$fork,
-  future.globals.maxSize = params$Nmemgb * 1024^2 * 1000
-)
 
-plan("multicore", workers = params$Nthreads)
+options(parallelly.fork.enable = FALSE,
+        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+
+plan("multicore", workers = 8)
 ```
 
-## Load Data
+```{r useful-information, echo=FALSE}
+cat("work directory: ", getwd())
+cat("\n")
+cat("library path(s): ", .libPaths())
+```
+
+# Load Data
 
 We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
 
@@ -86,9 +65,9 @@ pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
 
-pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
 
-pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 ```
 
 # Theory
@@ -142,11 +121,11 @@ For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) 
 ## High-Dimensional Plotting with Seurat
 
 ```{r}
-pbmc <- RunTSNE(pbmc, dims = seq_len(params$dimensionality))
+pbmc <- RunTSNE(pbmc, dims = seq_len(10))
 ```
 
 ```{r}
-pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality))
+pbmc <- RunUMAP(pbmc, dims = seq_len(10))
 ```
 
 ```{r}
