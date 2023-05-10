@@ -18,9 +18,8 @@ output:
 knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
 ```
-# Preparation
 
-Thanks for taking the time to do this before the course!
+> Thanks for taking the time to do this before the course!
 
 # Working Directory
 
@@ -191,7 +190,7 @@ if (!"kBET" %in% installed.packages()) remotes::install_github("theislab/kBET")
 BiocManager::valid()
 ```
 
-If the above code block fails, is because according to BiocManager our current state is not valid (so, it didn't return `TRUE` to `stopifnot`). To correct this, you should run the `BiocManager::install()` command as it's stated by `BiocManager::valid()`.
+If the above code block outputs anything different to `TRUE`, it's because according to BiocManager our current state is not valid. To fix it, you should run the `BiocManager::install()` command as it's stated in the output message.
 
 ## Check Installation
 
@@ -214,9 +213,7 @@ if (!"ifnb.SeuratData" %in% installed.packages()) SeuratData::InstallData("ifnb"
 if (!"pbmc3k.SeuratData" %in% installed.packages()) SeuratData::InstallData("pbmc3k")
 ```
 
-There is also another set of packages for single cell data analysis that are part of the Bioconductor framework (we'll mention more about this in the optional 'Addons' document, have a look at it after the course ends).
-
-Anyway, for that set of packages, there's an analog meta-package, called `scRNAseq`, that allows you to download datasets. You can use `scRNAseq::listDatasets()` to get a table of all these 'educational' datasets. Let's install it:
+On Bioconductor, there's an analog meta-package, called `scRNAseq`, that allows you to download another datasets. You can use `scRNAseq::listDatasets()` to get a table of all these 'educational' datasets. Let's install it:
 
 ```{r}
 if (!"scRNAseq" %in% installed.packages()) {
