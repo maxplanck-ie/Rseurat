@@ -35,7 +35,7 @@ knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 options(parallelly.fork.enable = FALSE,
         future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
 
-plan("multicore", workers = 8)
+plan("multicore", workers = 8)  # function made available by SeuratObj automatically.
 ```
 
 ```{r useful-information, echo=FALSE}
