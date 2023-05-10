@@ -23,18 +23,18 @@ navbar:
       - text: First steps
         icon: fa-users
         href: 14_FirstSteps.html
-      - text: Ontologies Enrichment
-        icon: fa-arrows-alt
-        href: 16_GSEA.html
       - text: Embeddings
         icon: fa-hand-spock-o
-        href: 21_UMAP.html
+        href: 16_UMAP.html
       - text: Data Viz.
         icon: fa-map-marker
-        href: 23_Viz.html
+        href: 18_Viz.html
       - text: Diff. Expression
         icon: fa-question-circle
-        href: 27_DE.html
+        href: 21_DE.html
+      - text: Ontologies Enrichment
+        icon: fa-arrows-alt
+        href: 23_GSEA.html
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
