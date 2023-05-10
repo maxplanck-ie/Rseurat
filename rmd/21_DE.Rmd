@@ -169,7 +169,7 @@ markers.between.clusters <- FindAllMarkers(
 print(markers.between.clusters)
 ```
 
-We'd like to rearrange columns, adjust p-values with a more sensitive approach, convert cluster column (if there is one) to character instead of factor, etc.
+We'd like to rearrange columns, adjust p-values with a more sensitive approach, convert cluster column (if there is one) to character instead of factor, etc. We'll have all these tasks encapsulated into a function that should process the results from any of Seurat's `Find*()` functions.
 
 ```{r}
 process_markers <- function(markers) {
