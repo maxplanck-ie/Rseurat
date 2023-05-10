@@ -16,29 +16,42 @@ output:
 ---
 
 # Setup
-```{r setup, echo=FALSE}
-# uncomment and thank your tutor if libraries are provided
-#.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
-suppressMessages(library(tidyverse))
-suppressMessages(library(enrichR))
-suppressMessages(library(Seurat))
-#library(future) # no future here?
+```{r setup}
+# .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
+
+suppressMessages({
+  library(enrichR)
+  library(magrittr)
+  library(tidyverse)
+  library(future)
+  library(Seurat)
+})
+
 
 set.seed(8211673)
-knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
+knitr::opts_chunk$set(echo = TRUE,
+                      format = TRUE,
+                      out.width = "100%")
+
+
+options(parallelly.fork.enable = FALSE,
+        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+
+plan("multicore", workers = 8)
+```
+
+```{r useful-information, echo=FALSE}
 cat("library path: ", .libPaths())
 cat("work directory: ", getwd())
 ```
 
-# Basic Processing (repetition)
+# Load Data
 
 We'll be working with the data from our past notebook ("First steps"), let's quickly re-load and re-process again:
 
 ```{r first_steps, warning=FALSE}
-# NOTE: This code block will be repeated throughout the course, and it has 5 parameters that are good candidates to be moved to the YAML header(s). If this were an actual research report, we would have probably done this.
-
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
@@ -56,6 +69,7 @@ pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
 ```
 
 # Getting Gene Sets
+
 [This section is new and utilizes fragments that came later. But logically we first have to define gene lists - and then GSEA GO etc]
 
 [TM: should also rethink the ranking here, and move the whole rmd after DE analysis and with log-fold changes, rather than PC loadings. It feels more natural to have the GO/GSEA after DE.
