@@ -30,9 +30,7 @@ suppressMessages({
 
 set.seed(8211673)
 
-knitr::opts_chunk$set(echo = TRUE,
-                      format = TRUE,
-                      out.width = "100%")
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 
 options(parallelly.fork.enable = FALSE,
@@ -42,8 +40,9 @@ plan("multicore", workers = 8)
 ```
 
 ```{r useful-information, echo=FALSE}
-cat("library path: ", .libPaths())
 cat("work directory: ", getwd())
+cat("\n")
+cat("library path(s): ", .libPaths())
 ```
 
 # Load Data
