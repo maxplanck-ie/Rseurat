@@ -78,7 +78,10 @@ Seurat has different functions that do all Differential Expression (DE) tests fo
 
 **In a nutshell: MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression.
 
-<!-- https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis -->
+<!-- https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis
+
+This research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
+-->
 
 Let's do a comparison between cells that were assigned to either cluster 1 or 2.
 
@@ -220,9 +223,7 @@ DT::datatable(markers.between.clusters, rownames=NULL)
 
 # End
 
-> ⌨🔥 Exercise(s):
-
-> 0. We'll distribute the room in groups again (N<=9), and assign a cluster to each. Get the "gene signature" of your assigned cluster, see if you can guess the celltype by using the following list of gene markers.
+> ⌨🔥 Exercise: We'll distribute the room in groups again (N<=9), and assign a cluster to each. Get the "gene signature" of your assigned cluster, see if you can guess the celltype by using the following list of gene markers.
 > 
 > ```{r}
 > list(
@@ -237,13 +238,3 @@ DT::datatable(markers.between.clusters, rownames=NULL)
 >   Platelet = c("PPBP")
 > )
 > ```
-
-> 1. Use `str()` over three different syntaxes of accessors to meta data data frame columns: `pbmc@meta.data[["orig.ident"]]`, `pbmc@meta.data["orig.ident"]`, and `pbmc@meta.data$orig.ident`; Which one of these is useless if we were to add a new column (granted, replacing `orig.ident` with our column name)? Could we just use `cbind`, how would that be?
-
-> 2. Add a fake 'treatment' metadata column using `sample(x=c("KO","WT"))` and evaluate a pair of 'Within Clusters' code blocks in the same way as we did at 'Per Cluster (between)' but using `markers_within_clusters` function.
-
-
-> 3. Explore the number of cells from each treatment level in each cluster? Do we have underrepresented classes in any of these? Would it affect our downstream DE analyses? Hint: use a code block with this one-liner: `DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters, treatment))`
-
-
-> 4. Have a look at this research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
