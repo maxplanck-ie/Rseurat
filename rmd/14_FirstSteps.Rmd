@@ -309,8 +309,6 @@ When picking the 'elbow' point, remember that **it's better to err on the higher
 
 <!-- Another methodology is using the JackStraw procedure: We randomly permute a subset of the data (1% by default) and rerun PCA, constructing a 'null distribution' of feature scores, and repeat this procedure. We identify 'significant' PCs as those who have a strong enrichment of low p-value features. Of course, such permutations tend to be cumbersome and this is a highly intense computational procedure, so we're skipping it in the course. -->
 
-# BREAK
-
 # Clustering
 
 The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations. Building on these subpopulations, `PhenoGraph` authors developed additional methods to extract high-dimensional signaling phenotypes and infer differences in functional potential between subpopulations. <!-- For details, be sure to check the [research paper](http://www.ncbi.nlm.nih.gov/pubmed/26095251) cited by seurat developers. -->
