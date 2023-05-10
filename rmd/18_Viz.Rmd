@@ -24,7 +24,6 @@ output:
 suppressMessages({
   library(magrittr)
   library(tidyverse)
-  library(future)
   library(Seurat)
 })
 
