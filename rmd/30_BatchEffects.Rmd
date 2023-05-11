@@ -38,7 +38,10 @@ knitr::opts_chunk$set(fig.width=6, fig.height=5,message=FALSE,warning=FALSE,tidy
 library(Seurat)
 packageVersion("Seurat")
 ```
+
 ## Sources of batch effects
+
+Multiple steps in sample preparation introduce changes to measured gene expression. Some of these are:
 
 - Cell/RNA isolation (e.g. FACS)
 - Library construction
@@ -63,6 +66,8 @@ Lets have a look at the UMAP embedding of the full dataset processed in a standa
 
 ## Load the preprocessed subset dataset 
 
+We have subset and pre-processed the full dataset for you. You can download it from `zenodo`.
+
 
 ```{r load_subset}
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
@@ -72,6 +77,8 @@ if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="wget
 panc_sub <- readRDS(fdest)
 table(panc_sub$dataset)
 ```
+
+**Poll:** Which sequencing technologies are retained in the subset dataset?
 
 
 ## Revisit UMAP
@@ -88,7 +95,7 @@ p1+p2
 
 ## How do we measure batch effects?
 
-We can see various amounts of batch effect by eye. Let's try to calculate some metrics using the kBET package from Theis lab.
+We can see various amounts of batch effect by eye. Let's try to calculate some metrics using the `kBET` package from Theis lab.
 
 ![kbet](images/kbet.png){width=80%,height=80%}
 
@@ -98,6 +105,10 @@ In addition to kBET rejection rate, we're going to inspect the degree of batch e
 
 
 ## Run kBET
+
+Kbet returns a summary of hypothesis rejection rate for a number of dataset subsets (100 by default). The null hypothesis is that the distribution of batch labels in a cell's neighbourhood is not different than the global distribution of batch labels. The expected rejection rate reflects the null hypothesis. The observed rejection rate is compared to the expected one by a chi-square test.
+
+We're going to use the `@scale.data` slot of the `RNA` assay to compute the batch effect metrics.
 
 ```{r kBET1}
 library(kBET)
@@ -117,6 +128,7 @@ plot.data <- data.frame(class=rep(c('observed', 'expected'),
 
 ## Plot the rejection rate
 
+
 ```{r kBET1_plot,fig.width=4, fig.height=3}
 g <- ggplot(plot.data, aes(class, data)) + geom_boxplot() + 
   labs(x='Test', y='Rejection rate',title='kBET test results') +
@@ -132,45 +144,63 @@ g
 batch.estimate$summary
 batch.estimate$average.pval
 ```
+The observed rejection rate is near 1 (100%). Knowing that kBET is very sensitive, we're going to include a PC analysis, additionally. 
 
 ## Which PC is the major source of batch effect?
 
-```{r kBET3}
+We are going to use the pcRegression function from the kBET package to correlate the batch vector with the principal components of the dataset. As this function accepts prcomp-style input, we're going to recompute the PCs with the `prcomp` function.
+
+```{r kBET3.1}
 #the data is already centered and scaled
 pca.data <- prcomp(d, center=FALSE) 
 batch.pca <- pcRegression(pca.data, b)
-z<-batch.pca["r2"]
-z$r2[which.max(z$r2[,"R.squared"]),]
-
-```
-```{r before_r2_hist}
-hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=100,main=sprintf("Batch correlation with top 50 PCs \n Before batch effect removal"))
-
+before<-batch.pca["r2"]
 ```
 
+Have a look at the head of the result.
+Let's look at how high the correlation coefficient is with any PC:
+
+```{r kBET3.2}
+before$r2[which.max(before$r2[,"R.squared"]),]
+
+```
 ## Inspect the result
 
-```{r kBET3_head}
+Which PC has the highest R.squared to the batch variable?
 
-head(z$r2)
-which.max(z$r2[,"R.squared"])
+```{r kBET3_whichmax}
+
+which.max(before$r2[,"R.squared"])
 
 ```
 
-## Inspect the result
+**Poll** Which principal component is most highly correlated with the batch variable?
 
-```{r kBET3_plot}
+
+Since we have recalculated the PCs with a different package, we might want to identify the closest PC calculated by Seurat.
+
+```{r kBET3.3}
 #fist check which the corresponding component in Seurat Embeddings is
 pe<-Embeddings(panc_sub,reduction="pca")
-n<-names(which.max(z$r2[,"R.squared"]))
+n<-names(which.max(before$r2[,"R.squared"]))
 pca.cor<-apply(pe,2,function(X)cor(abs(X),abs(pca.data$x[,n])))
-sum(pca.cor>0.5)
+sum(pca.cor>0.5) #let's make sure we are looking at meaningful correlations
 n_seurat<-names(which.max(pca.cor))
 n_seurat
-
-FeaturePlot(panc_sub,features=n_seurat)
-
 ```
+
+We can now plot this component on the feature plot and compare it with the cell technology label distribution.
+
+```{r kBET3.4}
+
+p1<-FeaturePlot(panc_sub,features=n_seurat)
+p2<-DimPlot(panc_sub, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
+p1+p2
+```
+
+It is apparent that PC5 differentiates cells sequenced with smartseq2 technology from those sequenced with celseq2.    
+
+Let's now explore some options of mitigating batch effects.
 
 ## What options are there to mitigate batch effects ?
 
@@ -207,6 +237,8 @@ While we initially identify anchors in low-dimensional space, we also filter out
 
 ## Seurat Integration: prep datasets
 
+Prior to the integration, we want to normalize each dataset to be integrated separately.
+
 ```{r seurat_integrate1}
 # split the dataset into a list of seurat objects 
 panc.list <- SplitObject(panc_sub, split.by = "dataset")
@@ -220,6 +252,8 @@ panc.list <- lapply(X = panc.list, FUN = function(x) {
 
 ## Seurat Integration
 
+In this paragraph, we're going to run the three functions key to Seurat Integration.
+
 ```{r seurat_integrate2}
 # select features that are repeatedly variable across datasets for integration
 features <- SelectIntegrationFeatures(object.list = panc.list)
@@ -231,7 +265,14 @@ panc.combined <- IntegrateData(anchorset = anchors)
 
 ```
 
+Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
+
+**Poll** What is the new assay called? Hint: you can access assays of a Seurat object with `Assays()`.
+
+
 ## Process the newly integrated dataset
+
+After the integration, data scaling on the new assay is necessary, as well as calculation of PCA and UMAP embeddings.
 
 ```{r process_integrated}
 # specify that we will perform downstream analysis on the corrected data note that the
@@ -247,15 +288,26 @@ panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 
 ## What does the data look like after the integration?
 
+Let's have a look at the distribution of celltype and technology labels in lowD after integration.
+
 ```{r integrated_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("By technology.","By cell type.")}
-p1<-DimPlot(panc.combined, reduction = "umap",label=TRUE)
+p1<-DimPlot(panc.combined, reduction = "umap")
 p2<-DimPlot(panc.combined, reduction = "umap",group.by="celltype")
+p1+p2
+```
+
+We can also compare the distribution of cell tech labels before and after integration.
+
+```{r b_a_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center',fig.cap=c("Before.","After.")}
+p1<-DimPlot(panc_sub, reduction = "umap")
+p2<-DimPlot(panc.combined, reduction = "umap")
 p1+p2
 ```
 
 ## What does the batch effect look like after the integration?
 
-We can see that the cells from different datasets overlap, and there appears to be one major cluster per cell type. Let's try to calculate some metrics using the kBET package from Theis lab.
+We can see that the cells from different datasets overlap, and there appears to be one major cluster per cell type. Let's use kBET again to see what kind of metrics it returns.   
+We will start by taking the `@scale.data` slot of the `integrated` assay.
 
 ```{r integrated_kBET1}
 d <- GetAssayData(panc.combined, slot="scale.data", assay="integrated") %>% as.matrix() %>% t() 
@@ -281,36 +333,38 @@ plot.data <- data.frame(class=rep(c('observed', 'expected'),
 g
 ```
 
-## Is the measured batch effect significant?
+Surprisingly, kBET returns an almost unchanged hypothesis rejection rate for the integrated dataset.
+Since it is known, that kBET is quite sensitive, we're going to include the PC analysis again.
 
-```{r integrated_kBET2}
-batch.estimate$summary
-batch.estimate$average.pval
-```
 
-## Which PC is the major source of batch effect?
+## Principal component correlation with the batch variable
 
-```{r integrated_kBET3}
+Let's recalculate the PCs with the `prcomp` function again and correlate them with the batch variable.
+
+```{r integrated_kBET3.1}
 #the data is already centered and scaled
 pca.data <- prcomp(d, center=FALSE) 
 batch.pca <- pcRegression(pca.data, b)
-z<-batch.pca["r2"]
-z$r2[which.max(z$r2[,"R.squared"]),]
+after<-batch.pca["r2"]
 ```
 
-```{r after_r2_hist}
-hist(z$r2[1:50,"R.squared"],xlim=c(0,1),breaks=100,main=sprintf("Batch correlation with top 50 PCs \n After batch effect removal"))
+How high does the correlation coefficient get?
 
+```{r integrated_kBET3.2}
+after$r2[which.max(after$r2[,"R.squared"]),]
 ```
-
-## Inspect the result
+Let's look at the rank of the most highly correlated PC.
 
 ```{r integrated_kBET3_inspect}
-head(z$r2)
-which.max(z$r2[,"R.squared"])
+which.max(after$r2[,"R.squared"])
 ```
+**Poll** What is the rank of the most highly correlated PC ? 
 
-## Inspect the result
+This PC is unlikely to be taken into account in Seurat clustering or lowD embedding, as this is typically using 20-50 top PCs.
+Although the kBET rejection rate is still high after integration, the rank of the PC most correlated with the batch variable is now very low.
+
+
+Let's have a look at the correlation of this PC with the top50 Seurat PCs.
 
 ```{r kBET3_integrated_plot}
 #fist check which the corresponding component in Seurat Embeddings is
@@ -321,10 +375,29 @@ sum(pca.cor>0.5)
 
 ```
 
+**Poll** How many of the top50 Seurat PCs have a correlation coeficient greater that 0.5 with the `prcomp PC1893` ?
+
+
+## Distribution of the correlation coeficients before and after integration
+
+We can also summarize the distribution of correlation coeficients for the top 50 `prcomp` PCs for the dataset before and after integration:
+
+```{r r2_hist,out.width="100%"}
+par(mfrow=c(1,2))
+hist(before$r2[1:50,"R.squared"],xlim=c(0,1),breaks=100,main=sprintf("Before batch \n effect removal"),xlab="R.squared")
+hist(after$r2[1:50,"R.squared"],xlim=c(0,1),breaks=100,main=sprintf("After batch \n effect removal"),xlab="R.squared")
+par(mfrow=c(1,1))
+
+```
+
+Applying integration to the panc dataset clearly reduced the correlation of the top50 `prcomp` PCs with the batch variable.
+
+
 ## Outlook
 
 - Verify that expected marker genes are expressed per cell population
 - Note: Seurat v5 has additional modalities of integrating cells: (Harmony and scVI, bridge integration across modalities)
+- Note: kBET rejection rate before and after integration varies from dataset to dataset. It is still worth inspecting it on another piece of data, even though it wasn't showing much reduction in the dataset chosen for this vignette.
 
 ## SessionInfo
 
