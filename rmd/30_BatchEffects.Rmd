@@ -191,7 +191,7 @@ n_seurat
 
 We can now plot this component on the feature plot and compare it with the cell technology label distribution.
 
-```{r kBET3.4}
+```{r kBET3.4,fig.width=6,fig.height=10}
 
 p1<-FeaturePlot(panc_sub,features=n_seurat)
 p2<-DimPlot(panc_sub, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
