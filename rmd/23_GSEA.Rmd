@@ -65,6 +65,12 @@ pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
 pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+
+pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
+
+pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
+
+pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 ```
 
 Next, we do our between-clusters DE analysis. Once again, we'll process the results:
@@ -164,3 +170,11 @@ result.1$GO_Cellular_Component_2021 %>%
 ```
 
 # End
+
+```{r, eval=FALSE, echo=FALSE}
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
+```
+
