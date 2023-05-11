@@ -219,6 +219,7 @@ Seurat authors developed a strategy to "anchor" diverse datasets together:
 - Joint dimentional reduction
 - Mutual nearest neighbours ("anchors")
 - Filter for high-scoring anchors
+- Known bottleneck: rare cell types
 
 
 ## Seurat Integration: prep datasets
