@@ -31,9 +31,7 @@ suppressMessages({
 
 set.seed(8211673)
 
-knitr::opts_chunk$set(echo = TRUE,
-                      format = TRUE,
-                      out.width = "100%")
+knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 
 options(parallelly.fork.enable = FALSE,
@@ -43,8 +41,9 @@ plan("multicore", workers = 8)
 ```
 
 ```{r useful-information, echo=FALSE}
-cat("library path: ", .libPaths())
 cat("work directory: ", getwd())
+cat("\n")
+cat("library path(s): ", .libPaths())
 ```
 
 # Load Data
@@ -68,51 +67,51 @@ pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
 pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
 ```
 
-# Getting Gene Sets
+Next, we do our between-clusters DE analysis. Once again, we'll process the results:
 
-[This section is new and utilizes fragments that came later. But logically we first have to define gene lists - and then GSEA GO etc]
+```{r de_steps}
+process_markers <- function(markers) {
+  nulls <- markers$p_val == 0
+  if (any(nulls)) {
+    markers[nulls, ]$p_val <- .Machine$double.xmin
+  }
+  markers$Adjusted.P.value <- p.adjust(markers$p_val)
+  stopifnot(all(markers$Adjusted.P.value != 0))
+  if (not("gene" %in% colnames(markers))) {
+    markers$gene <- rownames(markers)
+  }
+  markers %<>% filter(Adjusted.P.value < 5e-2)
+  if ("cluster" %in% colnames(markers)) {
+    markers$cluster <- as.numeric(as.character(markers$cluster))
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
+  } else {
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
+  }
+  markers
+}
 
-[TM: should also rethink the ranking here, and move the whole rmd after DE analysis and with log-fold changes, rather than PC loadings. It feels more natural to have the GO/GSEA after DE.
-In this case the block above should contain also ... FindCluster, FindMarkers ... and should probably _not_ be run anymore.
-]
-
-
-Recall: In our analysis, each cell lives in a high-dimensional space (#genes) and PCA analysis rotates the data using
-more convenient axes (principal components=PC).
-
-As a first step, we can also rank the genes by their contribution to a specific PC.
-This is also called the `loadings` and they can be obtained easily like so:
-
-```{r loadings}
-loads <- Loadings(pbmc[["pca"]])
-loads[,1:5] %>% head()
+markers.between.clusters <- FindAllMarkers(
+  pbmc_small,
+  test.use = "MAST",
+  logfc.threshold = 0.125,
+  min.pct = 0.05,
+  only.pos = TRUE,
+  densify = TRUE
+) %>% process_markers()
 ```
-
-
-**Task**: Sort all genes according to their contribution to PC_1 and extract the top 5 gene names.
-Next try to extract the bottom 5 genes.
-
-**Poll**: What are those genes?
-```{r geneset1, echo=FALSE}
-gene.set.1 <- loads %>% as.data.frame() %>% 
-  arrange(-PC_1) %>% 
-  head(50) %>% 
-  rownames()
-#gene.set.1
-```
-
-[TM: I replaced the original task (to edit a function) with the above task. It seems the function was erroneous: no data.frame conversion, missing comma. It was also never used again ]
 
 
 # Functional Enrichment Analysis
 
 These methods have first been used for microarrays, and aim to draw conclusions ranked gene list from RNAseq experiments, scRNA, or any other OMICS screen. There are a number of tools and approaches - here we will focus only one common and practical approach.
 
-For more information: see [clusterProfiles](https://yulab-smu.top/biomedical-knowledge-mining-book/clusterProfiler-dplyr.html).
+For more information, see: [clusterProfiler](https://yulab-smu.top/biomedical-knowledge-mining-book/clusterProfiler-dplyr.html).
 
 The aim is to draw conclusions as to what's the functional implications that we may be able to derive given a list of genes. To this end, we'd start with such list and then consult databases for the annotations. With this data, we can come up with scores to measure level of association. A gene set is an unordered collection of genes that are functionally related.
-
-[TM: I removed a paragraph about GSEA to stay on focus. AFAIK enrichr does not support GSEA]
 
 ## Gene Ontology
 
@@ -122,9 +121,11 @@ The aim is to draw conclusions as to what's the functional implications that we 
 - CC: Cellular Compartment, where gene products are active
 - BP: Biological Processes, pathways and larger processes made up of the activities of multiple gene products
 
+<!-- rbioapi::rba_reactome_analysis(input = genes.1, p_value = 0.1) -->
+
 ## enrichR
 
-The package is already loaded. But we need to connect to the databases that we'll be using. There are more than 200 databases available, you can get a data frame with details of these using `listEnrichrDbs()`.
+The package is already loaded. But we need to select which databases to connect. There are more than 200 databases available, you can get a data frame with details of these using `listEnrichrDbs()`.
 
 ```{r dbs}
 dbs <- c(
@@ -136,38 +137,30 @@ dbs <- c(
 
 
 ```{r enrichr}
-result.1 <- enrichr(gene.set.1, dbs)
-#result.1$GO_Molecular_Function_2021
+result.1 <- markers.between.clusters %>% filter(cluster == 1) %>% rownames() %>% enrichr(dbs)
 ```
 
-**Task**: Understand the format and interpretation of the output `result.1`
-
-**Poll**: What is the most significantly enriched molecular function and based on which genes
-[ pos. loadings: ferric iron binding FTL]
-[ neg. loadings: cytokine receptor activity, IL7R]
-
-**Poll**: would you get the same result if you changed the number of genes in gene.set.1? Try it out.
-
+> ⌨🔥 Exercise(s):
+> 
+> 1. Understand the format and interpret the output `result.1`.
+> 1. What is the most significantly enriched molecular function? which genes are the base for it?
+> 1. Would you get the same result if you changed the number of genes in the input? Try it out.
 
 We can also produce nice graphical summaries:
+
 ```{r plotenrichr}
-plotEnrich(result.1[[1]], showTerms = 20, numChar = 40, y = "Count", orderBy = "P.value")
+plotEnrich(result.1[[1]], showTerms = 10, numChar = 40, y = "Count", orderBy = "P.value")
 ```
 
+Also, we may customize the selection and subsetting of top ranking categories that are visualized:
 
-[TM: I removed the various functions to prettify the plot. Neat solutions, but they are too far off topic and not used again. 
-As a result also DT became dispensible, I believe]
-
-Notice that - using dplyr powers - you can also customize your selection and subsetting of top ranking categories
 ```{r plotenrich_finetuning}
 result.1$GO_Cellular_Component_2021 %>% 
-  filter(Adjusted.P.value < 5e-2) %>%
+  filter(Adjusted.P.value < 5e-2,
+         Odds.Ratio != 1) %>%
   arrange(-Combined.Score) %>% 
-  plotEnrich(showTerms=20, numChar=40, y="Count")
+  # Combined.Score = ln(p)*z
+  plotEnrich(showTerms=20, numChar=50, y="Ratio")
 ```
 
-**Task**: Expore the above code block and make your own choices of GO categories and filters.
-
-
 # End
-
