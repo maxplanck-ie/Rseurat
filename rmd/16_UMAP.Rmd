@@ -21,7 +21,6 @@ output:
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
 suppressMessages({
-  library(pheatmap)
   library(tidyverse)
   library(Seurat)
 })
@@ -68,32 +67,25 @@ pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
 
 pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 ```
+
 # Heatmaps
-Traditionally clusters can be shown heatmaps:
+
+Clusters can be shown on heatmaps:
 
 ```{r heatmap, echo=FALSE}
+ann <- pbmc@meta.data %>%  select(seurat_clusters) %>% arrange(seurat_clusters)
 
-# get cell-cluster annotations from metadata and sort
-ann = pbmc@meta.data %>%  select(seurat_clusters) %>% arrange(seurat_clusters)
-rn = rownames(ann)  # get cellnames (rows of ann) sorted by cluster
-pc = 1:5            # select top PCA components for clarity
-
-pbmc@reductions$pca@cell.embeddings[rn,pc] %>%           # extract CELL-PC matrix
-  t() %>%                                                # transpose to PC-CELL
-  pheatmap(cluster_cols = FALSE, cluster_rows = FALSE,   # don't cluster again
-           show_colnames = FALSE,                        # don't show cell IDs
-           annotation_col = ann,                         # colour label for columns = cells
-           annotation_legend = FALSE                     # disable legend
-           )
+# extract CELL-PC matrix, transpose, and plot
+pbmc@reductions$pca@cell.embeddings[rownames(ann), 1:5] %>%
+  t() %>%
+  pheatmap::pheatmap(
+    cluster_cols = FALSE,
+    cluster_rows = FALSE,
+    show_colnames = FALSE,
+    annotation_col = ann,
+    annotation_legend = FALSE
+  )
 ```
-
-Notice:
-
-- clusters were calculated in PC space, so the plot shows "PC-expression" rather than gene-expression
-- clusters are based on the first 50 components (default: npcs=50), but they become increasingly less informative, so this heatmap only shows the first 5.
-
-Ultimately we will obtain cluster-specific genes and pathways, 
-but for now we will focus on how to represent cells, their neighbourhoods, and cluster assignments.
 
 # Projections
 
@@ -101,27 +93,32 @@ but for now we will focus on how to represent cells, their neighbourhoods, and c
 
 One key feature of PCA is that it amounts to a **linear** data transformation which preserves distances between all samples (here: cells) by simple rotation in a high dimensional space.
 This is useful to identify informative directions and reduce noise (before clustering).
-The projection on the first two components is often visualized because those correspond to the directions of maximal variation in the data. And as we might expect, the different clusters can be seen as - more or less - separating in this projection:
+The projection on the first two components is often visualized because those correspond to the directions of maximal variation in the data. And as we might expect, the different clusters can be seen as --more or less-- separating in this projection:
 
 ```{r pca, echo=FALSE}
-
-pca <- pbmc@reductions$pca@cell.embeddings[,1:2] %>% as.data.frame()
-pca$cluster <- pbmc@meta.data %>%  pull(seurat_clusters)
-
-ggplot(pca, aes(x=PC_1, y=PC_2, color=cluster)) + geom_point()
+ggplot(
+  pbmc@reductions$pca@cell.embeddings[, 1:2] %>% as.data.frame(),
+  aes(
+    x = PC_1,
+    y = PC_2,
+    color = pbmc@meta.data$seurat_clusters
+  )
+) + geom_point() + NoLegend()
 ```
 
 There are other **non-linear** projection techniques that aim specifically to preserve distances between samples in 2 dimensions. In general this is impossible, but one can at least hope to preserve **local** distances: nearby cells in high dimension will be nearby in 2D.
 
-[TM: figure of geographic maps and projections]
-
-[Caption: Consider a simple geographic map that has the same goal. It also has limits and requires choices because a sphere cannot be mapped uniquely into 2D. That is why we have different projections]
+```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center", fig.cap="Consider a simple geographic map, it shares the same goal. Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D. That is why we have different projections, depicted here is the Universal Mercator Projection. Each of the 6-degree UTM is the projection on a plane using the geoid shape of our planet."}
+knitr::include_graphics("./images/UTM-Zones-Globe-2.png")
+knitr::include_graphics("./images/Universe-Transverse-Mercator-Cylinder-678x540.png")
+```
 
 
 For single-cell studies, two projection techniques are popular: t-SNE and UMAP
 
 
 ## t-SNE: t-distributed stochastic neighbor embedding
+
 Here the key idea is to first assign distances between samples (=cells) $i$ and $j$ to probabilities
 
 - in high dimensions:  $d_{ij} \to p_{ij}$,
@@ -139,6 +136,7 @@ The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \t
 - [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
 
 The technical details may be challenging, but the execution in Seurat is straightforward.
+
 ```{r tsne}
 pbmc <- RunTSNE(pbmc)
 DimPlot(pbmc, reduction = "tsne")
@@ -197,32 +195,23 @@ p1 + p2
 - No.  UMAP is less affected
 - Yo.  Both tSNE and UMAP are equally sensitive. 
 ]
-
-
-References:
-
-- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426) --> (arxiv.org, >7500 citations!!!) 
-- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
-
-
-## Beauty Contest: t-SNE vs. UMAP
-
-```{r contest, fig.asp=0.5}
-DimPlot(pbmc, reduction = "tsne") + NoLegend() |
-  DimPlot(pbmc, reduction = "umap") + NoLegend() 
-  
-```
-
-
 ## Take Away
 
-- in contrast to PCA, both algorithms have many parameters: 
-  - t-SNE: **perplexity**, ...
-  - UMAP: **number of neighbors**, ...
-- UMAP has several advantages: 
-  - better balance between local and global structure 
-  - less sensitive to seed
-  - faster approximation
-- global distances and orientations should not be over-interpreted
-- Both algorithms aim to facilitate **visualization** - there is no ground truth! 
-- Parameter exploration is allowed and encouraged - most studies just use defaults
+- Global distances and orientations should not be over-interpreted.
+- Both algorithms aim to facilitate **visualization**, there is no ground truth.
+- Parameter exploration is allowed, and very much encouraged.
+
+## References
+
+- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
+- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
+
+# End
+
+> ⌨🔥 Exercise:
+>
+> 1. Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would you say the results are 'better'? Distribute the room in groups, and run the algorithms with 2, 5, 8, 12, and/ or 15 PCs. Strive to avoid the aforementioned common pitfalls, specially the third one!
+>
+> 2. Could you have the UMAP projection onto 3 axis instead of 2?
+
+
