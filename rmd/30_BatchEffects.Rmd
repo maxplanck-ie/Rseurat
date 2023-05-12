@@ -122,6 +122,14 @@ p2<-DimPlot(panc_sub, reduction = "umap", group.by="tech", cols=scales::alpha(my
 p1+p2
 ```
 
+On the other hand, what does the expression of known celltype markers look like ? Let's plot the expression of the alpha cell marker gen "GCG".
+
+```{r marker_before_umap,fig.width=6,fig.height=10}
+p1<-FeaturePlot(panc_sub,features="GCG")
+p2<-DimPlot(panc_sub, reduction = "umap", group.by="celltype")
+p1+p2
+```
+
 ## What options are there to mitigate batch effects ?
 
 Let's now explore some options of mitigating batch effects:
@@ -214,6 +222,38 @@ p2<-DimPlot(panc.combined, reduction = "umap")
 p1+p2
 ```
 
+## Task: plot gene expression after integration
+
+You have previously plotted the expression of a DE gene between the sequencing technologies on the dataset before integration.
+Repeat the violin and the feature plot for the dataset after integration.
+What has changed, what hasn't, and why?
+
+Here's our proposed solution:
+
+```{r solution_DEG_after}
+VlnPlot(panc.combined, features = "LRRC75A-AS1",group.by="celltype",split.by="tech")
+
+```
+
+The expression of this gene hasn't changed - as it is not present in the "integrated" assay, the `VlnPlot` function has fetched it's expression value from the RNA assay, which is not modified by the integration. 
+
+Let's plot it's expression on the lowD embedding:
+
+```{r DEG_after_umap,fig.width=6,fig.height=10}
+p1<-FeaturePlot(panc.combined,features="LRRC75A-AS1")
+p2<-DimPlot(panc.combined, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
+p1+p2
+```
+
+We can now appreciate that cells highly expressing this gene are distributed over all clusters. Note that the mixing with the cells negative for this marker is imperfect, but such is the result of the integration for this dataset.
+
+Let's ascertain ourselves that the expression of the celltype markers is behaving as expected after integration. For this purpose, let's plot the expression of the alpha cell marker gen "GCG".
+
+```{r marker_after_umap,fig.width=6,fig.height=10}
+p1<-FeaturePlot(panc.combined,features="GCG")
+p2<-DimPlot(panc.combined, reduction = "umap", group.by="celltype")
+p1+p2
+```
 
 ## Outlook
 
