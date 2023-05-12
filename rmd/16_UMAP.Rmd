@@ -132,4 +132,10 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
   DimPlot(pbmc, reduction = "tsne") + NoLegend()
 ```
 
-> ⌨🔥 Exercise: Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would you say the results are 'better'? Distribute the room in 4-5 groups, and run the algorithms with 2, 5, 8, 12, and/ or 15 PCs. Strive to avoid common pitfalls!
+> ⌨🔥 Exercise:
+>
+> 1. Would decreasing the number of PCs fed onto the clustering algorithm change our visualization? Would you say the results are 'better'? Distribute the room in groups, and run the algorithms with 2, 5, 8, 12, and/ or 15 PCs. Strive to avoid the aforementioned common pitfalls, specially the third one!
+>
+> 2. Could you have the UMAP projection onto 3 axis instead of 2?
+
+# End
