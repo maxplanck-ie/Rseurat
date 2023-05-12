@@ -96,6 +96,8 @@ This is useful to identify informative directions and reduce noise (before clust
 The projection on the first two components is often visualized because those correspond to the directions of maximal variation in the data. And as we might expect, the different clusters can be seen as --more or less-- separating in this projection:
 
 ```{r pca, echo=FALSE}
+#easier: DimPlot(pbmc, reduction = "pca")
+
 ggplot(
   pbmc@reductions$pca@cell.embeddings[, 1:2] %>% as.data.frame(),
   aes(
