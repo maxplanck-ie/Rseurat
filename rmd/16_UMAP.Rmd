@@ -108,9 +108,10 @@ ggplot(
 
 There are other **non-linear** projection techniques that aim specifically to preserve distances between samples in 2 dimensions. In general this is impossible, but one can at least hope to preserve **local** distances: nearby cells in high dimension will be nearby in 2D.
 
-[TM: figure of geographic maps and projections]
-
-[Caption: Consider a simple geographic map that has the same goal. It also has limits and requires choices because a sphere cannot be mapped uniquely into 2D. That is why we have different projections]
+```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center", fig.cap="Consider a simple geographic map, it shares the same goal. Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D. That is why we have different projections, depicted here is the Universal Mercator Projection. Each of the 6-degree UTM is the projection on a plane using the geoid shape of our planet."}
+knitr::include_graphics("./images/UTM-Zones-Globe-2.png")
+knitr::include_graphics("./images/Universe-Transverse-Mercator-Cylinder-678x540.png")
+```
 
 
 For single-cell studies, two projection techniques are popular: t-SNE and UMAP
@@ -194,34 +195,16 @@ p1 + p2
 - No.  UMAP is less affected
 - Yo.  Both tSNE and UMAP are equally sensitive. 
 ]
-
-
-References:
-
-- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426) --> (arxiv.org, >7500 citations!!!) 
-- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
-
-
-## Beauty Contest: t-SNE vs. UMAP
-
-```{r contest, fig.asp=0.5}
-DimPlot(pbmc, reduction = "tsne") + NoLegend() |
-  DimPlot(pbmc, reduction = "umap") + NoLegend() 
-  
-```
-
 ## Take Away
 
-- in contrast to PCA, both algorithms have many parameters: 
-  - t-SNE: **perplexity**, ...
-  - UMAP: **number of neighbors**, ...
-- UMAP has several advantages: 
-  - better balance between local and global structure 
-  - less sensitive to seed
-  - faster approximation
-- global distances and orientations should not be over-interpreted
-- Both algorithms aim to facilitate **visualization** - there is no ground truth! 
-- Parameter exploration is allowed and encouraged - most studies just use defaults
+- Global distances and orientations should not be over-interpreted.
+- Both algorithms aim to facilitate **visualization**, there is no ground truth.
+- Parameter exploration is allowed, and very much encouraged.
+
+## References
+
+- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
+- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
 
 # End
 
