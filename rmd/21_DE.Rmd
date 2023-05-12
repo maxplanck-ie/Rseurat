@@ -49,7 +49,7 @@ cat("library path(s): ", .libPaths())
 
 We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
 
-```{r}
+```{r initial, warning=FALSE}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
@@ -73,8 +73,21 @@ pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 ```
 
 # Searching for Markers
+Having identified (and visualized) clusters of cells we want to learn about the most important genes and differential gene sets that may explain the different cluster solutions in molecular terms.
 
-Seurat has different functions that do all Differential Expression (DE) tests for you. The main one is `FindMarkers()`. Between other arguments, it accepts "identities" to establish --via metadata-- which groups of cells you're comparing. Another important argument is `test.use`, which allows you to select from a wide range of statistical models and/ or methodologies. We'll be using `MAST`, because it accounts for the bimodality of single-cell data by jointly modeling rates of expression (discrete) and positive mean expression (continuous) values. Information from the discrete and continuous parts is combined to infer changes in expression levels using gene or gene set-based statistics. Given that this approach uses a generalized linear framework, it can be used to jointly estimate nuisance variation from biological and technical sources, as well as biological effects of interest.
+Probably you already have prior knowledge and genes of interest, but here we will focus on how to derive **marker genes** for any given groups of cells.
+
+To this end, Seurat has different convenience functions for **Differential Expression (DE)** tests. 
+The main function is `FindMarkers()`. Again there are many parameters, the main ones are:
+
+- ident.1, ident.2: typically these denote specific cluster numbers ("identities") of cells, but any other annotation from the metadata will work as well.
+- test.use: select from a wide range of statistical models and/ or methodologies (we end to use "MAST")
+- ?FindMarkers: have a look at other parameters and their defaults when a Seurat objec is passed to this function
+
+[TM: I don't understand the following paragraph, please clarify. One should highlight the relation to DESEQ, NB, dispersion estimates. 
+I guess it is a) easier because a cluster tends to have many more cells, and b) harder because of sparsity. Not sure how MAST fits into this.]
+
+We'll be using `MAST`, because it accounts for the bimodality of single-cell data by jointly modeling rates of expression (discrete) and positive mean expression (continuous) values.Information from the discrete and continuous parts is combined to infer changes in expression levels using gene or gene set-based statistics. Given that this approach uses a generalized linear framework, it can be used to jointly estimate nuisance variation from biological and technical sources, as well as biological effects of interest.
 
 **In a nutshell: MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression.
 
@@ -85,7 +98,7 @@ This research article that compares different DE testing methodologies/ package 
 
 Let's do a comparison between cells that were assigned to either cluster 1 or 2.
 
-```{r}
+```{r findmarkers}
 markers1v2 <- FindMarkers(
   object = pbmc,
   test.use = "MAST",
@@ -103,13 +116,20 @@ The resulting object is a data frame with the following columns:
 - `pct.2`: The percentage of cells where the feature is detected in the second group
 - `p_val_adj`: Adjusted p-value, based on Bonferroni correction using all features in the dataset.
 
-You may inspect the results with either `View()` or `DT::datatable()`, according to your situation (e.g. working interactively at RStudio IDE or, rendering an HTML Report).
+You may inspect the results with either `View()` or `head()`.
+
+[TM: I remove the DT reference because this is not a course on markdown formatting.]
+
+**Poll** What is the marker gene with the largest upregulation in cluster 1?
 
 > ⌨🔥 Exercise: What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?
 
-**If the `ident.2` parameter is omitted or set to `NULL`, `FindMarkers()` will test for differentially expressed features between the group specified by `ident.1` and all other cells.** You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all the cells of clusters one and three, pooled together.
 
-To increase the speed of marker discovery, particularly for large datasets, Seurat allows for pre-filtering of features or cells. For example, features that are very infrequently detected in either group of cells, or features that are expressed at similar average levels, are unlikely to be differentially expressed.
+**Notice**: 
+
+- if `ident.2=NULL` (default), then `FindMarkers()` will run a test between the group `ident.1` and **all other** cells
+- You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all the cells of clusters one and three, pooled together.
+- to increase the speed and relevance of marker discovery, Seurat allows for pre-filtering of features or cells. For example, genes that are very infrequently detected in either group of cells, or genes that are expressed at similar average levels, are unlikely to be differentially expressed, so we can exclude those: `?FindClusters` 
 
 There are different flavors of these `Find*` functions. **It's important to get to know them!**
 
@@ -119,42 +139,29 @@ There are different flavors of these `Find*` functions. **It's important to get 
 
 - `FindConservedMarkers` will find markers that are conserved between two groups - this can be useful if you want to find markers that are conserved between a treated and untreated condition, for a specific cell type or group of cells. **It means they are differentially expressed compared to other groups, but have similar expression between the two groups you're actually comparing.**
 
+
 ## Graphical Exploration
 
-Seurat includes several tools for visualizing marker expression. `VlnPlot()` shows probability density distributions of expression values across clusters, and `FeaturePlot()` visualizes feature expression on a tSNE or PCA plot. There's also `RidgePlot()`, `CellScatter()`, and `DotPlot()` as additional methods to view your dataset.
+Seurat includes several tools for visualizing marker expression. `VlnPlot()` and `RidgePlot` show the probability density distributions of expression values across clusters, and `FeaturePlot()` visualizes feature expression in a 2D projection (ee.g. PCA, t-SNE, or UMAP). 
 
-```{r}
-VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
+[TM: do we need CellScatter latter? Otherwise I would skip it here.]
+
+```{r markers_viz}
+feats = rownames(markers1v2)[1:2]    # define genes of interest
+
+VlnPlot(pbmc, features = feats)      # violin alternative: RidgePlot(pbmc, features = feats) 
+
+FeaturePlot(pbmc, features = feats)  # the equivalent of DimPlot() for quantitative features 
 ```
 
-```{r}
-FeaturePlot(
-  pbmc,
-  features = c(
-    "MS4A1",
-    "GNLY",
-    "CD3E",
-    "CD14",
-    "FCER1A",
-    "FCGR3A",
-    "LYZ",
-    "PPBP",
-    "CD8A"
-  )
-)
-```
 
-Usually, we'd be getting top DE genes to draw these plots, and to drive GSEA as a downstream analysis to ultimately draw our conclusions.
+## Markers Per Cluster (between)
 
-# Further comparisons
+What are the differences between clusters? disregarding any other metadata (cell-cycle, treatments, groups, etc). Let's compare 1 vs all, 2 vs all, ... etc.
 
-### Markers Per Cluster (between)
+For computational efficiency we'll use `pbmc_small` which is a downsampled PBMC3K data set bundled with Seurat. (Yes, it won't appear in your Global Environment but it's ready to be loaded upon execution of code.)
 
-What are the differences between clusters? disregarding any metadata (cell-cycle, treatments, groups, etc). Let's compare 1 vs all, 2 vs all, ... etc.
-
-In this case, we'll use `pbmc_small` which is a down sampled PBMC3K data set bundled with Seurat. (Yes, it won't appear in your Global Environment but it's ready to be loaded upon execution of code.)
-
-```{r}
+```{r allMarkers_pbmcsmall}
 markers.between.clusters <- FindAllMarkers(
   pbmc_small,
   test.use = "MAST",
@@ -163,12 +170,25 @@ markers.between.clusters <- FindAllMarkers(
   only.pos = TRUE,
   densify = TRUE
 )
-```
 
-```{r}
 print(markers.between.clusters)
 ```
 
+## DotPlot
+
+[TM: Still need some text and explanation here]
+
+```{r dotplot}
+# notice that we take the markers from pbmc_small, but use them tto dotplot pbmc
+DotPlot(pbmc, features = rownames(markers.between.clusters)[1:10])
+```
+
+
+
+## Optional
+[TM: since the able formatting is mostly for enrichr (rmd/23) I would deal with it there.
+I tthink at this stage we should have enoough manual exploration of marker genes, so the corresponding exercise can also be removed]
+It is not uncommon that 
 We'd like to rearrange columns, adjust p-values with a more sensitive approach, convert cluster column (if there is one) to character instead of factor, etc. We'll have all these tasks encapsulated into a function that should process the results from any of Seurat's `Find*()` functions.
 
 ```{r}
@@ -223,6 +243,8 @@ DT::datatable(markers.between.clusters, rownames=NULL)
 
 # End
 
+[TM: I would have a similar exercise earlier. Also did not understand the "guessing" of celltypes. But I agree that wee could a few more test/polls/exercies above.]
+
 > ⌨🔥 Exercise: We'll distribute the room in groups again (N<=9), and assign a cluster to each. Get the "gene signature" of your assigned cluster, see if you can guess the celltype by using the following list of gene markers.
 > 
 > ```{r}
@@ -238,3 +260,5 @@ DT::datatable(markers.between.clusters, rownames=NULL)
 >   Platelet = c("PPBP")
 > )
 > ```
+
+Apart from getting and visualizing marker genes, we would ulimately want to seee whether there are common functional themes in those marker lists. This will be covered in the next section.
