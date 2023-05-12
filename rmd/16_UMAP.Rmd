@@ -114,17 +114,17 @@ knitr::include_graphics("./images/Universe-Transverse-Mercator-Cylinder-678x540.
 ```
 
 
-For single-cell studies, two projection techniques are popular: t-SNE and UMAP
+For single-cell studies, two methodologies are popular: t-SNE and UMAP. The second one was developed 10 years later, and it adds a bunch of advantages.
 
 
 ## t-SNE: t-distributed stochastic neighbor embedding
 
-Here the key idea is to first assign distances between samples (=cells) $i$ and $j$ to probabilities
+Here the key idea is to first assign distances between cells/ samples, $i$ and $j$, to probabilities
 
 - in high dimensions:  $d_{ij} \to p_{ij}$,
 - in low dimensions (2D):  $\delta_{ij} \to q_{ij}$
 
-[illustration?]
+<!-- [TM: ] [illustration?] -->
 
 Cells are then iteratively moved around in 2D until $q_{ij} \approx p_{ij}$.
 
@@ -142,21 +142,16 @@ pbmc <- RunTSNE(pbmc)
 DimPlot(pbmc, reduction = "tsne")
 ```
 
-Notice that there are many parameters choices (and defaults) that will affect the visualization. 
-The most important are (see ?RunTSNE):
+Notice that there are many parameters (with default values) that will affect the visualization.  The most important are: input data and its dimensionality, a seed variable and the **perplexity** (see `?Rtsne::Rtsne` for further details on this.)
 
-- input data (dimensionality)
-- perplexity [TM: I found it quite difficult to find the default from help. Perhaps a hint is in order?]
-- seed variable
+> ⌨🔥 Exercise: Find out which parameters are used per default. Explore some parameter choices together with your classmates and observe if this will affect the plot. 
 
-> ⌨🔥 Team Exercise: Find out which parameters are used per default. Explore some parameter choices together with your neighbour and observed if this will affect the plot. 
-
+<!--
 **Poll**: Is t-SNE affected by the seed variable?
-[
 - No. Changing seed has no affect.
 - No. tSNE should always be run with seed=1
 - Yes there is a noticable change.
-]
+-->
 
 
 ```{r tsne_stochastic, eval=FALSE}
@@ -165,46 +160,58 @@ p2 <- pbmc %>% RunTSNE(seed.use = NULL) %>% DimPlot(reduction = "tsne")
 p1 + p2
 ```
 
-**Message:** t-SNE is a stochastic algorithm!!!
-
-
+> **Conclusion:** t-SNE is a stochastic algorithm!!!
 
 ## UMAP: Uniform Manifold Approximation and Projection
-UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspects of the data structure. It has several advantages and it is used increasingly by the single-cell community. 
 
-Thanks to Seurat, and the underlying package ([TM: cite]), plotting UMAPs is also easy:
+t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure. While t-SNE moves the high dimensional graph to a lower dimensional space points by points; UMAP compresses that graph. For further details, see some of these resources:
+
+- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
+- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
+
+UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspects of the data structure. It has several advantages:
+
+- faster approximation
+- less sensitive to seed
+- **better balance between local and global structure**
+
+Thanks to Seurat, and the underlying package (see `?uwot::umap`), finding and plotting the UMAP projection is also straightforward:
 
 ```{r umap, warning=FALSE}
-# UMAP has no default for dims and is more verbose per default
 pbmc <- RunUMAP(pbmc, dims=1:5, verbose=FALSE)
 DimPlot(pbmc, reduction = "umap") 
 ```
 
-> ⌨🔥 Exercise:
 Unsurprisingly there are again many parameters that can change the visualization.
-If you have more time feel free to explore those, but for now just focus on the seed variable to initialize the stochastic algorithm
 
-```{r umap_stochastic, eval=FALSE}
-p1 <- pbmc %>% RunUMAP(dims=1:10, seed.use = NULL) %>% DimPlot(reduction = "umap")
-p2 <- pbmc %>% RunUMAP(dims=1:10, seed.use = NULL) %>% DimPlot(reduction = "umap")
-p1 + p2
+> ⌨🔥 Exercise(s):
+> 
+> 1. Run the UMAP without seed a couple of times and compare. Is it more affected than t-SNE? Or less? Hint: add `seed.use = NULL` parameter.
+> 
+> 2. For UMAP, an important parameter is the number of neighbors. Play around with a couple of values!
+
+<!-- Options/ Answers for Q1 up here ^^^^
+- More. The plot has changed drastically.
+- Less.  Due to the increased emphasis on global structure.
+- Equal. Both tSNE and UMAP are sensitive on a similar level.
+-->
+
+### Take Away
+
+```{r}
+DimPlot(pbmc, reduction = "umap") + NoLegend() |
+  DimPlot(pbmc, reduction = "tsne") + NoLegend()
 ```
-**Poll**: Compared to t-SNE UMAP is more affected by the seed variable
-[
-- Yes. The plot is totally changed.
-- No.  UMAP is less affected
-- Yo.  Both tSNE and UMAP are equally sensitive. 
-]
-## Take Away
 
 - Global distances and orientations should not be over-interpreted.
-- Both algorithms aim to facilitate **visualization**, there is no ground truth.
-- Parameter exploration is allowed, and very much encouraged.
+- We're distorting the data to fit it into lower dimensions. Both algorithms aim to facilitate **visualization**, there is no ground truth.
+- Parameter exploration is allowed, and **very much encouraged**.
 
-## References
+## Common Pitfalls to Avoid
 
-- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
-- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
+1. Differences in cluster size mean nothing.
+1. Distances between clusters might not mean anything.
+1. You should look to more than one plot, changing its hyperparameters.
 
 # End
 
