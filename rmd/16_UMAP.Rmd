@@ -1,5 +1,5 @@
 ---
-title: "Manifolds?!"
+title: "Cluster Visualization"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
@@ -21,7 +21,6 @@ output:
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
 suppressMessages({
-  library(magrittr)
   library(tidyverse)
   library(Seurat)
 })
@@ -48,7 +47,7 @@ cat("library path(s): ", .libPaths())
 
 We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
 
-```{r}
+```{r initial, warning=FALSE}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
   CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
 
@@ -69,68 +68,162 @@ pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
 pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 ```
 
-# Theory
+# Heatmaps
 
-Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. **The goal of these algorithms is** to learn the underlying manifold of the data in order **to place similar cells together in low-dimensional space**. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we use the dimensionality of our dataset (e.g. same PCs as input to clustering).
+Clusters can be shown on heatmaps:
 
-Due to the mathematical difference, each method has different parameters to control this. For t-SNE, it's the **perplexity**. For UMAP, it's the **number of neighbors**. The two parameters are what we should take care of when optimizing our data visualization.
+```{r heatmap, echo=FALSE}
+ann <- pbmc@meta.data %>%  select(seurat_clusters) %>% arrange(seurat_clusters)
 
-### t-distributed stochastic neighbor embedding (t-SNE)
+# extract CELL-PC matrix, transpose, and plot
+pbmc@reductions$pca@cell.embeddings[rownames(ann), 1:5] %>%
+  t() %>%
+  pheatmap::pheatmap(
+    cluster_cols = FALSE,
+    cluster_rows = FALSE,
+    show_colnames = FALSE,
+    annotation_col = ann,
+    annotation_legend = FALSE
+  )
+```
 
-<!-- **The t-SNE algorithm** uses the Gaussian probability density function to calculate how likely a point (cell) will pick another one as its neighbor, and repeats this step for all points. In the low dimension space, cells are rearranged according to these distances, creating the t-SNE plot. While the original algorithm uses the Euclidean distance between objects as the base of its similarity metric, this can be changed. -->
+# Projections
 
-t-SNE has been used for visualization in a wide range of applications. For further details, see some of these resources:
+## PCA: Principal Component Analysis
+
+One key feature of PCA is that it amounts to a **linear** data transformation which preserves distances between all samples (here: cells) by simple rotation in a high dimensional space.
+This is useful to identify informative directions and reduce noise (before clustering).
+The projection on the first two components is often visualized because those correspond to the directions of maximal variation in the data. And as we might expect, the different clusters can be seen as --more or less-- separating in this projection:
+
+```{r pca, echo=FALSE}
+ggplot(
+  pbmc@reductions$pca@cell.embeddings[, 1:2] %>% as.data.frame(),
+  aes(
+    x = PC_1,
+    y = PC_2,
+    color = pbmc@meta.data$seurat_clusters
+  )
+) + geom_point() + NoLegend()
+```
+
+There are other **non-linear** projection techniques that aim specifically to preserve distances between samples in 2 dimensions. In general this is impossible, but one can at least hope to preserve **local** distances: nearby cells in high dimension will be nearby in 2D.
+
+[TM: figure of geographic maps and projections]
+
+[Caption: Consider a simple geographic map that has the same goal. It also has limits and requires choices because a sphere cannot be mapped uniquely into 2D. That is why we have different projections]
+
+
+For single-cell studies, two projection techniques are popular: t-SNE and UMAP
+
+
+## t-SNE: t-distributed stochastic neighbor embedding
+
+Here the key idea is to first assign distances between samples (=cells) $i$ and $j$ to probabilities
+
+- in high dimensions:  $d_{ij} \to p_{ij}$,
+- in low dimensions (2D):  $\delta_{ij} \to q_{ij}$
+
+[illustration?]
+
+Cells are then iteratively moved around in 2D until $q_{ij} \approx p_{ij}$.
+
+The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \to q_{ij}$ which has proved useful for a wide range of applications. For further details, see some of these resources:
 
 - [Google TechTalk](https://www.youtube.com/watch?v=RJVL80Gg3lA&list=UUtXKDgv1AVoG88PLl8nGXmw) (Duration 55 min.)
 - [StatQuest!](https://www.youtube.com/watch?v=NEaUSP4YerM) video (Durantion 10 min.)
 - [2019 paper](https://www.nature.com/articles/s41467-019-13056-x) summarizing the challenges for scRNA-seq data.
 - [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
 
-### Uniform Manifold Approximation and Projection (UMAP)
+The technical details may be challenging, but the execution in Seurat is straightforward.
 
-<!-- Manifolds: don't let this mathematical concept throw you off, let's think of it in geometrical or physics terms. Basically, **a manifold is every "space" with this property: locally, it looks like a Euclidean plane**. For example, if you draw a triangle on the surface of a ball, the sum of the angles is not 180. So, it's not euclidean. Yet, if the triangle is small, and uses a small surface, it would behave approximately as euclidean. This portion of space would be a manifold. -->
-
-UMAP, in a more clever way, creates a fuzzy graph that accurately reflects the topology (a.k.a. shape) of the true high dimensional graph, calculates the weight for edges of this graph, then builds the low dimensional graph mimicking the fuzzy graph. **Since its development came 10 years later, it adds a bunch of advantages.**
-
-For further details, see the [original paper](https://arxiv.org/pdf/1802.03426) from 2018 or [this amazing website](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
-
-## Comparison
-
-- Key parameters for t-SNE and UMAP are the **perplexity** and **number of neighbors**, respectively.
-- It's notable that t-SNE projections vary widely from run to run, with different pieces of the higher-dimensional data projected to different locations. While UMAP is also a stochastic algorithm, it's striking how similar the resulting projections are from run to run and with different parameters. This is due, again, to UMAP's increased emphasis on global structure in comparison to t-SNE.
-- t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure.
-- t-SNE moves the high dimensional graph to a lower dimensional space points by points. UMAP compresses that graph.
-- UMAP is more time-saving due to the clever solution in creating a rough estimation of the high dimensional graph instead of measuring every point.
-- UMAP gives a better balance between local versus global structure, thus overall gives a more accurate presentation of the global structure. This will come in handy in trajectory analysis.
-
-> Two-point Take Away:
-> 
-> - UMAP is often better at preserving global structure in the final projection. To compete, t-SNE would require a high 'perplexity' parameter, so the computatin time shoots.
->
-> - Dimensionality reduction techniques are not perfect. By necessity, we're distorting the data to fit it into lower dimensions -- and UMAP is no exception.
-
-## Common Pitfalls to Avoid
-
-1. Differences in cluster size mean nothing.
-1. Distances between clusters _might_ not mean anything.
-1. You should look to more than one plot, changing its hyperparameters.
-
-# Code
-
-## High-Dimensional Plotting with Seurat
-
-```{r}
-pbmc <- RunTSNE(pbmc, dims = seq_len(10))
+```{r tsne}
+pbmc <- RunTSNE(pbmc)
+DimPlot(pbmc, reduction = "tsne")
 ```
 
-```{r}
-pbmc <- RunUMAP(pbmc, dims = seq_len(10))
+Notice that there are many parameters choices (and defaults) that will affect the visualization. 
+The most important are (see ?RunTSNE):
+
+- input data (dimensionality)
+- perplexity [TM: I found it quite difficult to find the default from help. Perhaps a hint is in order?]
+- seed variable
+
+> ⌨🔥 Team Exercise: Find out which parameters are used per default. Explore some parameter choices together with your neighbour and observed if this will affect the plot. 
+
+**Poll**: Is t-SNE affected by the seed variable?
+[
+- No. Changing seed has no affect.
+- No. tSNE should always be run with seed=1
+- Yes there is a noticable change.
+]
+
+
+```{r tsne_stochastic, eval=FALSE}
+p1 <- pbmc %>% RunTSNE(seed.use = NULL) %>% DimPlot(reduction = "tsne")
+p2 <- pbmc %>% RunTSNE(seed.use = NULL) %>% DimPlot(reduction = "tsne")
+p1 + p2
 ```
 
-```{r}
-DimPlot(pbmc, reduction = "umap") + NoLegend() |
-  DimPlot(pbmc, reduction = "tsne") + NoLegend()
+**Message:** t-SNE is a stochastic algorithm!!!
+
+
+
+## UMAP: Uniform Manifold Approximation and Projection
+UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspects of the data structure. It has several advantages and it is used increasingly by the single-cell community. 
+
+Thanks to Seurat, and the underlying package ([TM: cite]), plotting UMAPs is also easy:
+
+```{r umap, warning=FALSE}
+# UMAP has no default for dims and is more verbose per default
+pbmc <- RunUMAP(pbmc, dims=1:5, verbose=FALSE)
+DimPlot(pbmc, reduction = "umap") 
 ```
+
+> ⌨🔥 Exercise:
+Unsurprisingly there are again many parameters that can change the visualization.
+If you have more time feel free to explore those, but for now just focus on the seed variable to initialize the stochastic algorithm
+
+```{r umap_stochastic, eval=FALSE}
+p1 <- pbmc %>% RunUMAP(dims=1:10, seed.use = NULL) %>% DimPlot(reduction = "umap")
+p2 <- pbmc %>% RunUMAP(dims=1:10, seed.use = NULL) %>% DimPlot(reduction = "umap")
+p1 + p2
+```
+**Poll**: Compared to t-SNE UMAP is more affected by the seed variable
+[
+- Yes. The plot is totally changed.
+- No.  UMAP is less affected
+- Yo.  Both tSNE and UMAP are equally sensitive. 
+]
+
+
+References:
+
+- [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426) --> (arxiv.org, >7500 citations!!!) 
+- [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
+
+
+## Beauty Contest: t-SNE vs. UMAP
+
+```{r contest, fig.asp=0.5}
+DimPlot(pbmc, reduction = "tsne") + NoLegend() |
+  DimPlot(pbmc, reduction = "umap") + NoLegend() 
+  
+```
+
+## Take Away
+
+- in contrast to PCA, both algorithms have many parameters: 
+  - t-SNE: **perplexity**, ...
+  - UMAP: **number of neighbors**, ...
+- UMAP has several advantages: 
+  - better balance between local and global structure 
+  - less sensitive to seed
+  - faster approximation
+- global distances and orientations should not be over-interpreted
+- Both algorithms aim to facilitate **visualization** - there is no ground truth! 
+- Parameter exploration is allowed and encouraged - most studies just use defaults
+
+# End
 
 > ⌨🔥 Exercise:
 >
@@ -138,4 +231,4 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 >
 > 2. Could you have the UMAP projection onto 3 axis instead of 2?
 
-# End
+
