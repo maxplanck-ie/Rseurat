@@ -132,6 +132,7 @@ The aim is to draw conclusions as to what's the functional implications that we 
 ## enrichR
 
 The package is already loaded. But we need to select which databases to connect. There are more than 200 databases available, you can get a data frame with details of these using `listEnrichrDbs()`.
+For this and the following to work you need a working internet connection.
 
 ```{r dbs}
 dbs <- c(
@@ -150,7 +151,7 @@ result.1 <- markers.between.clusters %>% filter(cluster == 1) %>% rownames() %>%
 > 
 > 1. Understand the format and interpret the output `result.1`.
 > 1. What is the most significantly enriched molecular function? which genes are the base for it?
-> 1. Would you get the same result if you changed the number of genes in the input? Try it out.
+> 1. Would you get the same result if you changed the number of marker genes in the input? Try it out.
 
 We can also produce nice graphical summaries:
 
