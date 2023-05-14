@@ -69,28 +69,30 @@ This data is extremely big and sparse, this variable is now an object of type `d
 pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
 ```
 
-And, we can have a heatmap of the first 1k genes and 1k cells:
+And, we can have a heatmap of the first few genes and cells:
 
-```{r explore2}
-pheatmap::pheatmap(log10(pbmc.data[1:1000, 1:1000]+1),
+```{r explore2, echo=FALSE, out.width="50%", fig.cap="Heatmap of first 500 genes and 200 cells."}
+pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200]+1),
                    show_rownames = F,
                    show_colnames = F,
                    cluster_rows = F,
                    cluster_cols = F,
                    color = colorRampPalette(
-                     c("white", "black")
+                     c("lightgrey", "red")
                      )(100)
 )  # note: colorRampPalette returns another function.
 ```
 
 
-> ⌨🔥 Exercises: 
-> 
-> 1. How many genes and cells does this dataset have?
-> 1. How many cells have less than 1000 counts in total (summed over all genes)? Hint: subset cells with `colSums()`.
-> 1. How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
-> 1. Which are the top 3 genes with a higher row-wise mean? Hint: aggregate with `apply(dgCMatrix, 1, FUN)`.
-> 1. Plot the histogram of counts for the previous top 3 genes.
+> ⌨🔥 Polls: 
+1. How many genes and cells does this dataset have?
+2. How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
+3. Which are the top 3 genes with the highest total count? Hint: `rowSums()`  and `sort`.
+
+> ⌨🔥 Exercise:  
+Plot the histogram of counts for the previous top gene over all cells
+
+# Seurat Object
 
 Initialize the Seurat object with the raw (non-normalized data):
 
@@ -135,7 +137,8 @@ On the other hand, `DimReduc` objects represent transformations of the data cont
 
 # Quality Control
 
-A few QC metrics commonly used, include:
+One of our first goals is to identify (and filter) dead cells that could be the results
+of a harsh experimental protocol. A few QC metrics commonly used, include:
 
 1. **The number of unique genes detected in each cell.**
   - Low-quality cells or empty droplets will often have very few genes.
@@ -177,6 +180,11 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
+> **Poll:**  How many cells have less than 200 counts in total (summed over all genes)?
+
+Individually these variables may not fully discriminate dead cells, but could also 
+reflect real biological properties (e.g. higher mitochondrial count). Therefore it is useful
+to look a relationship between these variables.
 `FeatureScatter()` is typically used to visualize relationships between features, but it can also be used for anything calculated at the object, i.e. columns in object metadata or for genes (rows in the count matrix). 
 All those are **features** 
 
@@ -195,9 +203,9 @@ plot3
 Based on cell-specific features we can subset our `SeuratObject` to keep only the 'cells' in good state. In this case, based on the previous Violin plots, we'll use the following criteria:
 
 - Unique feature counts over 2500 or below 200.
-- >5% mitochondrial counts.
+- $>5%$ mitochondrial counts.
 
-```{r, echo=FALSE}
+```{r filter, echo=FALSE}
 pbmc %<>% subset(nFeature_RNA > 200 &
                    nFeature_RNA < 2500 &
                    percent.mt < 5)
@@ -213,7 +221,7 @@ After removing unwanted cells from the dataset, the next step is to normalize th
 pbmc <- NormalizeData(pbmc)
 ```
 
-## Relevant Genes
+## Informative Genes
 
 The main goal is to select genes that will help us to organize cells according to the transcription profile, this are the genes that will be in the spotlight for our following step. Therefore we look for a subset of genes ("features") that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others).
 
@@ -223,7 +231,7 @@ First, fits a line to the relationship of `log(variance)` and `log(mean)` using 
 
 <!--Some relevant publications for Feature selection and its importance are: [[1](https://www.nature.com/articles/nmeth.2645)], and [[2](https://doi.org/10.1016/j.cell.2019.05.031)].-->
 
-```{r}
+```{r HVG}
 pbmc <- FindVariableFeatures(pbmc)
 ```
 
@@ -235,13 +243,13 @@ pbmc <- FindVariableFeatures(pbmc)
 
 Plot variable features:
 
-```{r}
+```{r HVG_plot}
 (plot1 <- VariableFeaturePlot(pbmc))
 ```
 
 Now with labels, taking top10 genes as in the recent exercise:
 
-```{r}
+```{r HVG_LabelPlot}
 (plot2 <-
    LabelPoints(
      plot = plot1,
@@ -256,10 +264,11 @@ Next, we apply a linear transformation ('scaling') that is a standard pre-proces
 
 - Shifts the expression of each gene, so that the mean expression across cells is `0`
 - Scales the expression of each gene, so that the variance across cells is `1`. This step gives equal weight in downstream analyses, so that highly-expressed genes do not dominate.
+- more generally one can also model the mean expression as a function of other variables from the metadata, i.e. *regress them out* before scaling the residuals (see: `vars.to.regress`)
 - The results of this are stored in `pbmc[["RNA"]]@scale.data`
 
 
-```{r}
+```{r scaledata}
 pbmc <- ScaleData(pbmc, features = rownames(pbmc))
 ```
 
@@ -267,7 +276,7 @@ pbmc <- ScaleData(pbmc, features = rownames(pbmc))
 
 Next we perform PCA on the scaled data. By default, only the previously determined variable features are used as input, but can be defined using features argument if you wish to choose a different subset.
 
-```{r}
+```{r runpca}
 pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
 ```
 
@@ -275,21 +284,21 @@ pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
 
 Examine and visualize PCA results a few different ways:
 
-```{r}
+```{r printpca}
 print(pbmc[["pca"]], dims = 1:5, nfeatures = 5)
 ```
 
-```{r}
+```{r vizdimloadings}
 VizDimLoadings(pbmc, dims = 1:2, reduction = "pca")
 ```
 
-```{r}
+```{r dimplot}
 DimPlot(pbmc, reduction = "pca") + NoLegend()
 ```
 
 In particular `DimHeatmap()` allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses. Both cells and features are ordered according to their PCA scores. Setting cells to a number plots the 'extreme' cells on both ends of the spectrum, which dramatically speeds plotting for large datasets. Though clearly a supervised analysis, we find this to be a valuable tool for exploring correlated feature sets.
 
-```{r}
+```{r dimheatmap}
 DimHeatmap(pbmc, dims = 1:9, cells = 500, balanced = TRUE)
 ```
 
@@ -297,7 +306,7 @@ To overcome the extensive technical noise in any single gene for scRNA-seq data,
 
 One quick way to determine the 'dimensionality' of the dataset is by eyeballing how the percentage of variance explained decreases:
 
-```{r}
+```{r elbowplot}
 ElbowPlot(pbmc)
 ```
 
