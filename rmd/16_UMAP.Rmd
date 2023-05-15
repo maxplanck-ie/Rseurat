@@ -126,8 +126,6 @@ Here the key idea is to first assign distances between cells/ samples, $i$ and $
 - in high dimensions:  $d_{ij} \to p_{ij}$,
 - in low dimensions (2D):  $\delta_{ij} \to q_{ij}$
 
-<!-- [TM: ] [illustration?] -->
-
 Cells are then iteratively moved around in 2D until $q_{ij} \approx p_{ij}$.
 
 The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \to q_{ij}$ which has proved useful for a wide range of applications. For further details, see some of these resources:
@@ -148,12 +146,7 @@ Notice that there are many parameters (with default values) that will affect the
 
 > ⌨🔥 Exercise: Find out which parameters are used per default. Explore some parameter choices together with your classmates and observe if this will affect the plot. 
 
-<!--
-**Poll**: Is t-SNE affected by the seed variable?
-- No. Changing seed has no affect.
-- No. tSNE should always be run with seed=1
-- Yes there is a noticable change.
--->
+> 🧭✨ Poll: Is t-SNE affected by the seed variable?
 
 
 ```{r tsne_stochastic, eval=FALSE}

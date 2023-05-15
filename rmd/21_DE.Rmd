@@ -119,7 +119,7 @@ You may inspect the results with either `View()` or `head()`.
 
 **Poll** What is the marker gene with the largest upregulation in cluster 1?
 
-> ⌨🔥 Exercise: What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?
+> 🧭✨ Poll: What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?
 
 
 **Notice**: 

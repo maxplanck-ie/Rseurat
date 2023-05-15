@@ -81,13 +81,12 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200]+1),
 ```
 
 
-> ⌨🔥 Polls: 
-1. How many genes and cells does this dataset have?
-2. How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
-3. Which are the top 3 genes with the highest total count? Hint: `rowSums()`  and `sort`.
+> 🧭✨ Polls:
+> 1. How many genes and cells does this dataset have?
+> 2. How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
+> 3. Which are the top 3 genes with the highest total count? Hint: `rowSums()`  and `sort`.
 
-> ⌨🔥 Exercise:  
-Plot the histogram of counts for the previous top gene over all cells
+> ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
 
 # Seurat Object
 
@@ -102,7 +101,7 @@ Initialize the Seurat object with the raw (non-normalized data):
       min.cells = 3,
       min.features = 200
     ) %>% suppressWarnings()
-)
+)  # extra outer pair of parenthesis mean 'print()'
 ```
 
 > **Note:** usually on any data science context, we refer to our columns as features. This is not the case for the count matrix.
@@ -113,7 +112,7 @@ With these filters in this particular dataset, we are reducing the number of gen
 
 The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
-> ⌨🔥 Exercise: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? Hint: subset the assay data, `pbmc@assays$RNA`.
+> 🧭✨ Polls In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? Hint: subset the assay data, `pbmc@assays$RNA`.
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively. The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
 
@@ -177,7 +176,7 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-> **Poll:**  How many cells have less than 200 counts in total (summed over all genes)?
+> > ⌨🔥 Poll:  How many cells have less than 200 counts in total (summed over all genes)?
 
 Individually these variables may not fully discriminate dead cells, but could also 
 reflect real biological properties (e.g. higher mitochondrial count). Therefore it is useful
@@ -208,7 +207,7 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
                         percent.mt < 5)
 ```
 
-> ⌨🔥 Exercise: What's the current number of cells after this step? 2583, 2638, 2385?
+> 🧭✨ Poll: What's the current number of cells after this step? 2583, 2638, 2385?
 
 ## Normalization
 
@@ -234,7 +233,7 @@ pbmc <- FindVariableFeatures(pbmc)
 
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
 
-> ⌨🔥 Exercises:
+> 🧭✨ Polls:
 > 1. Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
 > 1. What's the variance of the gene `PYCARD`? hint: use `HVFInfo()`.
 
@@ -244,7 +243,7 @@ Plot variable features:
 (plot1 <- VariableFeaturePlot(pbmc))
 ```
 
-Now with labels, taking top10 genes as in the recent exercise:
+Now with labels, taking top10 genes as in the recent question:
 
 ```{r HVG_LabelPlot}
 (plot2 <-
@@ -307,7 +306,7 @@ One quick way to determine the 'dimensionality' of the dataset is by eyeballing 
 ElbowPlot(pbmc)
 ```
 
-> ⌨🔥 Exercise: How many components should we choose to include? 10? 20? 100?
+> 🧭✨ Poll: How many components should we choose to include? 10? 20? 100?
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 
@@ -335,7 +334,7 @@ $$
 
 All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
-> ⌨🔥 Exercise:  Which is the default value of the parameter `K` that Seurat uses? Hint: `help` yourselves by reading the docs!
+> 🧭✨ Poll: Which is the default value of the parameter `K` that Seurat uses? Hint: `help` yourselves by reading the docs!
 
 ```{r findneighbours}
 pbmc <- FindNeighbors(pbmc, dims = seq_len(10))
@@ -351,7 +350,7 @@ pbmc <- FindClusters(pbmc, resolution = 0.5)
 
 After this process, we have a new `seurat_clusters` column in our `meta.data` slot.
 
-> ⌨🔥 Exercise: How many clusters did we find?
+> 🧭✨ Poll: How many clusters did we find?
 
 
 <!-- NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html) -->
