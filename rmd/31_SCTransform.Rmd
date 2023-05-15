@@ -208,7 +208,7 @@ ifnb.list <- PrepSCTIntegration(object.list = ifnb.list, anchor.features = featu
 
 ## Seurat Integrate
 
-The datasets are now ready for integration. The same two steps are used as for a log-transformed dataset.
+The datasets are now ready for integration. The same two steps are used as for a log-transformed dataset. There is a slight difference of what the function returns, though.
 If normalization.method = "LogNormalize", the integrated data is returned to the data slot and can be treated as log-normalized, corrected data.
 If normalization.method = "SCT", the integrated data is returned to the scale.data slot and can be treated as centered, corrected Pearson residuals.
 
