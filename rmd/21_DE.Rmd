@@ -20,7 +20,6 @@ output:
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
 suppressMessages({
-  library(magrittr)
   library(tidyverse)
   library(Seurat)
 })
@@ -182,68 +181,12 @@ DotPlot(pbmc, features = rownames(markers.between.clusters)[1:10])
 ```
 
 
-
-## Optional
-[TM: since the able formatting is mostly for enrichr (rmd/23) I would deal with it there.
-I tthink at this stage we should have enoough manual exploration of marker genes, so the corresponding exercise can also be removed]
-It is not uncommon that 
-We'd like to rearrange columns, adjust p-values with a more sensitive approach, convert cluster column (if there is one) to character instead of factor, etc. We'll have all these tasks encapsulated into a function that should process the results from any of Seurat's `Find*()` functions.
-
-```{r}
-process_markers <- function(markers) {
-  # first, let's get a boolean vector with values 'T'
-  # on the positions where p_val is misrepresented as a zero
-  nulls <- markers$p_val == 0
-  if (any(nulls)) {
-    # assign to these, the minimum positive value we can represent
-    markers[nulls, ]$p_val <- .Machine$double.xmin
-  }
-  # re-run adjustment with default values
-  markers$Adjusted.P.value <- p.adjust(markers$p_val)
-  # run an assertion, it shouldn't hurt
-  stopifnot(all(markers$Adjusted.P.value != 0))
-  # add a column with gene names, just in case
-  if (not("gene" %in% colnames(markers))) {
-    markers$gene <- rownames(markers)
-  }
-  # filter non significant rows
-  markers %<>% filter(Adjusted.P.value < 5e-2)
-  # de-factor our cluster assignment, if there is one
-  if ("cluster" %in% colnames(markers)) {
-    markers$cluster <- as.numeric(as.character(markers$cluster))
-    markers %<>% arrange(Adjusted.P.value) %>% select(
-      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
-    )
-  } else {
-    markers %<>% arrange(Adjusted.P.value) %>% select(
-      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
-    )
-  }
-  # in either case, we run a re-arrangement of rows.
-  markers
-}
-```
-
-```{r}
-if ("Adjusted.P.value" %in% names(markers.between.clusters)) {
-  print("Already processed.")
-} else {
-  markers.between.clusters %<>% process_markers()
-}
-```
-
-Since `process_markers` is not **idempontent**, running the above codeblock would be troublesome if it weren't for the conditional (`if-else`) in place. Since we may sometime re-run cells as part of using the button left to the green triangle at each block... this structure can save us some headaches.
-
-
 ```{r}
 markers.between.clusters %>% head()
 ```
 
-# End
 
-[TM: I would have a similar exercise earlier. Also did not understand the "guessing" of celltypes. But I agree that wee could a few more test/polls/exercies above.]
-
-> ⌨🔥 Exercise: We'll distribute the room in groups again (N<=9), and assign a cluster to each. Get the "gene signature" of your assigned cluster, see if you can guess the celltype by using the following list of gene markers.
+> ⌨🔥 Exercise: We'll distribute the room in groups again (N<=9), and assign a cluster to each. Get the "gene signature" of your assigned cluster, see if you can assign the correct celltypes by using the following list of gene markers.
 > 
 > ```{r}
 > list(
@@ -259,4 +202,4 @@ markers.between.clusters %>% head()
 > )
 > ```
 
-Apart from getting and visualizing marker genes, we would ulimately want to seee whether there are common functional themes in those marker lists. This will be covered in the next section.
+Apart from getting and visualizing marker genes, we would ultimately want to seee whether there are common functional themes in those marker lists. This will be covered in the next section.

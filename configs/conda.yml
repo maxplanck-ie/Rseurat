@@ -49,7 +49,6 @@ dependencies:
   - r-mutoss
   - r-TFisher
   - r-metap
-  - r-hdf5r
   - bioconductor-SingleCellExperiment
   - bioconductor-multtest
   - bioconductor-limma
