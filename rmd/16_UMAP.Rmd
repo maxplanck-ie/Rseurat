@@ -3,9 +3,7 @@ title: "Cluster Visualization"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
-  bookdown::html_document2:
-    number_sections: false
-    global_numbering: true
+  html_document:
     theme: spacelab
     highlight: pygments
     code_folding: show
@@ -110,7 +108,9 @@ ggplot(
 
 There are other **non-linear** projection techniques that aim specifically to preserve distances between samples in 2 dimensions. In general this is impossible, but one can at least hope to preserve **local** distances: nearby cells in high dimension will be nearby in 2D.
 
-```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center", fig.cap="Consider a simple geographic map, it shares the same goal. Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D. That is why we have different projections, depicted here is the Universal Mercator Projection. Each of the 6-degree UTM is the projection on a plane using the geoid shape of our planet."}
+Consider a simple geographic map, it shares the same goal. Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D. That is why we have different projections, depicted here is the Universal Mercator Projection. Each of the 6-degree UTM is the projection on a plane using the geoid shape of our planet.
+
+```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
 knitr::include_graphics("./images/UTM-Zones-Globe-2.png")
 knitr::include_graphics("./images/Universe-Transverse-Mercator-Cylinder-678x540.png")
 ```

@@ -3,9 +3,7 @@ title: "First Steps into a Regular Analysis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
-  bookdown::html_document2:
-    number_sections: false
-    global_numbering: true
+  html_document:
     theme: spacelab
     highlight: pygments
     code_folding: show
@@ -71,7 +69,7 @@ pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
 
 And, we can have a heatmap of the first few genes and cells:
 
-```{r explore2, echo=FALSE, out.width="50%", fig.cap="Heatmap of first 500 genes and 200 cells."}
+```{r explore2, echo=FALSE, out.width="50%"}
 pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200]+1),
                    show_rownames = F,
                    show_colnames = F,
@@ -322,11 +320,11 @@ The next step follow the work pioneered by `PhenoGraph`, a robust computational 
 
 This subpopulations _could_ be of biological relevance, retrieving these is our goal. The definition of such groupings depend upon the parameters. This algorithm in particular is the K Nearest Neighbors (KNN) graph that is constructed based on the euclidean distance in PCA space. For an example of building such a graph, imagine we took only two PCs (principal components) and had such an arrangement of cells like these dots in a 2D plane...
 
-```{r, echo=FALSE, fig.cap="Example of k-NN classification for a cell highlighted in green color."}
+```{r, echo=FALSE}
 knitr::include_graphics("./images/KnnClassification.svg")
 ```
 
-The test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles. If k = 3 (solid line circle) it is assigned to the red triangles because there are 2 triangles and only 1 square inside the inner circle. If k = 5 (dashed line circle) it is assigned to the blue squares (3 squares vs. 2 triangles inside the outer circle).
+On our example of k-NN classification for a cell highlighted in green color, the test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles. If k = 3 (solid line circle) it is assigned to the red triangles because there are 2 triangles and only 1 square inside the inner circle. If k = 5 (dashed line circle) it is assigned to the blue squares (3 squares vs. 2 triangles inside the outer circle).
 
 There's a drawback with the 'majority voting' scheme, the assignment of such clusters is biased towards the clusters that have greater number of members (especially when ties start appearing). For that reason, we'll refine the process by using a graph, where edge weights between any two cells is based on the shared overlap in their local neighborhoods (Jaccard similarity).
 
