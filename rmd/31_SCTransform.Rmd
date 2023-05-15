@@ -49,50 +49,40 @@ packageVersion("Seurat")
   - @scale.data: scale(data, scale=TRUE, center=TRUE)
   
 - SCTransform
-  - @scale.data: Pearson residuals from glm(raw_counts~log_umi_per_cell; error_model="NB") --> details 
-  - @counts: "corrected" counts back-calculated from @scale.data --> details
+  - @scale.data: Pearson residuals from glm(raw_counts~log_umi_per_cell; error_model="NB") 
+  - @counts: "corrected" counts back-calculated from @scale.data 
   - @data: log1p(counts)
   
 
-## SCTransform: @scale.data
+## SCTransform: gene counts ~ total UMI per cell
+
+It was observed that observed gene expression in a single cell RNAseq dataset is correlated with the total UMI count per cell. This holds true for different gene expression tiers (from highly to lowly expressed genes.)
+
+![Before](images/SCTransform.F1C.png)
+A single scaling factor (as in standard log-norm workflow) does not effectively normalize both lowly and highly expressed genes. Genes with different overall abundances exhibited distinct patterns after log-normalization, and only low/medium-abundance genes in the bottom three tiers were effectively normalized.
+Gene variance was also confounded with sequencing depth.
+
+In the `sctransform` approach, total UMI counts per cell are regressed out in different gene tiers, and the scaled residuals from the regression are treated as `scaled data`. A variance-stabilizing transformation is applied, too.
+
+Some of the underlying math can be expressed as:
 
 $$
 \begin{array}{*{20}l} x_{gc} &\sim \text{NB}(\mu_{gc}, \theta_{g})\\ \ln \mu_{gc} &= \beta_{g0} + \ln n_{c}, \end{array} 
 $$
+After applying the transformation, the relation between the scaled residuals ("Pearson residuals") and the total UMI counts per cell is flattened out for most gene tiers. The most highly expressed genes remain difficult to normalize.
 
-where $\theta_g$ is the gene-specific dispersion parameter, $n_{c}=\sum _{g} x_{gc}$ is the total sequencing depth of cell $c$ and the variance of the negative binomial (NB) is given by $ \mu_{gc} + \mu_{gc}^{2}/\theta_{g} $
-
-For each gene-cell combination, the Pearson residuals Z_gc are given by:
-
-$$ 
-\begin{array}{*{20}l} 
-Z_{gc} &= \frac{x_{gc}-\mu_{gc}}{\sigma_{gc}}\\ 
-\mu_{gc} &= \exp{\beta_{g0} + \ln{n_{c}}} \\ 
-\sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{g}}}, 
-\end{array} 
-$$
-
-## SCTransform: @counts
-$$
-\begin{array}{*{20}l} 
-\mu_{gc} &= \exp{\beta_{g0} + \ln{n_{0}}}, \\ 
-\sigma_{gc} &= \sqrt{\mu_{gc} + \frac{\mu_{gc}^{2}}{\theta_{gc}}},\\ 
-y_{gc} &= \text{floor}(Z_{gc} \sigma_{gc} + \mu_{gc}), 
-\end{array} 
-$$
-
-## SCTransform: gene counts ~ cell counts
-
-![Before](images/SCTransform.F1C.png)
 ![After](images/SCTransform.F3A.png)
-## SCTransform: theta regularization
-
-![](images/SCTransform.vst2.F3A.png)
+  Some of the advantages are:
+  - improved UMAP embedding
+  - reduction in FDR in differential gene expression analysis
+  - improved normalization of shallow- and deep-sequenced datasets
+  - improved variance estimation for lowly expressed genes
   
 
 ## SCTransform: long story short
 
 - Requires UMIs
+- One function replaces three steps in standard log-normalization workflow: normalization + regressing out nuissance variables + identifying variable features 
 - Removes the effect of sequencing depth through regression
 - Optional: regress other confounding variables out (e.g. perct. MT)
 
@@ -137,6 +127,8 @@ p1+p2
 
 
 ## Seurat SCTransform
+
+The `SCTransform` function performs normalization, regressing out of nuissance variables and identification of variable features. By default, total UMI count per cell are regressed out, but it's possible to add other variables to the model, e.g. mitochondrial gene content.
 
 ```{r seurat_sctransform1}
 library(sctransform)
