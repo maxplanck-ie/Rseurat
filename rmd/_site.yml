@@ -72,14 +72,3 @@ navbar:
     - text: "Source"
       icon: fa-github
       href: https://github.com/maxplanck-ie/Rseurat
-
-output:
-  bookdown::html_document2:
-    number_sections: false
-    theme: spacelab
-    highlight: monochrome
-    code_folding: show
-    toc: true
-    toc_float: true
-    toc_depth: 2
-    df_print: paged

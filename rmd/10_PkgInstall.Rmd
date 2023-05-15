@@ -2,9 +2,7 @@
 title: "Package Installation"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  bookdown::html_document2:
-    number_sections: false
-    global_numbering: true
+  html_document:
     theme: spacelab
     highlight: pygments
     code_folding: show
@@ -20,6 +18,8 @@ options(warn = -1)
 ```
 
 > Thanks for taking the time to do this before the course!
+
+We'll be downloading the source of this text you're reading now. The first time you open this on RStudio IDE, a yellow sign will tell ask you to install some packages. This is a very smart feature, and convenient. But before going forward with it, please keep reading... just leave the yellow sign opened over there...
 
 # Working Directory
 
@@ -64,7 +64,7 @@ Run this in a Terminal **inside the server** (on RStudio IDE, you can open this 
 
 `cp -r /scratch/local/rseurat/pkg-lib-4.1.3 /rstudio/${USER}/rstudio/R/workbench-library/4.1`
 
-The package library you just copied over is a snapshot taken the 4th of May 2023.
+The package library you just copied over is a snapshot taken the 15th of May 2023.
 
 For safety, **you should still run the code blocks**, since we're using conditionals anyway. Only missing packages are really downloaded, compiled (sometimes), and installed.
 
@@ -74,6 +74,12 @@ TODO: explain setting RSTUDIO_WHICH_R=... R_LIBS=...
 #### Important note for those working on their laptops
 
 If you don't know Conda, just ignore this. If you do have it set up, and have a bare minimum experience with it, you may go ahead and create an environment using the YAML file under the `configs/` subfolder of this repo. -->
+
+### Package Installation per-se
+
+Now would be a good time to click the 'Install' button in the yellow bar on top of this Rmarkdown file, if opened on Rstudio. This will install some of the auto-detected packages (BiocManager, knitr, remotes, Seurat, among other.)
+
+Wait until this process finishes completely before moving forward. On the following steps, we'd be 're-installing' some of these packages. You can go ahead and run the code cells anyway, we'd rather you do that instead of guessing and skipping... which could be prone to errors. Also, the functions (unless explicitly told) won't re-install if the pkg is already there...
 
 ### Bioconductor
 
@@ -104,13 +110,6 @@ BiocManager::install(version = "3.14")
 
 
 ### Core & Dependencies
-
-#### System
-
-https://github.com/hhoeflin/hdf5r#requirements
-
-
-#### Packages
 
 The next code block defines a function, `retrieve_namespaces()`, that takes a character vector with package names, to be installed. If the execution of the whole function is not interrupted by an error, it will simply return `TRUE`.
 
@@ -150,8 +149,8 @@ retrieve_namespaces(
     "Nebulosa",
     "RColorBrewer",
     "patchwork",
+    "pheatmap",
     # Utilities
-    "hdf5r",
     "shiny",
     "remotes",
     # Rendering to HTML/ Site
@@ -159,7 +158,7 @@ retrieve_namespaces(
     "rmarkdown",
     "markdown",
     "styler",
-    "formatR",
+    "formatR"
   )
 )
 ```
@@ -231,20 +230,36 @@ For the later part of the course, we have preprocessed a couple of large dataset
 
 If you will be using RStudio from your laptop, then you may download from zenodo:
 
-1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7848230/files/panc_sub.RDS?download=1)
-1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7845337/files/ref.labels.RDS?download=1)
-1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7845337/files/pbmc_ref.seurat.RDS?download=1)
+1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1)
+1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7866848/files/pbmc_ref_sce_sel.RDS?download=1)
+1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7866848/files/pbmc_ref.seurat.sel.RDS?download=1)
 
 Depending on your bandwidth, the downloads may take 15-30 minutes.
 
 #### Workbench Users
 
-The datasets are already provided under `/scratch/local/rseurat/datasets`. You can copy from this location, and skip the download.
+The datasets are already provided under `/scratch/local/rseurat/datasets/preprocessed_rds`. You can copy from this location, and skip the download.
 
 Please note the use of working directory environment variable (`$PWD`) in the next command. This is supposed to be run inside the repository `./rmd/` subfolder. Adjust accordingly, or use `mv` to fix it.
 
 ```{bash, eval=FALSE}
 cp -r /scratch/local/rseurat/datasets/preprocessed_rds ${PWD}/datasets/preprocessed_rds
 ```
+
+## HDF Files & Core System Dependencies
+
+On the fourth day we'll be having a hands-on session with public data. It may be the case that we give you a matrix in the H5 file format. To load this, you will need to install `hdf5r` package.
+
+For this package, you will need a system dependency, that is a software library that needs to be installed on your Operative System. Again, workbench users have an advantage because the system has be carefully tuned already.
+
+In any case, don't sweat it. Following instructions are not mandatory, and in the case of OSX or Windows users, they're mostly recommended as a way to handle the difficulty (installing system dependencies) that will probably come up multiple times during your work.
+
+### OS-specific instructions
+
+On Linux, you'd need to install either `libhdf5-dev` (ubuntu) or `hdf5-devel` (centos), depending on your distribution. The actual name of the package could also change with your release distribution (e.g. ubuntu 18/ bionic versus 20/ focal).
+
+On OSX, you'd need to install [Homebrew](https://brew.sh/) first, and then run `$ brew install hdf5`.
+
+On Windows, there are two options: one would be installing miniconda. Or, the most straightforward would probably be using [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about), and then following instructions for Ubuntu Linux (you may choose another distro, but we recommend you start with Ubuntu).
 
 <!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/rseurat/datasets/preprocessed_rds/ -->

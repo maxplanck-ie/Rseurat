@@ -19,7 +19,6 @@ output:
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
 suppressMessages({
-  library(magrittr)
   library(tidyverse)
   library(Seurat)
 })
@@ -204,9 +203,9 @@ Based on cell-specific features we can subset our `SeuratObject` to keep only th
 - $>5%$ mitochondrial counts.
 
 ```{r filter, echo=FALSE}
-pbmc %<>% subset(nFeature_RNA > 200 &
-                   nFeature_RNA < 2500 &
-                   percent.mt < 5)
+pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
+                        nFeature_RNA < 2500 &
+                        percent.mt < 5)
 ```
 
 > ⌨🔥 Exercise: What's the current number of cells after this step? 2583, 2638, 2385?

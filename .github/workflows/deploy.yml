@@ -35,8 +35,6 @@ jobs:
         run: micromamba activate Rseurat
       - name: RemoteInstallGH
         run: |
-          Rscript -e "BiocManager::install('scCustomize')"
-          Rscript -e "remotes::install_github('theislab/kBET')"
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
           Rscript -e "SeuratData::InstallData('ifnb')"
           Rscript -e "SeuratData::InstallData('pbmc3k')"
