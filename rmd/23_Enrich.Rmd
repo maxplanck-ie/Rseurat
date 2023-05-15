@@ -20,9 +20,7 @@ output:
 
 suppressMessages({
   library(enrichR)
-  library(magrittr)
   library(tidyverse)
-  library(future)
   library(Seurat)
 })
 
@@ -84,14 +82,14 @@ process_markers <- function(markers) {
   if (not("gene" %in% colnames(markers))) {
     markers$gene <- rownames(markers)
   }
-  markers %<>% filter(Adjusted.P.value < 5e-2)
+  markers <- markers %>% filter(Adjusted.P.value < 5e-2)
   if ("cluster" %in% colnames(markers)) {
     markers$cluster <- as.numeric(as.character(markers$cluster))
-    markers %<>% arrange(Adjusted.P.value) %>% select(
+    markers <- markers %>% arrange(Adjusted.P.value) %>% select(
       gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
     )
   } else {
-    markers %<>% arrange(Adjusted.P.value) %>% select(
+    markers <- markers %>% arrange(Adjusted.P.value) %>% select(
       gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
     )
   }

@@ -20,7 +20,6 @@ output:
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
 suppressMessages({
-  library(magrittr)
   library(tidyverse)
   library(Seurat)
 })
@@ -207,15 +206,15 @@ process_markers <- function(markers) {
     markers$gene <- rownames(markers)
   }
   # filter non significant rows
-  markers %<>% filter(Adjusted.P.value < 5e-2)
+  markers <- markers %>% filter(Adjusted.P.value < 5e-2)
   # de-factor our cluster assignment, if there is one
   if ("cluster" %in% colnames(markers)) {
     markers$cluster <- as.numeric(as.character(markers$cluster))
-    markers %<>% arrange(Adjusted.P.value) %>% select(
+    markers <- markers %>% arrange(Adjusted.P.value) %>% select(
       gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
     )
   } else {
-    markers %<>% arrange(Adjusted.P.value) %>% select(
+    markers <- markers %>% arrange(Adjusted.P.value) %>% select(
       gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
     )
   }
@@ -228,7 +227,7 @@ process_markers <- function(markers) {
 if ("Adjusted.P.value" %in% names(markers.between.clusters)) {
   print("Already processed.")
 } else {
-  markers.between.clusters %<>% process_markers()
+  markers.between.clusters <- markers.between.clusters %>% process_markers()
 }
 ```
 
