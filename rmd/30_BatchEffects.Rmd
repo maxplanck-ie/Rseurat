@@ -73,7 +73,7 @@ We have subset and pre-processed the full dataset for you. You can download it f
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
 fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
 
-if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="curl") }
+if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="wget") }
 panc_sub <- readRDS(fdest)
 table(panc_sub$dataset)
 ```
@@ -157,12 +157,6 @@ batch.pca <- pcRegression(pca.data, b)
 before<-batch.pca["r2"]
 ```
 
-```{r}
-pe<-Embeddings(panc_sub,reduction="pca")
-multinom(as.factor(b) ~ pe[,1])$AIC
-multinom(as.factor(b) ~ pe[,2])$AIC
-multinom(as.factor(b) ~ pe[,3])$AIC
-```
 
 Have a look at the head of the result.
 Let's look at how high the correlation coefficient is with any PC:
