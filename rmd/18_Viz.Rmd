@@ -3,9 +3,7 @@ title: "Data Visualization"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 
 output:
-  bookdown::html_document2:
-    number_sections: false
-    global_numbering: true
+  html_document:
     theme: spacelab
     highlight: pygments
     code_folding: show
@@ -62,11 +60,6 @@ pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
 pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
 pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
-
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
-names(new.cluster.ids) <- levels(pbmc)
-pbmc <- RenameIdents(pbmc, new.cluster.ids)
-rm(new.cluster.ids)
 ```
 
 # Marker Expression
