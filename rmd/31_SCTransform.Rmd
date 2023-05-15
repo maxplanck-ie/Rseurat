@@ -28,9 +28,9 @@ output:
 
 ```{r, setup, include=FALSE}
 # .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+.libPaths()
 library(formatR)
 library(knitr)
-library(kableExtra)
 library(magrittr)
 knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
 ```
@@ -99,7 +99,7 @@ $$
 
 ## SeuratData
 
-IFNB-Stimulated and human controls.
+We're going to work with IFNB-Stimulated and Control human PBMCs and downsample the datasets for the purpose of the excercise.
 
 
 ```{r SeuratData}

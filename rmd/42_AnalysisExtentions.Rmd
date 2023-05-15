@@ -1,0 +1,33 @@
+---
+title: "Analysis Extentions"
+author: "Katarzyna Sikora"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: spacelab
+    highlight: monochrome
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+---
+
+## Setup
+
+```{r, setup, include=FALSE}
+# .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
+```
+
+## What else is out there in the scRNAseq analysis
+
+- Monocle3: trajectory analysis -> https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/
+- Integration of scRNAseq and ATACseq data (Seurat) -> https://satijalab.org/seurat/articles/atacseq_integration_vignette.html
+- Spatial RNAseq analysis (Seurat) -> https://satijalab.org/seurat/articles/spatial_vignette.html
+- sc-verse: python packages for scRNA/chromatin or spatial seq -> https://scverse.org/
+- RNA velocity analysis -> http://velocyto.org/, https://scvelo.readthedocs.io/en/stable/ (python)
+...
+
+
+
