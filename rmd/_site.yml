@@ -30,16 +30,12 @@ navbar:
         href: 14_FirstSteps.html
 
       - text: Embeddings
-        icon: fa-hand-spock-o
+        icon: fa-question-circle
         href: 16_UMAP.html
 
       # Day 2
-      - text: Data Viz.
+      - text: Data viz + DE
         icon: fa-map-marker
-        href: 18_Viz.html
-
-      - text: Diff. Expression
-        icon: fa-question-circle
         href: 21_DE.html
 
       - text: Ontologies Enrichment
