@@ -2,9 +2,7 @@
 title: "Package Installation"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  bookdown::html_document2:
-    number_sections: false
-    global_numbering: true
+  html_document:
     theme: spacelab
     highlight: pygments
     code_folding: show
@@ -20,6 +18,8 @@ options(warn = -1)
 ```
 
 > Thanks for taking the time to do this before the course!
+
+We'll be downloading the source of this text you're reading now. The first time you open this on RStudio IDE, a yellow sign will tell ask you to install some packages. This is a very smart feature, and convenient. But before going forward with it, please keep reading... just leave the yellow sign opened over there...
 
 # Working Directory
 
@@ -64,7 +64,7 @@ Run this in a Terminal **inside the server** (on RStudio IDE, you can open this 
 
 `cp -r /scratch/local/rseurat/pkg-lib-4.1.3 /rstudio/${USER}/rstudio/R/workbench-library/4.1`
 
-The package library you just copied over is a snapshot taken the 4th of May 2023.
+The package library you just copied over is a snapshot taken the 15th of May 2023.
 
 For safety, **you should still run the code blocks**, since we're using conditionals anyway. Only missing packages are really downloaded, compiled (sometimes), and installed.
 
@@ -74,6 +74,12 @@ TODO: explain setting RSTUDIO_WHICH_R=... R_LIBS=...
 #### Important note for those working on their laptops
 
 If you don't know Conda, just ignore this. If you do have it set up, and have a bare minimum experience with it, you may go ahead and create an environment using the YAML file under the `configs/` subfolder of this repo. -->
+
+### Package Installation per-se
+
+Now would be a good time to click the 'Install' button in the yellow bar on top of this Rmarkdown file, if opened on Rstudio. This will install some of the auto-detected packages (BiocManager, knitr, remotes, Seurat, among other.)
+
+Wait until this process finishes completely before moving forward. On the following steps, we'd be 're-installing' some of these packages. You can go ahead and run the code cells anyway, we'd rather you do that instead of guessing and skipping... which could be prone to errors. Also, the functions (unless explicitly told) won't re-install if the pkg is already there...
 
 ### Bioconductor
 
@@ -143,6 +149,7 @@ retrieve_namespaces(
     "Nebulosa",
     "RColorBrewer",
     "patchwork",
+    "pheatmap",
     # Utilities
     "shiny",
     "remotes",
@@ -151,7 +158,7 @@ retrieve_namespaces(
     "rmarkdown",
     "markdown",
     "styler",
-    "formatR",
+    "formatR"
   )
 )
 ```
