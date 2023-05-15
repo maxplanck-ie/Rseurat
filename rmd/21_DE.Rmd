@@ -238,7 +238,7 @@ Since `process_markers` is not **idempontent**, running the above codeblock woul
 
 
 ```{r}
-DT::datatable(markers.between.clusters, rownames=NULL)
+markers.between.clusters %>% head()
 ```
 
 # End

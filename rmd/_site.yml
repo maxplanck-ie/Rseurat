@@ -11,42 +11,59 @@ navbar:
     - text: "Modules"
       icon: fa-level-down
       menu:
+
+      # Day 1
       - text: Installation
         icon: fa-download
         href: 10_PkgInstall.html
+
       - text: Introduction
         icon: fa-handshake-o
         href: 12_Intro.html
+
       - text: Parallelization
         icon: fa-clock-o
         href: 13_FutureArrivedLongAgo.html
+
       - text: First steps
         icon: fa-users
         href: 14_FirstSteps.html
+
       - text: Embeddings
         icon: fa-hand-spock-o
         href: 16_UMAP.html
+
+      # Day 2
       - text: Data Viz.
         icon: fa-map-marker
         href: 18_Viz.html
+
       - text: Diff. Expression
         icon: fa-question-circle
         href: 21_DE.html
+
       - text: Ontologies Enrichment
         icon: fa-arrows-alt
-        href: 23_GSEA.html
+        href: 23_Enrich.html
+
+      # Day 3
       - text: Batch Effects
         icon: fa-ambulance
         href: 30_BatchEffects.html
+
       - text: SCTransform
         icon: fa-bolt-lightning
         href: 31_SCTransform.html
+
       - text: Cell Annotation
         icon: fa-paintbrush
         href: 40_CellAnnotation.html
+
       - text: Dataset Challenge
         icon: fa-mountain
         href: 41_DatasetChallenge.html
+
+      # Day 4
       - text: Analysis Extentions
         icon: fa-planet-moon
         href: 42_AnalysisExtentions.html
