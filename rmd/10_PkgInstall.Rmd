@@ -120,8 +120,9 @@ retrieve_namespaces <- function(list_of_packages) {
     function(x) {
       if (!x %in% installed.packages()) {
         suppressMessages(
-            BiocManager::install(x,
-                ask = FALSE, update = FALSE)
+          BiocManager::install(x,
+            ask = FALSE, update = FALSE
+          )
         )
       }
     }

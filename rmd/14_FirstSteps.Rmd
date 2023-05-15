@@ -29,10 +29,12 @@ set.seed(8211673)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 
-options(parallelly.fork.enable = FALSE,
-        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+options(
+  parallelly.fork.enable = FALSE,
+  future.globals.maxSize = 8 * 1024^2 * 1000
+)
 
-plan("multicore", workers = 8)  # function made available by SeuratObj automatically.
+plan("multicore", workers = 8) # function made available by SeuratObj automatically.
 ```
 
 ```{r useful-information, echo=FALSE}
@@ -69,15 +71,15 @@ pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
 And, we can have a heatmap of the first few genes and cells:
 
 ```{r explore2, echo=FALSE, out.width="50%"}
-pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200]+1),
-                   show_rownames = F,
-                   show_colnames = F,
-                   cluster_rows = F,
-                   cluster_cols = F,
-                   color = colorRampPalette(
-                     c("lightgrey", "red")
-                     )(100)
-)  # note: colorRampPalette returns another function.
+pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
+  show_rownames = F,
+  show_colnames = F,
+  cluster_rows = F,
+  cluster_cols = F,
+  color = colorRampPalette(
+    c("lightgrey", "red")
+  )(100)
+) # note: colorRampPalette returns another function.
 ```
 
 
@@ -101,7 +103,7 @@ Initialize the Seurat object with the raw (non-normalized data):
       min.cells = 3,
       min.features = 200
     ) %>% suppressWarnings()
-)  # extra outer pair of parenthesis mean 'print()'
+) # extra outer pair of parenthesis mean 'print()'
 ```
 
 > **Note:** usually on any data science context, we refer to our columns as features. This is not the case for the count matrix.
@@ -203,8 +205,8 @@ Based on cell-specific features we can subset our `SeuratObject` to keep only th
 
 ```{r filter, echo=FALSE}
 pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
-                        nFeature_RNA < 2500 &
-                        percent.mt < 5)
+  nFeature_RNA < 2500 &
+  percent.mt < 5)
 ```
 
 > 🧭✨ Poll: What's the current number of cells after this step? 2583, 2638, 2385?
@@ -247,11 +249,11 @@ Now with labels, taking top10 genes as in the recent question:
 
 ```{r HVG_LabelPlot}
 (plot2 <-
-   LabelPoints(
-     plot = plot1,
-     points = head(VariableFeatures(pbmc), 10),
-     repel = TRUE
-   ))
+  LabelPoints(
+    plot = plot1,
+    points = head(VariableFeatures(pbmc), 10),
+    repel = TRUE
+  ))
 ```
 
 ## Scaling
