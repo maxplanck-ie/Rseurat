@@ -106,6 +106,7 @@ stim <- ifnb.list[["STIM"]]
 ## Standard normalization?
 
 Lets process the control dataset in a standard way.
+We're going to save the elbow plot and compare it with the one obtained on sc-trasnformed data later on.
 
 ```{r process_noBER}
 ctrl <- NormalizeData(ctrl)
@@ -113,6 +114,7 @@ ctrl <- FindVariableFeatures(ctrl, selection.method = "vst", nfeatures = 2000)
 all.genes <- rownames(ctrl)
 ctrl <- ScaleData(ctrl, features = all.genes)
 ctrl <- RunPCA(ctrl, features = VariableFeatures(object = ctrl))
+ctrl_ln<-ElbowPlot(ctrl,ndims="30")
 ctrl <- RunUMAP(ctrl, dims = 1:15)
 ```
 
@@ -125,10 +127,14 @@ p1+p2
 
 ```
 
+**Poll** Which cell population has the highest total counts?
+
 
 ## Seurat SCTransform
 
 The `SCTransform` function performs normalization, regressing out of nuissance variables and identification of variable features. By default, total UMI count per cell are regressed out, but it's possible to add other variables to the model, e.g. mitochondrial gene content.
+
+We're going to use the SCTransform function with some more recent implementations of NB modelling and variance stabilizing transformation.
 
 ```{r seurat_sctransform1}
 library(sctransform)
@@ -142,31 +148,53 @@ ctrl <- SCTransform(ctrl, method = "glmGamPoi",vst.flavor = "v2", verbose = FALS
 
 ## Recalculate Dimensional Reductions
 
+We have now gotten a new Assay added to the Seurat object. All we need to do now is to run PCA and UMAP for visualization in lowD.
+We're also going to save the elbow plot for comparison with the log-normed dataset.
+
 ```{r sct_umap_calc}
 DefaultAssay(ctrl)<-"SCT"        # explain
 ctrl <- RunPCA(ctrl, verbose = FALSE)
-ctrl <- RunUMAP(ctrl, dims = 1:30, verbose = FALSE)
+ctrl_sct<-ElbowPlot(ctrl,ndims="30")
 ```
 
+Let's compare the elbow plots for the dataset normalzed with either of the two methods:
+
+ ```{r elbow_byside}
+ ctrl_ln+ctrl_sct
+ ```
+
+What has changed and what hasn't?
+
+**Poll** What amount of standard deviation does PC1 explain after sc-transform?
 
 ## Revisit UMAP
 
+We can choose more PCs when using sctransform to calculate the lowD embedding. 
+The authors believe this is because the sctransform workflow performs more effective normalization, strongly removing technical effects from the data. Higher PCs are more likely to represent subtle, but biologically relevant, sources of heterogeneity – so including them may improve downstream analysis.
+We're going to use 30 top PCs to calculate the UMAP embedding in the SCT assay.
+
 ```{r sct_umap_plot, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
+ctrl <- RunUMAP(ctrl, dims = 1:30, verbose = FALSE)
 p1 <- DimPlot(ctrl, group.by="seurat_annotations") + theme(legend.position = "bottom")
 p2 <- FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "right")
 p1+p2
 
 ```
 
+What has changed and what hasn't ?
+
 ## Task
 
 Apply SCTransform to the IfnB-stimulated dataset as well. 
 
-**Poll:** How does the lowD representation change using SCT versus log-Norm ?
+**Poll:** What amount of standard deviation does the first PC explain after applying sc-transform to the stimulated dataset?
 
 
 
 ## Prepare both datasets for integration
+
+We're now going to revisit dataset integration after sc-transform. We can now select 3000 features for integration, instead of the default 2000 in case of log-normalized data.
+SC-transformed data requires an additional preparation step prior to integration. This performs sanity checks i.e. that sctransform residuals specified in to anchor.features are present in each object of the list; subsets the scale.data slot to only contain the residuals for anchor.features.
 
 ```{r sct_stim}
 stim <- SCTransform(stim, method="glmGamPoi",vst.flavor = "v2", verbose = FALSE) %>%
@@ -180,6 +208,10 @@ ifnb.list <- PrepSCTIntegration(object.list = ifnb.list, anchor.features = featu
 
 ## Seurat Integrate
 
+The datasets are now ready for integration. The same two steps are used as for a log-transformed dataset.
+If normalization.method = "LogNormalize", the integrated data is returned to the data slot and can be treated as log-normalized, corrected data.
+If normalization.method = "SCT", the integrated data is returned to the scale.data slot and can be treated as centered, corrected Pearson residuals.
+
 ```{r seurat_integrate1}
 immune.anchors <- FindIntegrationAnchors(object.list = ifnb.list, normalization.method = "SCT",
     anchor.features = features)
@@ -188,6 +220,8 @@ immune.combined.sct <- IntegrateData(anchorset = immune.anchors, normalization.m
 ```
 
 ## Process the newly integrated dataset
+
+All we need to do now is to run PCA and UMAP on the integrated assay.
 
 ```{r process_integrated}
 immune.combined.sct <- RunPCA(immune.combined.sct, verbose = FALSE)
