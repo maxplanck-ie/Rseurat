@@ -69,33 +69,9 @@ pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 ```
 
-Next, we do our between-clusters DE analysis. Once again, we'll process the results:
+Next, we do our between-clusters DE analysis:
 
 ```{r de_steps}
-process_markers <- function(markers) {
-  nulls <- markers$p_val == 0
-  if (any(nulls)) {
-    markers[nulls, ]$p_val <- .Machine$double.xmin
-  }
-  markers$Adjusted.P.value <- p.adjust(markers$p_val)
-  stopifnot(all(markers$Adjusted.P.value != 0))
-  if (not("gene" %in% colnames(markers))) {
-    markers$gene <- rownames(markers)
-  }
-  markers <- markers %>% filter(Adjusted.P.value < 5e-2)
-  if ("cluster" %in% colnames(markers)) {
-    markers$cluster <- as.numeric(as.character(markers$cluster))
-    markers <- markers %>% arrange(Adjusted.P.value) %>% select(
-      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
-    )
-  } else {
-    markers <- markers %>% arrange(Adjusted.P.value) %>% select(
-      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
-    )
-  }
-  markers
-}
-
 markers.between.clusters <- FindAllMarkers(
   pbmc_small,
   test.use = "MAST",
@@ -103,7 +79,7 @@ markers.between.clusters <- FindAllMarkers(
   min.pct = 0.05,
   only.pos = TRUE,
   densify = TRUE
-) %>% process_markers()
+)
 ```
 
 
