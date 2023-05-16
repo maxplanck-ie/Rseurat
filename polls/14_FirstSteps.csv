@@ -7,7 +7,6 @@ Poll,Multiple choice,How many cells have less than 2000 counts?,1026,1025,1674,,
 Poll,Multiple choice,What's the current number of cells after this step?,2583,2638,2385,,
 Poll,Multiple choice,Which are the 3 most highly variable genes?,"LYZ, S100A9, IGLL5","LYZ, S100A9, PPBP","MALAT1, TMSB4X, B2M",,
 Poll,Multiple choice,What's the variance of the gene PYCARD?,5.45,5.05,2.01,,
-Poll,Multiple choice,(PCA plot) Which pair of cells is more divergent between themselves?,First pair (X-axis),Second pair (Y-axis),Both pairs are equally divergent,Cell 1 and cell 3,
 Poll,Multiple choice,How many components should we choose to include?,7,10,14,20,2
 Poll,Multiple choice,Which is the default value of the parameter K?,10,20,1 / 15,50,
 Poll,Multiple choice,How many clusters did we find?,2638,9,8,3,
