@@ -114,16 +114,15 @@ Especially for Seurat, there is one outstanding cheat sheet which should help yo
 
 The analysis of Loo *et al.* highlighted the role of `Neurod2`, `Gad2`, `Eomes`, and `Mki67.`
 - Prepare the data for dimensional reduction (filtering, normalization, PCA)
-- Check a suitable number of principal components to keep)
-- Plot the normalized expression of these important genes on a UMAP.
+- Check a suitable number of principal components to keep
+- Play around with different values of `n.neighbors` on UMAP algorithm
+- Plot the normalized expression of the aforementioned genes of interest
 
-Should you be more interested in data structures, you could also check the Seurat data object
-with `View()` - it's huge and has many `slots` that will be changing as the analysis proceeds.
+Should you be more interested in data structures, you could also check the Seurat data object with `View()` or `dplyr::glimpse()`; it's huge and has many `slots` that will be updated as the analysis proceeds.
 
 *Notice:* Here we only use the data for E14.5 (not P0)
 
 `loo_alone <- ...`
-
 
 
 ## Finding Clusters
@@ -135,7 +134,7 @@ In fact, the authors invested much effort to identify a proper number of cluster
 
 Use variable resolution parameters and inspect the results - which resolution (=number of clusters) would you choose?
 
-**TIP**: you may have multiple clustering runs on the same `SeuratObj`, just remember to adjust `Idents()` accordingly! By default, the column `seurat_clusters` in our `meta.data` slot will point to the last run.
+**TIP**: the same `SeuratObj` may hold multiple clustering results. By default, the column `seurat_clusters` in our `meta.data` slot will point to the last run.
 
 <code>
 # FindNeighbors(...)
@@ -297,7 +296,9 @@ merged <- merge(loo, db)
 **Message:** Simple merge is too simple! There should be more commonalities in those 2 datasets.
 
 ## SCT integration
+
 Try to account for batch effects using anchors
+
 ```{r SCT_integration}
 sl <- c(loo, db) # list of individual datasets
 sl <- lapply(sl, mySCT) # individual normalizations
@@ -306,12 +307,13 @@ sl <- lapply(sl, mySCT) # individual normalizations
 ```
 
 ## Joint Analysis
+
 Before you continue: have a look at your newly integrated dataset (e.g. with `View()`). 
 It has grown in size and it contains additional assays. 
 
 For further analysis, make sure that in the following you are using the assay `integrated`, like so: 
 
-> DefaultAssay( _your_integrated_serat_object_) <- "integrated"
+<code>DefaultAssay( _your_integrated_serat_object_) <- "integrated"</code>
 
 Of course you understand that each of the following processing steps requires careful checking, 
 but for now just get going with the default pipeline:transformations, PCA, UMAP. 
@@ -327,24 +329,19 @@ DefaultAssay(int) <- "integrated" # set default assay
 
 ## Joint Visualization
 
-You are almost done. Time to make a few more UMAPs in which you label
+You are almost done. Time to make a few more UMAPs in which you'd label:
 
 - the data source
 - cell type (as from annotations by Loo)
 - cluster ID (as obtained from simple clustering of the integrated set)
 
-```{r int_viz, fig.width=12, fig.height=4}
-```
 
 With some luck we should be able to draw a correspondence of the annotated cell type (only defined for the Loo data)
 and our cluster ID (defined for all cells in the integrated dataset).
 
-```{r cluster_mapping}
-```
 
-# SessionInfo
+# End
 
-Are you really done? Don't forget to print the sessionInfo()!
 ```{r sessioninfo}
 sessionInfo()
 ```
