@@ -18,3 +18,5 @@ StripTrailingWhitespace: Yes
 BuildType: Makefile
 
 QuitChildProcessesOnExit: Yes
+
+MarkdownWrap: Sentence

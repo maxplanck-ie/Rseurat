@@ -14,12 +14,12 @@ output:
 
 ## Outline
 
-- Setup
-- Sources of batch effects
-- Dataset
-- Observing batch effects
-- Mitigating batch effects
-- SessionInfo
+-   Setup
+-   Sources of batch effects
+-   Dataset
+-   Observing batch effects
+-   Mitigating batch effects
+-   SessionInfo
 
 ## Setup
 
@@ -40,33 +40,33 @@ packageVersion("Seurat")
 
 ## Sources of batch effects
 
-Multiple steps in sample preparation introduce changes to measured gene expression. Some of these are:
+Multiple steps in sample preparation introduce changes to measured gene expression.
+Some of these are:
 
-- Cell/RNA isolation (e.g. FACS)
-- Library construction
-- Sequencing run
-- Sequencing technology
-- Individual (patient sample)
-- The person performing the experiment
-
+-   Cell/RNA isolation (e.g. FACS)
+-   Library construction
+-   Sequencing run
+-   Sequencing technology
+-   Individual (patient sample)
+-   The person performing the experiment
 
 ## Problem description
 
-We're going to work with a dataset comprised of pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates. We're first going to inspect the lowD embedding of the full dataset, and then we're going to work with a subset of the full dataset. We're going to inspect and attempt to mitigate known batch effects in the subset dataset.
-
+We're going to work with a dataset comprised of pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates.
+We're first going to inspect the lowD embedding of the full dataset, and then we're going to work with a subset of the full dataset.
+We're going to inspect and attempt to mitigate known batch effects in the subset dataset.
 
 ## What does the data look like out of the box?
 
-Lets have a look at the UMAP embedding of the full dataset processed in a standard way, ignoring any possible batch effects. Compare the cell separation by sequencing technology and by cell type.
+Lets have a look at the UMAP embedding of the full dataset processed in a standard way, ignoring any possible batch effects.
+Compare the cell separation by sequencing technology and by cell type.
 
 ![Full dataset on umap](images/panc8full.umap.png)
 
+## Load the preprocessed subset dataset
 
-
-## Load the preprocessed subset dataset 
-
-We have subset and pre-processed the full dataset for you. You can download it from `zenodo`.
-
+We have subset and pre-processed the full dataset for you.
+You can download it from `zenodo`.
 
 ```{r load_subset}
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
@@ -78,16 +78,16 @@ if (!file.exists(fdest)) {
 panc_sub <- readRDS(fdest)
 ```
 
-> 🧭✨ Poll: 
+> 🧭✨ Poll:
 >
 > [Which sequencing technologies are retained in the subset dataset?](https://PollEv.com/multiple_choice_polls/j2zBwetamS5edfxq0JDs8/respond)
 >
 > How many cells were sequenced in each experiment?
 
-
 ## Revisit UMAP
 
-Plot UMAP embedding for the subset dataset. Inspect the cell separation by cell type and by sequencing technology.
+Plot UMAP embedding for the subset dataset.
+Inspect the cell separation by cell type and by sequencing technology.
 
 ```{r umap_sub, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
 my_cols <- brewer.pal(panc_sub@meta.data$tech %>% unique() %>% length(), "Dark2")
@@ -99,13 +99,10 @@ p1 + p2
 
 > ⌨🔥 Exercise: plot gene expression
 >
-> In the previous course units, you have learned to call differentially expressed genes with Seurat. In this task, we ask you to:
-> - call genes differentially expressed between cells sequenced with the smartseq2 technology and those with the celseq technology
-> - plot a violin plot for the top gene
-> - plot a feature plot for the top gene
+> In the previous course units, you have learned to call differentially expressed genes with Seurat.
+> In this task, we ask you to: - call genes differentially expressed between cells sequenced with the smartseq2 technology and those with the celseq technology - plot a violin plot for the top gene - plot a feature plot for the top gene
 
 > 🧭✨ Poll: [What is the name of the top DE gene ?](https://PollEv.com/multiple_choice_polls/D5BfavArbiXgs8QeHvDNn/respond)
-
 
 Here's our proposed solution:
 
@@ -124,7 +121,8 @@ p2 <- DimPlot(panc_sub, reduction = "umap", group.by = "tech", cols = scales::al
 p1 + p2
 ```
 
-On the other hand, what does the expression of known celltype markers look like ? Let's plot the expression of the alpha cell marker gen "GCG".
+On the other hand, what does the expression of known celltype markers look like ?
+Let's plot the expression of the alpha cell marker gen "GCG".
 
 ```{r marker_before_umap,fig.width=6,fig.height=10}
 p1 <- FeaturePlot(panc_sub, features = "GCG")
@@ -136,23 +134,18 @@ p1 + p2
 
 Let's now explore some options of mitigating batch effects:
 
-- Seurat Integration
-- Seurat SCTransform
-- Conos
-- Harmony
-- ComBat/SVA
-- ...
+-   Seurat Integration
+-   Seurat SCTransform
+-   Conos
+-   Harmony
+-   ComBat/SVA
+-   ...
 
 ## Seurat Integration: theory
 
-![Seurat](images/fx1_lrg.jpg){width=70%,height=70%}
+![Seurat](images/fx1_lrg.jpg){width="70%,height=70%"}
 
-Seurat authors developed a strategy to "anchor" diverse datasets together:
-- Joint dimentional reduction
-- Mutual nearest neighbours ("anchors")
-- Filter for high-scoring anchors
-- Known bottleneck: rare cell types
-
+Seurat authors developed a strategy to "anchor" diverse datasets together: - Joint dimentional reduction - Mutual nearest neighbours ("anchors") - Filter for high-scoring anchors - Known bottleneck: rare cell types
 
 ## Seurat Integration: prep datasets
 
@@ -192,9 +185,8 @@ gc()
 
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
-
-> 🧭✨ Poll: What is the new assay called?](https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond) Hint: you can access assays of a Seurat object with `Assays()`.
-
+> 🧭✨ Poll: What is the new assay called?]
+> (<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
 
 ## Process the newly integrated dataset
 
@@ -230,7 +222,7 @@ p1 + p2
 ```
 
 > ⌨🔥 Exercise: plot gene expression after integration
-> 
+>
 > You have previously plotted the expression of a DE gene between the sequencing technologies on the dataset before integration.
 > Repeat the violin and the feature plot for the dataset after integration.
 > What has changed, what hasn't, and why?
@@ -241,7 +233,7 @@ Here's our proposed solution:
 VlnPlot(panc.combined, features = "LRRC75A-AS1", group.by = "celltype", split.by = "tech")
 ```
 
-The expression of this gene hasn't changed - as it is not present in the "integrated" assay, the `VlnPlot` function has fetched it's expression value from the RNA assay, which is not modified by the integration. 
+The expression of this gene hasn't changed - as it is not present in the "integrated" assay, the `VlnPlot` function has fetched it's expression value from the RNA assay, which is not modified by the integration.
 
 Let's plot it's expression on the lowD embedding:
 
@@ -251,9 +243,11 @@ p2 <- DimPlot(panc.combined, reduction = "umap", group.by = "tech", cols = scale
 p1 + p2
 ```
 
-We can now appreciate that cells highly expressing this gene are distributed over all clusters. Note that the mixing with the cells negative for this marker is imperfect, but such is the result of the integration for this dataset.
+We can now appreciate that cells highly expressing this gene are distributed over all clusters.
+Note that the mixing with the cells negative for this marker is imperfect, but such is the result of the integration for this dataset.
 
-Let's ascertain ourselves that the expression of the celltype markers is behaving as expected after integration. For this purpose, let's plot the expression of the alpha cell marker gen "GCG".
+Let's ascertain ourselves that the expression of the celltype markers is behaving as expected after integration.
+For this purpose, let's plot the expression of the alpha cell marker gen "GCG".
 
 ```{r marker_after_umap,fig.width=6,fig.height=10}
 p1 <- FeaturePlot(panc.combined, features = "GCG")
@@ -263,8 +257,8 @@ p1 + p2
 
 ## Outlook
 
-- Verify that expected marker genes are expressed per cell population
-- Note: Seurat v5 has additional modalities of integrating cells: (Harmony and scVI, bridge integration across modalities)
+-   Verify that expected marker genes are expressed per cell population
+-   Note: Seurat v5 has additional modalities of integrating cells: (Harmony and scVI, bridge integration across modalities)
 
 ## SessionInfo
 
@@ -274,9 +268,18 @@ sessionInfo()
 
 ## Citations
 
-Büttner, M., Miao, Z., Wolf, F.A. et al. A test metric for assessing single-cell RNA-seq batch correction. Nat Methods 16, 43–49 (2019). https://doi.org/10.1038/s41592-018-0254-1  
+Büttner, M., Miao, Z., Wolf, F.A.
+et al.
+A test metric for assessing single-cell RNA-seq batch correction.
+Nat Methods 16, 43--49 (2019).
+<https://doi.org/10.1038/s41592-018-0254-1>
 
-Stuart T, Butler A, Hoffman P, Hafemeister C, Papalexi E, Mauck WM 3rd, Hao Y, Stoeckius M, Smibert P, Satija R. Comprehensive Integration of Single-Cell Data. Cell. 2019 Jun 13;177(7):1888-1902.e21. doi: 10.1016/j.cell.2019.05.031. Epub 2019 Jun 6. PMID: 31178118; PMCID: PMC6687398
+Stuart T, Butler A, Hoffman P, Hafemeister C, Papalexi E, Mauck WM 3rd, Hao Y, Stoeckius M, Smibert P, Satija R. Comprehensive Integration of Single-Cell Data.
+Cell.
+2019 Jun 13;177(7):1888-1902.e21.
+doi: 10.1016/j.cell.2019.05.031.
+Epub 2019 Jun 6.
+PMID: 31178118; PMCID: PMC6687398
 
 ## Appendix
 
