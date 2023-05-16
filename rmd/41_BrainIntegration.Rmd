@@ -135,6 +135,8 @@ In fact, the authors invested much effort to identify a proper number of cluster
 
 Use variable resolution parameters and inspect the results - which resolution (=number of clusters) would you choose?
 
+**TIP**: you may have multiple clustering runs on the same `SeuratObj`, just remember to adjust `Idents()` accordingly! By default, the column `seurat_clusters` in our `meta.data` slot will point to the last run.
+
 <code>
 # FindNeighbors(...)
 
