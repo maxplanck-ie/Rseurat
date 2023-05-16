@@ -98,8 +98,6 @@ p2 <- DimPlot(panc_sub, reduction = "umap", group.by = "celltype")
 p1 + p2
 ```
 
-> 🧭✨ Poll: If every batch (sequencing tech) is  represented in each cluster, is this really a big issue? How would it look if it were less of a problem? Answer: It is an issue, and it would be smaller if we saw intersperced colors inside each cluster, so that the seq. tech really doesn't influence the values obtained in each umap component...
-
 > ⌨🔥 Exercise: plot gene expression
 >
 > In the previous course units, you have learned to call differentially expressed genes with Seurat. In this task, we ask you to:
@@ -196,13 +194,7 @@ gc()
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
 
-> 🧭✨ Poll: 
->
-> What is the new assay called?](https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond) Hint: you can access assays of a Seurat object with `Assays()`.
->
-> Which assay would be used if we run PCA now?
->
-> If we run PCA now, would it be using scaled values?
+> 🧭✨ Poll: What is the new assay called?](https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond) Hint: you can access assays of a Seurat object with `Assays()`.
 
 
 ## Process the newly integrated dataset
@@ -241,8 +233,8 @@ p1 + p2
 > ⌨🔥 Exercise: plot gene expression after integration
 > 
 > You have previously plotted the expression of a DE gene between the sequencing technologies on the dataset before integration.
-> Repeat the violin and the feature plot for each seq. tech dataset after integration.
-> What has changed?, What didn't change? and, Why?
+> Repeat the violin and the feature plot for the dataset after integration.
+> What has changed, what hasn't, and why?
 
 Here's our proposed solution:
 
