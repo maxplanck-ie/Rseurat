@@ -83,28 +83,35 @@ markers.between.clusters <- FindAllMarkers(
 )
 ```
 
-
 # Functional Enrichment Analysis
 
-These methods have first been used for microarrays, and aim to draw conclusions ranked gene list from RNAseq experiments, scRNA, or any other OMICS screen. There are a number of tools and approaches - here we will focus only one common and practical approach.
+These methods have first been used for microarrays, and aim to draw conclusions ranked gene list from RNAseq experiments, scRNA, or any other OMICS screen.
+There are a number of tools and approaches - here we will focus only one common and practical approach.
 
 For more information, see: [clusterProfiler](https://yulab-smu.top/biomedical-knowledge-mining-book/clusterProfiler-dplyr.html).
 
-The aim is to draw conclusions as to what's the functional implications that we may be able to derive given a list of genes. To this end, we'd start with such list and then consult databases for the annotations. With this data, we can come up with scores to measure level of association. A gene set is an unordered collection of genes that are functionally related.
+The aim is to draw conclusions as to what's the functional implications that we may be able to derive given a list of genes.
+To this end, we'd start with such list and then consult databases for the annotations.
+With this data, we can come up with scores to measure level of association.
+A gene set is an unordered collection of genes that are functionally related.
 
 ## Gene Ontology
 
-[GO Terms](http://www.geneontology.org/) are semantic representations in a curated database that defines concepts/classes used to describe gene function, and relationships between these concepts. GO terms are organized in a directed acyclic graph, where edges between terms represent parent-child relationship. It classifies functions along three aspects:
+[GO Terms](http://www.geneontology.org/) are semantic representations in a curated database that defines concepts/classes used to describe gene function, and relationships between these concepts.
+GO terms are organized in a directed acyclic graph, where edges between terms represent parent-child relationship.
+It classifies functions along three aspects:
 
-- MF: Molecular Function, molecular activities of gene products
-- CC: Cellular Compartment, where gene products are active
-- BP: Biological Processes, pathways and larger processes made up of the activities of multiple gene products
+-   MF: Molecular Function, molecular activities of gene products
+-   CC: Cellular Compartment, where gene products are active
+-   BP: Biological Processes, pathways and larger processes made up of the activities of multiple gene products
 
 <!-- rbioapi::rba_reactome_analysis(input = genes.1, p_value = 0.1) -->
 
 ## enrichR
 
-The package is already loaded. But we need to select which databases to connect. There are more than 200 databases available, you can get a data frame with details of these using `listEnrichrDbs()`.
+The package is already loaded.
+But we need to select which databases to connect.
+There are more than 200 databases available, you can get a data frame with details of these using `listEnrichrDbs()`.
 For this and the following to work you need a working internet connection.
 
 ```{r dbs}
@@ -115,7 +122,6 @@ dbs <- c(
 )
 ```
 
-
 ```{r enrichr}
 result.1 <- markers.between.clusters %>%
   filter(cluster == 1) %>%
@@ -124,10 +130,10 @@ result.1 <- markers.between.clusters %>%
 ```
 
 > ⌨🔥 Exercise(s):
-> 
-> 1. Understand the format and interpret the output `result.1`.
-> 1. What is the most significantly enriched molecular function? which genes are the base for it?
-> 1. Would you get the same result if you changed the number of marker genes in the input? Try it out.
+>
+> 1.  Understand the format and interpret the output `result.1`.
+> 2.  What is the most significantly enriched molecular function? which genes are the base for it?
+> 3.  Would you get the same result if you changed the number of marker genes in the input? Try it out.
 
 We can also produce nice graphical summaries:
 
@@ -156,4 +162,3 @@ names(new.cluster.ids) <- levels(pbmc)
 pbmc <- RenameIdents(pbmc, new.cluster.ids)
 rm(new.cluster.ids)
 ```
-

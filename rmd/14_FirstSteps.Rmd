@@ -44,24 +44,27 @@ cat("library path(s): ", .libPaths())
 
 # Load Data
 
-We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics. 
+We will be analyzing a dataset of Peripheral Blood Mononuclear Cells (PBMC) freely available from 10X Genomics.
 There are 2700 single cells that were sequenced with Illumina and aligned to the human transcriptome.
 
 For further details on the primary analysis pipeline that gives you the count data, please head over to [cellranger website](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger).
 
-The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file. This dataset consists of 3 files: 
+The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
+This dataset consists of 3 files:
 
-- `matrix.mtx`:  **count matrix** represents the number of molecules for each gene (row) that are detected in each cell (column).
-- `genes.tsv`: a list of ENSEMBL-IDs and their corresponding gene symbol
-- `barcodes.tsv`: a list of molecular barcodes that identifies each cell uniquely
+-   `matrix.mtx`: **count matrix** represents the number of molecules for each gene (row) that are detected in each cell (column).
+-   `genes.tsv`: a list of ENSEMBL-IDs and their corresponding gene symbol
+-   `barcodes.tsv`: a list of molecular barcodes that identifies each cell uniquely
 
-For now we assume that this data resides in a directory `datasets/filtered_gene_bc_matrices/hg19` (relative to this current markdown file). We can read this with a single command:
+For now we assume that this data resides in a directory `datasets/filtered_gene_bc_matrices/hg19` (relative to this current markdown file).
+We can read this with a single command:
 
 ```{r read10x}
 pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
 ```
 
-This data is extremely big and sparse, this variable is now an object of type `dgCMatrix`. Lets examine a few genes in the first thirty cells:
+This data is extremely big and sparse, this variable is now an object of type `dgCMatrix`.
+Lets examine a few genes in the first thirty cells:
 
 ```{r explore1}
 pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
@@ -81,14 +84,15 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
 ) # note: colorRampPalette returns another function.
 ```
 
-
 > 🧭✨ Polls:
 >
 > How many genes and cells does this dataset have?
 >
-> How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
+> How many genes are not expressed in any cell?
+> Hint: subset genes with `rowSums()`.
 >
-> Which are the top 3 genes with the highest total count? Hint: `rowSums()`  and `sort`.
+> Which are the top 3 genes with the highest total count?
+> Hint: `rowSums()` and `sort`.
 
 > ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
 
@@ -108,49 +112,65 @@ Initialize the Seurat object with the raw (non-normalized data):
 ) # extra outer pair of parenthesis mean 'print()'
 ```
 
-> **Note:** usually on any data science context, we refer to our columns as features. This is not the case for the count matrix.
+> **Note:** usually on any data science context, we refer to our columns as features.
+> This is not the case for the count matrix.
 
-The `min.cells` and `min.features` arguments are first low-stringency **filters**. We are only loading cells with at least 200 genes detected, and we are only including those genes (features) that were detected in at least 3 cells.
+The `min.cells` and `min.features` arguments are first low-stringency **filters**.
+We are only loading cells with at least 200 genes detected, and we are only including those genes (features) that were detected in at least 3 cells.
 
 With these filters in this particular dataset, we are reducing the number of genes from `33000` to `14000`.
 
-The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
+The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset.
+For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
+On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
-> 🧭✨ Poll: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? Hint: subset the assay data, `pbmc@assays$RNA`.
+> 🧭✨ Poll: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
+> Hint: subset the assay data, `pbmc@assays$RNA`.
 
-At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively. The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
+At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively.
+The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
 
-On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay object(s) via various dimensional reduction techniques such as PCA. For class-specific details, including more in depth description of the slots, please see the wiki sections for each class:
+On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay object(s) via various dimensional reduction techniques such as PCA.
+For class-specific details, including more in depth description of the slots, please see the wiki sections for each class:
 
-- [`Seurat`](https://github.com/satijalab/seurat/wiki/Seurat)
-  - [Slots](https://github.com/satijalab/seurat/wiki/Seurat#slots)
-  - [Object Information](https://github.com/satijalab/seurat/wiki/Seurat#object-information)
-  - [Data Access](https://github.com/satijalab/seurat/wiki/Seurat#data-access)
-- [`Assay`](https://github.com/satijalab/seurat/wiki/Assay)
-  - [Slots](https://github.com/satijalab/seurat/wiki/Assay#slots)
-  - [Object Information](https://github.com/satijalab/seurat/wiki/Assay#object-information)
-  - [Data Access](https://github.com/satijalab/seurat/wiki/Assay#data-access)
-- [`DimReduc`](https://github.com/satijalab/seurat/wiki/DimReduc)
-  - [Slots](https://github.com/satijalab/seurat/wiki/DimReduc#slots)
-  - [Object Information](https://github.com/satijalab/seurat/wiki/DimReduc#object-information)
-  - [Data Access](https://github.com/satijalab/seurat/wiki/DimReduc#data-access)
+-   [`Seurat`](https://github.com/satijalab/seurat/wiki/Seurat)
+
+    -   [Slots](https://github.com/satijalab/seurat/wiki/Seurat#slots)
+    -   [Object Information](https://github.com/satijalab/seurat/wiki/Seurat#object-information)
+    -   [Data Access](https://github.com/satijalab/seurat/wiki/Seurat#data-access)
+
+-   [`Assay`](https://github.com/satijalab/seurat/wiki/Assay)
+
+    -   [Slots](https://github.com/satijalab/seurat/wiki/Assay#slots)
+    -   [Object Information](https://github.com/satijalab/seurat/wiki/Assay#object-information)
+    -   [Data Access](https://github.com/satijalab/seurat/wiki/Assay#data-access)
+
+-   [`DimReduc`](https://github.com/satijalab/seurat/wiki/DimReduc)
+
+    -   [Slots](https://github.com/satijalab/seurat/wiki/DimReduc#slots)
+    -   [Object Information](https://github.com/satijalab/seurat/wiki/DimReduc#object-information)
+    -   [Data Access](https://github.com/satijalab/seurat/wiki/DimReduc#data-access)
 
 # Quality Control
 
-One of our first goals is to identify (and filter) dead cells that could be the results
-of a harsh experimental protocol. A few QC metrics commonly used, include:
+One of our first goals is to identify (and filter) dead cells that could be the results of a harsh experimental protocol.
+A few QC metrics commonly used, include:
 
-1. **The number of unique genes detected in each cell.**
-  - Low-quality cells or empty droplets will often have very few genes.
-  - Cell doublets or multiplets may exhibit an aberrant high gene count.
-1. Similarly, **the total number of molecules detected within a cell (correlates strongly with unique genes)**
-1. **The percentage of reads that map to the mitochondrial genome.**
-  - Low-quality / dying cells often exhibit extensive mitochondrial contamination.
-  - We use the set of all genes starting with MT- as a set of mitochondrial genes.
+1.  **The number of unique genes detected in each cell.**
+
+-   Low-quality cells or empty droplets will often have very few genes.
+-   Cell doublets or multiplets may exhibit an aberrant high gene count.
+
+1.  Similarly, **the total number of molecules detected within a cell (correlates strongly with unique genes)**
+2.  **The percentage of reads that map to the mitochondrial genome.**
+
+-   Low-quality / dying cells often exhibit extensive mitochondrial contamination.
+-   We use the set of all genes starting with MT- as a set of mitochondrial genes.
 
 For further details, see [this publication](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4758103/).
 
-The number of unique genes and total molecules are automatically calculated during `CreateSeuratObject()`. You can find them stored in the object `meta.data`, let's see for the first 5 cells:
+The number of unique genes and total molecules are automatically calculated during `CreateSeuratObject()`.
+You can find them stored in the object `meta.data`, let's see for the first 5 cells:
 
 ```{r metadata}
 pbmc@meta.data %>% head(5)
@@ -158,14 +178,15 @@ pbmc@meta.data %>% head(5)
 
 The `@` operator we just used, is for accessing the slot on the object.
 
-The `[[` operator can add columns to object metadata. This is a great place to stash additional QC stats:
+The `[[` operator can add columns to object metadata.
+This is a great place to stash additional QC stats:
 
 ```{r getMT}
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 ```
 
 `PercentageFeatureSet()` function calculates the percentage of counts originating from a set of features.
-In the example above we can easily access all miochondrial genes because their names start with "^MT".
+In the example above we can easily access all miochondrial genes because their names start with "\^MT".
 So we give this as pattern (aka *regular expression*).
 
 Let's visualize the distribution of these metrics over all cells (as Violin plots):
@@ -180,13 +201,13 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-> 🧭✨ Poll: How many cells have less than 2000 counts in total (summed over all genes)? Hint: use `colSums`.
+> 🧭✨ Poll: How many cells have less than 2000 counts in total (summed over all genes)?
+> Hint: use `colSums`.
 
-Individually these variables may not fully discriminate dead cells, but could also 
-reflect real biological properties (e.g. higher mitochondrial count). Therefore it is useful
-to look a relationship between these variables.
-`FeatureScatter()` is typically used to visualize relationships between features, but it can also be used for anything calculated at the object, i.e. columns in object metadata or for genes (rows in the count matrix). 
-All those are **features** 
+Individually these variables may not fully discriminate dead cells, but could also reflect real biological properties (e.g. higher mitochondrial count).
+Therefore it is useful to look a relationship between these variables.
+`FeatureScatter()` is typically used to visualize relationships between features, but it can also be used for anything calculated at the object, i.e. columns in object metadata or for genes (rows in the count matrix).
+All those are **features**
 
 ```{r featurescatter}
 plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt")
@@ -200,10 +221,11 @@ plot3
 
 ## Select Cells
 
-Based on cell-specific features we can subset our `SeuratObject` to keep only the 'cells' in good state. In this case, based on the previous Violin plots, we'll use the following criteria:
+Based on cell-specific features we can subset our `SeuratObject` to keep only the 'cells' in good state.
+In this case, based on the previous Violin plots, we'll use the following criteria:
 
-- Unique feature counts over 2500 or below 200.
-- $>5%$ mitochondrial counts.
+-   Unique feature counts over 2500 or below 200.
+-   $>5%$ mitochondrial counts.
 
 ```{r filter, echo=FALSE}
 pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
@@ -215,7 +237,9 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
 
 ## Normalization
 
-After removing unwanted cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10000 by default), and log-transforms the result. Normalized values are stored in `pbmc[["RNA"]]@data`.
+After removing unwanted cells from the dataset, the next step is to normalize the data.
+By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10000 by default), and log-transforms the result.
+Normalized values are stored in `pbmc[["RNA"]]@data`.
 
 ```{r norm}
 pbmc <- NormalizeData(pbmc)
@@ -223,11 +247,16 @@ pbmc <- NormalizeData(pbmc)
 
 ## Informative Genes
 
-The main goal is to select genes that will help us to organize cells according to the transcription profile, this are the genes that will be in the spotlight for our following step. Therefore we look for a subset of genes ("features") that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others).
+The main goal is to select genes that will help us to organize cells according to the transcription profile, this are the genes that will be in the spotlight for our following step.
+Therefore we look for a subset of genes ("features") that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others).
 
-To identify the most highly variable genes, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function. By default, it uses the `vst` methodology with 2000 features per dataset.
+To identify the most highly variable genes, Seurat models the mean-variance relationship inherent in the data using the `FindVariableFeatures()` function.
+By default, it uses the `vst` methodology with 2000 features per dataset.
 
-First, fits a line to the relationship of `log(variance)` and `log(mean)` using local polynomial regression (`loess`). Then standardizes the feature values using the observed mean and expected variance (given by the fitted line). Feature variance is then calculated on the standardized values after clipping to a maximum (by default, square root of the number of cells). These will be used downstream in dimensional reductions like PCA. 
+First, fits a line to the relationship of `log(variance)` and `log(mean)` using local polynomial regression (`loess`).
+Then standardizes the feature values using the observed mean and expected variance (given by the fitted line).
+Feature variance is then calculated on the standardized values after clipping to a maximum (by default, square root of the number of cells).
+These will be used downstream in dimensional reductions like PCA.
 
 <!--Some relevant publications for Feature selection and its importance are: [[1](https://www.nature.com/articles/nmeth.2645)], and [[2](https://doi.org/10.1016/j.cell.2019.05.031)].-->
 
@@ -239,9 +268,11 @@ pbmc <- FindVariableFeatures(pbmc)
 
 > 🧭✨ Polls:
 >
-> Which are the 3 most highly variable genes? Hint: use `VariableFeatures()`.
+> Which are the 3 most highly variable genes?
+> Hint: use `VariableFeatures()`.
 >
-> What's the variance of the gene `PYCARD`? hint: use `HVFInfo()`.
+> What's the variance of the gene `PYCARD`?
+> hint: use `HVFInfo()`.
 
 Plot variable features:
 
@@ -262,13 +293,13 @@ Now with labels, taking top10 genes as in the recent question:
 
 ## Scaling
 
-Next, we apply a linear transformation ('scaling') that is a standard pre-processing step prior to dimensional reduction techniques like PCA. The `ScaleData()` function:
+Next, we apply a linear transformation ('scaling') that is a standard pre-processing step prior to dimensional reduction techniques like PCA.
+The `ScaleData()` function:
 
-- Shifts the expression of each gene, so that the mean expression across cells is `0`
-- Scales the expression of each gene, so that the variance across cells is `1`. This step gives equal weight in downstream analyses, so that highly-expressed genes do not dominate.
-- more generally one can also model the mean expression as a function of other variables from the metadata, i.e. *regress them out* before scaling the residuals (see: `vars.to.regress`)
-- The results of this are stored in `pbmc[["RNA"]]@scale.data`
-
+-   Shifts the expression of each gene, so that the mean expression across cells is `0`
+-   Scales the expression of each gene, so that the variance across cells is `1`. This step gives equal weight in downstream analyses, so that highly-expressed genes do not dominate.
+-   more generally one can also model the mean expression as a function of other variables from the metadata, i.e. *regress them out* before scaling the residuals (see: `vars.to.regress`)
+-   The results of this are stored in `pbmc[["RNA"]]@scale.data`
 
 ```{r scaledata}
 pbmc <- ScaleData(pbmc, features = rownames(pbmc))
@@ -276,13 +307,16 @@ pbmc <- ScaleData(pbmc, features = rownames(pbmc))
 
 # Dimensional Reduction
 
-Next we perform PCA on the scaled data. By default, only the previously determined variable features are used as input, but can be defined using features argument if you wish to choose a different subset.
+Next we perform PCA on the scaled data.
+By default, only the previously determined variable features are used as input, but can be defined using features argument if you wish to choose a different subset.
 
 ```{r runpca}
 pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
 ```
 
-> Do you feel like you need a refresher on PCA? check [StatQuest with Josh Starmer video](https://youtu.be/FgakZw6K1QQ) explaining PCA by SVD step by step! (duration: 20 minutes)
+> Do you feel like you need a refresher on PCA?
+> check [StatQuest with Josh Starmer video](https://youtu.be/FgakZw6K1QQ) explaining PCA by SVD step by step!
+> (duration: 20 minutes)
 
 Examine and visualize PCA results a few different ways:
 
@@ -290,7 +324,10 @@ Examine and visualize PCA results a few different ways:
 DimPlot(pbmc, reduction = "pca") + NoLegend()
 ```
 
-> 🧭✨ Poll: Imagine we pick a pair of cells, one right next to the other, that have an absolute distance on the X-axis of two units (the distance on Y-axis is null). Then, we pick another different pair of cells, one on top of the other; we measure their distance on the Y-axis, and it's again of two units (the distance on the X-axis is null). So, both have a distance of two units, but the first pair does so in X-axis and the other on the Y-axis. Which pair of cells is more divergent between themselves?
+> 🧭✨ Poll: Imagine we pick a pair of cells, one right next to the other, that have an absolute distance on the X-axis of two units (the distance on Y-axis is null).
+> Then, we pick another different pair of cells, one on top of the other; we measure their distance on the Y-axis, and it's again of two units (the distance on the X-axis is null).
+> So, both have a distance of two units, but the first pair does so in X-axis and the other on the Y-axis.
+> Which pair of cells is more divergent between themselves?
 
 ```{r printpca}
 print(pbmc[["pca"]], dims = 1:5, nfeatures = 5)
@@ -300,13 +337,18 @@ print(pbmc[["pca"]], dims = 1:5, nfeatures = 5)
 VizDimLoadings(pbmc, dims = 1:2, reduction = "pca")
 ```
 
-In particular `DimHeatmap()` allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses. Both cells and features are ordered according to their PCA scores. Setting cells to a number plots the 'extreme' cells on both ends of the spectrum, which dramatically speeds plotting for large datasets. Though clearly a supervised analysis, we find this to be a valuable tool for exploring correlated feature sets.
+In particular `DimHeatmap()` allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses.
+Both cells and features are ordered according to their PCA scores.
+Setting cells to a number plots the 'extreme' cells on both ends of the spectrum, which dramatically speeds plotting for large datasets.
+Though clearly a supervised analysis, we find this to be a valuable tool for exploring correlated feature sets.
 
 ```{r dimheatmap}
 DimHeatmap(pbmc, dims = 1:9, cells = 500, balanced = TRUE)
 ```
 
-To overcome the extensive technical noise in any single gene for scRNA-seq data, Seurat clusters cells based on their PCA scores. Here each PC essentially represents a 'metagene' that combines information across a correlated gene sets. The top principal components therefore represent a robust compression of the dataset.
+To overcome the extensive technical noise in any single gene for scRNA-seq data, Seurat clusters cells based on their PCA scores.
+Here each PC essentially represents a 'metagene' that combines information across a correlated gene sets.
+The top principal components therefore represent a robust compression of the dataset.
 
 One quick way to determine the 'dimensionality' of the dataset is by eyeballing how the percentage of variance explained decreases:
 
@@ -314,7 +356,7 @@ One quick way to determine the 'dimensionality' of the dataset is by eyeballing 
 ElbowPlot(pbmc)
 ```
 
-> 🧭✨ Poll: How many components should we choose to include? 
+> 🧭✨ Poll: How many components should we choose to include?
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 
@@ -322,17 +364,25 @@ When picking the 'elbow' point, remember that **it's better to err on the higher
 
 # Clustering
 
-The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations. Building on these subpopulations, `PhenoGraph` authors developed additional methods to extract high-dimensional signaling phenotypes and infer differences in functional potential between subpopulations. <!-- For details, be sure to check the [research paper](http://www.ncbi.nlm.nih.gov/pubmed/26095251) cited by seurat developers. -->
+The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations.
+Building on these subpopulations, `PhenoGraph` authors developed additional methods to extract high-dimensional signaling phenotypes and infer differences in functional potential between subpopulations.
+<!-- For details, be sure to check the [research paper](http://www.ncbi.nlm.nih.gov/pubmed/26095251) cited by seurat developers. -->
 
-This subpopulations _could_ be of biological relevance, retrieving these is our goal. The definition of such groupings depend upon the parameters. This algorithm in particular is the K Nearest Neighbors (KNN) graph that is constructed based on the euclidean distance in PCA space. For an example of building such a graph, imagine we took only two PCs (principal components) and had such an arrangement of cells like these dots in a 2D plane...
+This subpopulations *could* be of biological relevance, retrieving these is our goal.
+The definition of such groupings depend upon the parameters.
+This algorithm in particular is the K Nearest Neighbors (KNN) graph that is constructed based on the euclidean distance in PCA space.
+For an example of building such a graph, imagine we took only two PCs (principal components) and had such an arrangement of cells like these dots in a 2D plane...
 
 ```{r, echo=FALSE}
 knitr::include_graphics("./images/KnnClassification.svg")
 ```
 
-On our example of k-NN classification for a cell highlighted in green color, the test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles. If k = 3 (solid line circle) it is assigned to the red triangles because there are 2 triangles and only 1 square inside the inner circle. If k = 5 (dashed line circle) it is assigned to the blue squares (3 squares vs. 2 triangles inside the outer circle).
+On our example of k-NN classification for a cell highlighted in green color, the test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles.
+If k = 3 (solid line circle) it is assigned to the red triangles because there are 2 triangles and only 1 square inside the inner circle.
+If k = 5 (dashed line circle) it is assigned to the blue squares (3 squares vs. 2 triangles inside the outer circle).
 
-There's a drawback with the 'majority voting' scheme, the assignment of such clusters is biased towards the clusters that have greater number of members (especially when ties start appearing). For that reason, we'll refine the process by using a graph, where edge weights between any two cells is based on the shared overlap in their local neighborhoods (Jaccard similarity).
+There's a drawback with the 'majority voting' scheme, the assignment of such clusters is biased towards the clusters that have greater number of members (especially when ties start appearing).
+For that reason, we'll refine the process by using a graph, where edge weights between any two cells is based on the shared overlap in their local neighborhoods (Jaccard similarity).
 
 $$
 J(A,B) = \frac{Intersect(A,B)}{Union(A,B)} = J(B,A)
@@ -340,17 +390,25 @@ $$
 
 **If two datasets share the exact same members, their Jaccard Similarity Index will be 1. Conversely, if they have no members in common then their similarity will be 0.**
 
-All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs). So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
+All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).
+So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
-> 🧭✨ Poll: Which is the default value of the parameter `K` that Seurat uses? Hint: `help` yourselves by reading the docs!
+> 🧭✨ Poll: Which is the default value of the parameter `K` that Seurat uses?
+> Hint: `help` yourselves by reading the docs!
 
 ```{r findneighbours}
 pbmc <- FindNeighbors(pbmc, dims = seq_len(10))
 ```
 
-We want to keep our clusters looking natural. That is, we want to have a modularity optimization on top of all. For that, we'll use the community search algorithm for graphs called Louvain. You can read more about it [here](https://scribe.froth.zone/louvain-algorithm-93fde589f58c?gi=8dce35ee2f75), or to read about it being applied to the biological problem at hand look into [this research paper](http://dx.doi.org/10.1088/1742-5468/2008/10/P10008).
+We want to keep our clusters looking natural.
+That is, we want to have a modularity optimization on top of all.
+For that, we'll use the community search algorithm for graphs called Louvain.
+You can read more about it [here](https://scribe.froth.zone/louvain-algorithm-93fde589f58c?gi=8dce35ee2f75), or to read about it being applied to the biological problem at hand look into [this research paper](http://dx.doi.org/10.1088/1742-5468/2008/10/P10008).
 
-The `FindClusters()` function implements this procedure, and contains a `resolution` parameter that sets the 'granularity' of the downstream clustering, with increased values leading to a greater number of clusters. Usually, setting this parameter between `0.4` and `1.2` returns good results for single-cell datasets of around 3K cells. You can easily try various values and see how it performs. Optimal resolution often increases for larger datasets.
+The `FindClusters()` function implements this procedure, and contains a `resolution` parameter that sets the 'granularity' of the downstream clustering, with increased values leading to a greater number of clusters.
+Usually, setting this parameter between `0.4` and `1.2` returns good results for single-cell datasets of around 3K cells.
+You can easily try various values and see how it performs.
+Optimal resolution often increases for larger datasets.
 
 ```{r findclusters}
 pbmc <- FindClusters(pbmc, resolution = 0.5)
@@ -359,7 +417,6 @@ pbmc <- FindClusters(pbmc, resolution = 0.5)
 After this process, we have a new `seurat_clusters` column in our `meta.data` slot.
 
 > 🧭✨ Poll: How many clusters did we find?
-
 
 <!-- NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html) -->
 

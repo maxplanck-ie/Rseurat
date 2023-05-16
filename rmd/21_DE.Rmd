@@ -73,23 +73,28 @@ pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 >
 > And before `NormalizeData`?
 >
-> What would happen if we skip `ScaleData`? Would PCA be affected?
+> What would happen if we skip `ScaleData`?
+> Would PCA be affected?
 >
-> What would happen if we skip `NormalizeData`? Would UMAP be affected?
+> What would happen if we skip `NormalizeData`?
+> Would UMAP be affected?
 >
 > Would it be any different if we ran `FindNeighbors` and `FindClusters` but only after UMAP?
-
 
 # Searching for Markers
 
 Having identified (and visualized) clusters of cells we want to learn about the specific genes under differential expression.
 
-We will focus on how to derive **marker genes** for any given groups of cells. To this end, Seurat has different convenient functions that run **Differential Expression (DE)** tests. One such function, and the main one is `FindMarkers()`. Among other parameters, it takes:
+We will focus on how to derive **marker genes** for any given groups of cells.
+To this end, Seurat has different convenient functions that run **Differential Expression (DE)** tests.
+One such function, and the main one is `FindMarkers()`.
+Among other parameters, it takes:
 
-- `ident.1`, and `ident.2`: typically these denote specific cluster numbers ("identities") of cells, but any other annotation from the metadata will work as well.
-- `test.use`: select from a wide range of statistical models and/ or methodologies (we use ["MAST"](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0844-5))
+-   `ident.1`, and `ident.2`: typically these denote specific cluster numbers ("identities") of cells, but any other annotation from the metadata will work as well.
+-   `test.use`: select from a wide range of statistical models and/ or methodologies (we use ["MAST"](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0844-5))
 
-**MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression. Another popular option is `DESeq2`, with [plenty of caveats](https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis) that the Seurat authors may have addressed.
+**MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression.
+Another popular option is `DESeq2`, with [plenty of caveats](https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis) that the Seurat authors may have addressed.
 
 <!-- This research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612> -->
 
@@ -107,11 +112,11 @@ markers1v2 <- FindMarkers(
 
 The resulting object is a data frame with the following columns:
 
-- `p_val`: p-value (unadjusted!)
-- `avg_log2FC` : log fold-change of the average expression between the two groups. Positive values indicate that the feature is more highly expressed in the first group.
-- `pct.1`: The percentage of cells where the feature is detected in the first group
-- `pct.2`: The percentage of cells where the feature is detected in the second group
-- `p_val_adj`: Adjusted p-value, based on Bonferroni correction using all features in the dataset.
+-   `p_val`: p-value (unadjusted!)
+-   `avg_log2FC` : log fold-change of the average expression between the two groups. Positive values indicate that the feature is more highly expressed in the first group.
+-   `pct.1`: The percentage of cells where the feature is detected in the first group
+-   `pct.2`: The percentage of cells where the feature is detected in the second group
+-   `p_val_adj`: Adjusted p-value, based on Bonferroni correction using all features in the dataset.
 
 You may inspect the results with either `View()` or `head()`.
 
@@ -123,24 +128,29 @@ You may inspect the results with either `View()` or `head()`.
 >
 > What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?
 
-**Notice**: 
+**Notice**:
 
-- if `ident.2=NULL` (default), then `FindMarkers()` will run a test between the group `ident.1` and **all other** cells
-- You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all the cells of clusters one and three, pooled together.
-- to increase the speed and relevance of marker discovery, Seurat allows for pre-filtering of features or cells. For example, genes that are very infrequently detected in either group of cells, or genes that are expressed at similar average levels, are unlikely to be differentially expressed, so we can exclude those: `?FindClusters` 
+-   if `ident.2=NULL` (default), then `FindMarkers()` will run a test between the group `ident.1` and **all other** cells
+-   You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all the cells of clusters one and three, pooled together.
+-   to increase the speed and relevance of marker discovery, Seurat allows for pre-filtering of features or cells. For example, genes that are very infrequently detected in either group of cells, or genes that are expressed at similar average levels, are unlikely to be differentially expressed, so we can exclude those: `?FindClusters`
 
-There are different flavors of these `Find*` functions. **It's important to get to know them!**
+There are different flavors of these `Find*` functions.
+**It's important to get to know them!**
 
-- `FindMarkers` will find markers between two different identity groups - you have to specify both identity groups. **This is useful for comparing the differences between two specific groups.**
+-   `FindMarkers` will find markers between two different identity groups - you have to specify both identity groups.
+    **This is useful for comparing the differences between two specific groups.**
 
-- `FindAllMarkers` will find markers differentially expressed in each identity group by comparing it to all of the others - you don't have to manually define anything. Note that markers may bleed over between closely-related groups - they are not forced to be specific to only one group. 
+-   `FindAllMarkers` will find markers differentially expressed in each identity group by comparing it to all of the others - you don't have to manually define anything.
+    Note that markers may bleed over between closely-related groups - they are not forced to be specific to only one group.
 
-- `FindConservedMarkers` will find markers that are conserved between two groups - this can be useful if you want to find markers that are conserved between a treated and untreated condition, for a specific cell type or group of cells. **It means they are differentially expressed compared to other groups, but have similar expression between the two groups you're actually comparing.**
-
+-   `FindConservedMarkers` will find markers that are conserved between two groups - this can be useful if you want to find markers that are conserved between a treated and untreated condition, for a specific cell type or group of cells.
+    **It means they are differentially expressed compared to other groups, but have similar expression between the two groups you're actually comparing.**
 
 ## Graphical Exploration
 
-Seurat includes several tools for visualizing marker expression. `VlnPlot` and `RidgePlot` show the probability density distributions of expression values across clusters, and `FeaturePlot()` visualizes feature expression in a reduction (e.g. PCA, t-SNE, or UMAP). The latter is equivalent to `DimPlot`.
+Seurat includes several tools for visualizing marker expression.
+`VlnPlot` and `RidgePlot` show the probability density distributions of expression values across clusters, and `FeaturePlot()` visualizes feature expression in a reduction (e.g. PCA, t-SNE, or UMAP).
+The latter is equivalent to `DimPlot`.
 
 ```{r markers_viz}
 feats = rownames(markers1v2)[1:2]
@@ -150,12 +160,14 @@ VlnPlot(pbmc, features = feats)
 FeaturePlot(pbmc, features = feats)
 ```
 
-
 ## Markers Per Cluster (between)
 
-What are the differences between clusters? disregarding any other metadata (cell-cycle, treatments, groups, etc). Let's compare 1 vs all, 2 vs all, ... etc.
+What are the differences between clusters?
+disregarding any other metadata (cell-cycle, treatments, groups, etc).
+Let's compare 1 vs all, 2 vs all, ... etc.
 
-For computational efficiency we'll use `pbmc_small` which is a downsampled PBMC3K data set bundled with Seurat. (Yes, it won't appear in your Global Environment but it's ready to be loaded upon execution of code.)
+For computational efficiency we'll use `pbmc_small` which is a downsampled PBMC3K data set bundled with Seurat.
+(Yes, it won't appear in your Global Environment but it's ready to be loaded upon execution of code.)
 
 ```{r allMarkers_pbmcsmall}
 markers.between.clusters <- FindAllMarkers(
@@ -172,12 +184,12 @@ print(markers.between.clusters)
 
 ## DotPlot
 
-There is another common visualization technique that involves mapping the percent of cells that express a certain gene to the size of a dot, and color it according to the average expression value. Here's an example:
+There is another common visualization technique that involves mapping the percent of cells that express a certain gene to the size of a dot, and color it according to the average expression value.
+Here's an example:
 
 ```{r dotplot}
 DotPlot(pbmc_small, features = rownames(markers.between.clusters)[1:10]) + RotatedAxis()
 ```
-
 
 ```{r}
 markers.between.clusters %>% head()
@@ -185,8 +197,9 @@ markers.between.clusters %>% head()
 
 > 🧭✨ Polls: How would you extract the 'gene signature' of a given cluster?
 
-> ⌨🔥 Exercise: We'll distribute the room in groups again (N<=9), and assign a cluster to each. Get the "gene signature" of your assigned cluster, see if you can assign the correct celltypes by using the following list of gene markers.
-> 
+> ⌨🔥 Exercise: We'll distribute the room in groups again (N\<=9), and assign a cluster to each.
+> Get the "gene signature" of your assigned cluster, see if you can assign the correct celltypes by using the following list of gene markers.
+>
 > ```{r}
 > list(
 >   `Naive CD4+ T` = c("IL7R", "CCR7"),
@@ -201,13 +214,16 @@ markers.between.clusters %>% head()
 > )
 > ```
 
-Apart from getting and visualizing marker genes, we would ultimately want to see whether there are common functional themes in those marker lists. This will be covered in the next section.
+Apart from getting and visualizing marker genes, we would ultimately want to see whether there are common functional themes in those marker lists.
+This will be covered in the next section.
 
 # End
 
+```{=html}
 <!--
 # fig.asp? sets the height-to-width ratio of the figure. Use in combination with either fig.width and fig.height if needed.
 # https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html
 # value < 1 makes the plot wider
 # value > 1 makes the plot taller
 -->
+```

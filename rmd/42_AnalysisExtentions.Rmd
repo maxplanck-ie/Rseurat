@@ -21,17 +21,25 @@ knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = 
 
 ## What else is out there in the scRNAseq analysis
 
-- We have been looking mostly to what's available within the R-language in general, and Seurat in particular. That means we skipped the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).)
-- Monocle3: trajectory analysis -> https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/
-- Integration of scRNAseq and ATACseq data (Seurat) -> https://satijalab.org/seurat/articles/atacseq_integration_vignette.html
-- Spatial RNAseq analysis (Seurat) -> https://satijalab.org/seurat/articles/spatial_vignette.html
-- sc-verse: python packages for scRNA/chromatin or spatial seq -> https://scverse.org/
-- RNA velocity analysis -> http://velocyto.org/, https://scvelo.readthedocs.io/en/stable/ (python)
-- Also, we may have skipped part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
-- It's a new framework, bringing `SingleCellExperiment` (not `SeuratObject`!) to the tidyverse idioms. Websites to explore:
-  - [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/)
-  - [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
-  - [tidybulk](https://stemangiola.github.io/tidybulk/) for tidy bulk RNA-seq data analysis
-  - [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
-  - [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
-  - [tidyHeatmap](https://stemangiola.github.io/tidyHeatmap/) for heatmaps produced with tidy principles
+-   We have been looking mostly to what's available within the R-language in general, and Seurat in particular. That means we skipped the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).)
+
+-   Monocle3: trajectory analysis -> <https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/>
+
+-   Integration of scRNAseq and ATACseq data (Seurat) -> <https://satijalab.org/seurat/articles/atacseq_integration_vignette.html>
+
+-   Spatial RNAseq analysis (Seurat) -> <https://satijalab.org/seurat/articles/spatial_vignette.html>
+
+-   sc-verse: python packages for scRNA/chromatin or spatial seq -> <https://scverse.org/>
+
+-   RNA velocity analysis -> <http://velocyto.org/>, <https://scvelo.readthedocs.io/en/stable/> (python)
+
+-   Also, we may have skipped part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
+
+-   It's a new framework, bringing `SingleCellExperiment` (not `SeuratObject`!) to the tidyverse idioms. Websites to explore:
+
+    -   [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/)
+    -   [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
+    -   [tidybulk](https://stemangiola.github.io/tidybulk/) for tidy bulk RNA-seq data analysis
+    -   [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
+    -   [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
+    -   [tidyHeatmap](https://stemangiola.github.io/tidyHeatmap/) for heatmaps produced with tidy principles
