@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Sequencing Techniques"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+
 output:
   html_document:
     theme: spacelab
