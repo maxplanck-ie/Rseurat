@@ -222,9 +222,7 @@ panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 
 ## What does the data look like after the integration?
 
-Let's have a look at the distribution of celltype and technology labels in lowD after integration.
-
-> <!-- fig.cap --> c("By technology.","By cell type.")
+Let's have a look at the distribution of technology, and celltype, labels in lowD after integration.
 
 ```{r integrated_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
 p1<-DimPlot(panc.combined, reduction = "umap")
@@ -233,8 +231,6 @@ p1+p2
 ```
 
 We can also compare the distribution of cell tech labels before and after integration.
-
-> <!-- fig.cap --> c("Before.","After.")
 
 ```{r b_a_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
 p1<-DimPlot(panc_sub, reduction = "umap")
