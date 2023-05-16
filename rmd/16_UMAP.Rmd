@@ -237,7 +237,7 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 
 > 🧭✨ Polls:
 >
-> Would decreasing the number of PCs fed onto the clustering algorithm change our visualization?
+> Would decreasing the number of PCs fed to the UMAP algorithm change our visualization?
 > Would you say the results are 'better'?
 >
 > Could you have the UMAP projection onto 3 axis instead of 2?
