@@ -1,0 +1,474 @@
+---
+title: "Extra Functionality"
+subtitle: "Days 1 and 2 had some leftovers..."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+
+output:
+  html_document:
+    highlight: pygments
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%", eval=FALSE, format=TRUE)
+```
+
+Consider these extra notes after learning Seurat.
+
+**Goal:** get inspired. The next sections will partially present to you the large diversity of tools that are available.
+
+Note one the goal: we'll be looking mostly to what's available within the R-language in general, and Seurat in particular. That means we are skipping on the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).) Also, we may be skipping on part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
+
+
+## Load Data
+
+Let's have the data from Day 1 ("First steps"), quickly loading and reprocessing it again so that we can try all the stuff that comes down (e.g. new plotting functions that extend the basic functionality):
+
+```{r}
+pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
+  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
+
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+pbmc <- NormalizeData(pbmc, verbose = FALSE)
+pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
+pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
+```
+
+## Index of Wrappers
+
+Much of what we're about to show come from Seurat itself or community-maintained extensions, [Seurat-wrappers](https://github.com/satijalab/seurat-wrappers#seuratwrappers). Be aware that much of the extra packages are not having much attention by their original developers, so don't be surprised if you try something and it's no longer working out-of-the-box. In such cases, the least you could do is open an issue in the appropriate code repository. Certainly, that's not Seurat itself!... and often, it would mean looking into the upstream tool that's being wrapped. In a nutshell, the wrappers are a good way to get an idea of where you want to go, sometime, the package take you there. On another occasions, it's just a source of inspiration of what's available.
+
+## Indexes of Datasets
+
+- [CELLxGENE](https://cellxgene.cziscience.com/datasets)
+- [SingleCellMultiModal](https://bioconductor.org/packages/release/data/experiment/vignettes/SingleCellMultiModal/inst/doc/scMultiome.html), this package has several vignettes, each dedicated to a different dataset. This is for combining, for example, scATAC and scRNA-seq.
+- corresponding [BiocView](https://bioconductor.org/packages/release/BiocViews.html#___SingleCellData) at Bioconductor repository of packages.
+
+## Tidytranscriptomics
+
+It's a new package, briging SingleCellExperiment (not SeuratObject!) to the tidyverse.
+
+Websites to have a look:
+
+- [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/)
+- [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
+- [tidybulk](https://stemangiola.github.io/tidybulk/) for tidy bulk RNA-seq data analysis
+- [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
+- [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
+- [tidyHeatmap](https://stemangiola.github.io/tidyHeatmap/) for heatmaps produced with tidy principles
+
+## Cell-Cycle Scoring
+
+We didn't try to mitigate the effects of cell cycle heterogeneity in the pbmc3k dataset. Follow the [tutorial](https://satijalab.org/seurat/articles/cell_cycle_vignette.html) if the need arises when working with your own dataset.
+
+We assign scores in the `CellCycleScoring()` function, which stores S and G2/M scores in object meta data, along with the predicted classification of each cell in either G2M, S or G1 phase. This function uses some custom lists of genes that are already bundled, it's mainly a wrapper around `AddModuleScore()`.
+
+```{r}
+# Better safe than sorry. Avoid false-positives.
+standardize.gene.name <- function(gene_name, sp) {
+  if (sp == "mouse") {
+    x <- tools::toTitleCase(tolower(gene_name))
+  } else if (sp == "human") {
+    x <- toupper(gene_name)
+  }
+  x
+} 
+
+pbmc %<>% CellCycleScoring(s.features = standardize.gene.name(cc.genes$s.genes, sp="human"),
+                           g2m.features = standardize.gene.name(cc.genes$g2m.genes, sp="human"),
+                           nbin = 20)
+
+# To allow using 'alternate' cell-cycle regress-out @ PCA
+pbmc$CC.Difference <- pbmc$S.Score - pbmc$G2M.Score
+```
+
+To understand how these scores are calculated, take a look at the [original research paper](https://doi.org/10.1126/science.aad0501). Here's an excerpt:
+
+> The top 100 MITF-correlated genes across the entire set of malignant cells were defined as the MITF program, and their average relative expression as the MITF-program cell score. The average expression of the top 100 genes that negatively correlate with the MITF program scores were defined as the AXL program and used to define AXL program cell score. To decrease the effect that the quality and complexity of each cell’s data might have on its MITF/AXL scores we defined control gene-sets and their average relative expression as control scores, for both the MITF and AXL programs. These control cell scores were subtracted from the respective MITF/AXL cell scores. The control gene-sets were defined by first binning all analyzed genes into 25 bins of aggregate expression levels and then, for each gene in the MITF/AXL gene-set, randomly selecting 100 genes from the same expression bin as that gene. In this way, a control gene-sets have a comparable distribution of expression levels to that of the MITF/AXL gene-set and the control gene set is 100-fold larger, such that its average expression is analogous to averaging over 100 randomly-selected gene-sets of the same size as the MITF/AXL gene-set.
+
+## Shiny
+
+<!-- https://shiny.rstudio.com/gallery/shiny-wysiwyg.html -->
+
+Check out `rmd/brushedPlot.R`, an interactive app that allows you to select cells from any 2D plot, and get their names for downstream removal (e.g. cleaning doublets).
+
+## openXLSX
+
+The following `save_XLSX()` function is to save all your DE tests results in a XLSX file (e.g. for sharing with a colleague that's not so proficient in R-language).
+
+```{r, eval=FALSE}
+#' Export Data Frames to a Microsoft Excel File
+#'
+#' Creates a workbook with different sheets, each corresponding to a data frame that was passed in the first argument. This would also split by clusters to different sheets, if this column is found.
+#' @param dfl A list of data frames, like the ones returned by your DE testing.
+#' @param filename A file.path with the extension XLSX.
+#' @return No return, just the side-effect of writing data to disk in the appropriate format to be shared with colleagues.
+#' @examples
+#' save_XLSX(list(PerCluster=markers.between.clusters, WithinClusters=markers.within.clusters), file.path(getwd(), paste0("../results/results_", format(Sys.time(), '%d_%B__%H-%M-%S_%Y'), ".xlsx")))
+save_XLSX <- function(dfl, filename) {
+  wb <- createWorkbook()
+  options(openxlsx.borderColour = "#4F80BD")
+  options(openxlsx.borderStyle = "thin")
+  modifyBaseFont(wb, fontSize = 14, fontName = "Arial Narrow")
+  for (df_id in names(dfl)) {
+    if ("cluster" %in% colnames(dfl[[df_id]])) {
+      for (cluster_n in seq_len(max(dfl[[df_id]]$cluster))) {
+        sheet_name <- paste(df_id, cluster_n, sep="_")
+        my_data <- dfl[[df_id]][dfl[[df_id]]$cluster == cluster_n, ]
+        my_data$gene <- sub(
+          '\\(.*\\)\\.[0-9]', '\1',
+          my_data$gene
+          )
+        my_data$cluster <- NULL
+        addWorksheet(wb, sheetName = sheet_name, gridLines = FALSE)
+        writeDataTable(wb, sheet = sheet_name,
+                       x = my_data,
+                       colNames = TRUE, rowNames = FALSE,
+                       tableStyle = "TableStyleLight9")
+      }
+    } else {
+      addWorksheet(wb, sheetName = df_id, gridLines = FALSE)
+      writeDataTable(wb, sheet = df_id,
+                     x = dfl[[df_id]],
+                     colNames = TRUE, rowNames = FALSE,
+                     tableStyle = "TableStyleLight9")
+    }
+  }
+  saveWorkbook(wb, filename, overwrite = TRUE)
+}
+```
+
+## Viz: scCustomize
+
+<!-- https://satijalab.org/seurat/articles/visualization_vignette.html#interactive-plotting-features
+
+https://samuel-marsh.github.io/scCustomize/articles/Gene_Expression_Plotting.html#shuffle-points
+
+https://samuel-marsh.github.io/scCustomize/reference/index.html -->
+
+This library provides with extra arguments, functions, and behaviors over the default Seurat. This isn't adding boilerplate code, but on the contrary. It will also provide us with an interface to enforce common plotting requirements.
+
+Using the customized plotting functions keep us away from reinventing the wheel. For example: Extracting the Top N=10 (or whatever `N`) genes per identity after running `Seurat::FindAllMarkers()` is very common and `scCustomize` provides `Extract_Top_Markers()` function to this end. This is extremely helpful to avoid introducing bugs.
+
+### QC
+
+#### Threshold lines
+
+```{r}
+pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
+  CreateSeuratObject(counts = ., project = "pbmc3k", min.cells = 3, min.features = 200)
+
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+```
+
+
+```{r, fig.asp=1.5}
+QC_Plots_Genes(pbmc, high_cutoff = 2500, low_cutoff = 200)
+```
+
+#### Volcanoes
+
+```{r}
+pbmc <- FindVariableFeatures(pbmc)
+```
+
+Remember how we extracted feature names into a vector, `top10`, and then used Seurat's `LabelPoints()`? Don't you? No worries:
+
+```{r}
+VariableFeaturePlot_scCustom(pbmc, num_features = 10, repel = TRUE, y_axis_log = TRUE) + NoLegend()
+```
+
+
+#### UMI vs Features
+
+Remember our Scatter Plot? and the Percent of Mitochondrial genes Violinn Plot?
+
+```{r, fig.asp=1.2}
+QC_Plots_Mito(pbmc, high_cutoff = 15, mito_name = "percent.mt")
+```
+
+```{r, fig.asp=1.2}
+QC_Plot_UMIvsGene(pbmc, low_cutoff_gene = 200, high_cutoff_gene = 2500, meta_gradient_name = "percent.mt")
+```
+
+```{r}
+QC_Plot_GenevsFeature(pbmc, "percent.mt", low_cutoff_gene = 200, high_cutoff_gene = 2500, high_cutoff_feature = 15) + NoLegend()
+```
+
+> ⌨🔥 Exercise: Try plotting with QC_Plot_UMIvsFeature()
+
+
+```{r}
+# Idents(pbmc) <- "seurat_clusters"
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+pbmc <- NormalizeData(pbmc, verbose = FALSE)
+pbmc <- FindVariableFeatures(pbmc, verbose = FALSE)
+pbmc <- ScaleData(pbmc, features = rownames(pbmc), verbose = FALSE)
+pbmc <- RunPCA(pbmc, features = VariableFeatures(pbmc), verbose = FALSE)
+pbmc <- FindNeighbors(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+pbmc <- FindClusters(pbmc, resolution = params$cluster_resolution, verbose = FALSE)
+pbmc <- RunUMAP(pbmc, dims = seq_len(params$dimensionality), verbose = FALSE)
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+rm(new.cluster.ids)
+```
+
+With the same data, after the pipeline is applied, we can do some new plots. Some, are new takes on the same pair of axis, but with the novel advantage of having cell `Identities` set to the current `seurat_clusters`.
+
+> ⌨🔥 Exercise: Plot "Mito Gene % per Cell/Nucleus" for each cell type. Hint: `group.by` argument from previously used function.
+
+Note: `scCustomize::Add_Mito_Ribo_Seurat()` is the built-in function to add percentage of mitochondrial and ribosomal genes in two different metadata columns. This could be prefered, and would change our arguments having the string `percent.mt` to the new string value: `percent_mito`.
+
+### UMAP
+
+```{r, fig.asp=1.1}
+DimPlot_scCustom(pbmc, split.by = "seurat_clusters", split_seurat = FALSE, num_columns = 3, pt.size = 0.5, repel = TRUE) + NoLegend()
+```
+
+```{r}
+FeaturePlot_scCustom(pbmc, features = "CD8A", alpha_exp = 0.5)  # CD8+ T cells
+```
+
+```{r}
+Plot_Density_Joint_Only(pbmc, features = c("GNLY", "NKG7"))  # NK cells
+```
+
+Note: There's `test.use = "ROC"` for DE analyses, this returns the 'classification power' for any individual marker (ranging from 0 - random, to 1 - perfect).
+
+On default `Seurat::FeaturePlot()`, we had either of these two:
+
+```{r, fig.asp=0.5}
+FeaturePlot(pbmc, features = c("GNLY", "NKG7"))
+```
+
+```{r, fig.asp=0.25}
+FeaturePlot(pbmc, features = c("GNLY", "NKG7"), blend = TRUE)
+```
+
+<!-- markers taken from literature/ here: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html#assigning-cell-type-identity-to-clusters -->
+
+### DE FeaturePlots
+
+Use a better resolution by the means of a color scale and some smoothing.
+
+```{r}
+myFlappy(features, function(i) Nebulosa::plot_density(pbmc, i))
+```
+
+
+## Function Wrappers for Finding Markers
+
+Next, we'll define three function wrappers that should be helpful to further refine DE analysis.
+
+This functions are only to be used 'as is' (verbatim), if they serve your own purposes. Likely, this is not the case. But the idea is to equip you with the skill set to adjust and further develop your toolbox. Our first function, `get_cell_ids()`, is the greatest candidate to be further customized. If you keep its logic, and the type of the output is the same, your customized version will work flawlessly with the other `find_*()` functions.
+
+### get_cell_ids
+
+Returns a vector of cell IDs after filtering seurat object with metadata. You'd need to adapt this to your needs in your own analyses, in this case we assumed 'treatment' meta.data is actually the `orig.ident`! ...we'll be using it in the next functions.
+
+```{r}
+get_cell_ids <- function(obj, treatment = NULL, cluster = NULL, phase = NULL, group = NULL) {
+  cell_ids <- colnames(obj)
+  if (!is.null(treatment)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, orig.ident == treatment)@meta.data))
+  }
+  if (!is.null(group)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, groups == group)@meta.data))
+  }
+  if (!is.null(phase)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, Phase == phase)@meta.data))
+  }
+  if (!is.null(cluster)) {
+    cell_ids <- intersect(cell_ids, rownames(subset(obj, seurat_clusters == cluster)@meta.data))
+  }
+  stopifnot(length(cell_ids) >= 1)
+  cell_ids
+}
+```
+
+
+### find_markers
+
+wrapper around `FindMarkers` that allows definition of arguments. Nothing extraordinary, just the DRY principle application:
+
+```{r}
+find_markers <- function(obj, ...) {
+  suppressMessages(FindMarkers(obj,
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...
+  ))
+}
+```
+
+### find_all_markers
+
+idem, with `FindAllMarkers`:
+
+```{r}
+find_all_markers <- function(obj, ...) {
+  suppressMessages(FindAllMarkers(obj,
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...
+  ))
+}
+```
+
+
+### find_conserved_markers
+
+idem, with `FindConservedMarkers`, it also does some pre-processing of the resulting table, adding a column with the cluster number, this way we can call the function with 'apply' or 'map' and get a table with all the results.
+
+```{r}
+find_conserved_markers <- function(cluster, ...) {
+  suppressMessages(FindConservedMarkers(combined,
+    ident.1 = cluster,
+    grouping.var = "treatment",
+    test.use = "MAST",
+    logfc.threshold = 0.125,
+    min.pct = 0.05,
+    only.pos = TRUE,
+    densify = TRUE,
+    verbose = FALSE, ...
+  ) %>%
+    tibble::rownames_to_column(var = "gene") %>%
+    cbind(cluster_id = cluster, .))
+}
+```
+
+
+### markers_within_clusters
+
+uses `find_markers()` to compare inside a cluster, cells IDs (defined with `get_cell_ids()`) from some grouping metadata with two levels. For example, we can survey markers after a treatment (say, KO and WT) inside each cluster.
+
+```{r}
+markers_within_clusters <- function(obj, totalNumberOfClusters,
+                                    cells_1, cells_2) {
+  result <- data.frame()
+  for (i in seq_len(totalNumberOfClusters)) {
+    thisCluster_cells <- get_cell_ids(obj, cluster = i)
+    cells__1 <- intersect(cells_1, thisCluster_cells)
+    cells__2 <- intersect(cells_2, thisCluster_cells)
+    # NOTE:
+    # cells__N, variables named with double underscores,
+    # are only used internally!!
+    markers <- find_markers(obj,
+      ident.1 = cells__1,
+      ident.2 = cells__2
+    )
+    if (nrow(markers) > 0) {
+      markers %<>% cbind(cluster = rep(i, nrow(.)))
+      markers$gene <- rownames(markers)
+      result %<>% rbind(markers, make.row.names = FALSE)
+    }
+  }
+  result
+}
+```
+
+### process_markers
+
+Finally, we'd like to rearrange columns, adjust p-values with a more sensitive/ modern approach, convert cluster column (if there is one) to character instead of factor, etc.
+
+```{r}
+process_markers <- function(markers) {
+  x <- markers$p_val == 0
+  if (any(x)) {
+    markers[x, ]$p_val <- .Machine$double.xmin
+  }
+  markers$Adjusted.P.value <- p.adjust(markers$p_val)
+  stopifnot(all(markers$Adjusted.P.value != 0))
+  if (not("gene" %in% colnames(markers))) {
+    markers$gene <- rownames(markers)
+  }
+  markers %<>% filter(Adjusted.P.value < 5e-2)
+  if ("cluster" %in% colnames(markers)) {
+    markers$cluster <- as.numeric(as.character(markers$cluster))
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, cluster, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
+  } else {
+    markers %<>% arrange(Adjusted.P.value) %>% select(
+      gene, Adjusted.P.value, avg_log2FC, pct.1, pct.2
+    )
+  }
+  markers
+}
+```
+
+For these functions, we need `totalNumberOfClusters` variable to be defined, let's do it and use it also as an excuse to have a 🌈 colorful plot too:
+
+```{r, fig.asp=0.1}
+totalNumberOfClusters <- length(levels(Idents(pbmc)))
+my_cols <- RColorBrewer::brewer.pal(totalNumberOfClusters, "Set1")
+ggplot(data.frame(x = 1:totalNumberOfClusters, type = 1:totalNumberOfClusters), aes(x = x, fill = factor(type))) +
+  geom_bar() +
+  scale_fill_manual(values = my_cols) +
+  theme_void() +
+  NoLegend()
+```
+
+Finally, let's look at how many cells we have in each cluster.
+
+```{r}
+DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters))
+```
+
+### Combining group-defining metadata
+
+You may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
+
+For example, to take all cells in cluster 2, and find markers that separate cells in the 'g1' group (metadata variable 'group'):
+
+```{r}
+markers.2.g1 <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', subset.ident = "2")
+```
+
+## EnrichR custom dot plot
+
+> credit: Tobias Hohl
+
+```{r}
+colorPal <- grDevices::colorRampPalette(c('darkred', 'yellow', 'darkblue'))
+
+(p <- ggplot(data = result.1$GO_Molecular_Function_2021,
+            mapping = aes_string(x = 'Overlap', y = 'Term')) +
+  geom_point(mapping = aes_string(size = 'Odds.Ratio', color = 'Adjusted.P.value')) +
+  scale_radius(range = c(2, 8), name = 'odds\nratio') +
+  scale_colour_gradientn(
+    colors = colorPal(10),
+    trans = 'log',
+    name = 'adj\np-value',
+    labels = function(x)
+      format(x, scientific = TRUE, digits = 3)
+  ) +
+  theme_bw())
+```
+
+# End
+
+> ⌨🔥 Exercise: Install python's umap in a VENV, and re-run the algorithm using this implementation rather than R-lang's UWOT. Hint: either slide [\#32](http://wiki.immunbio.mpg.de/wiki/images/0/00/02.pdf) of our past Adv. Linux course, or relevant answer on our [FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Can_I_use_Python_environments_on_RStudio_IDE.3F).
+
