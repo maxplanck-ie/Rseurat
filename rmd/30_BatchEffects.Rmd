@@ -18,7 +18,7 @@ output:
 - Setup
 - Sources of batch effects
 - Dataset
-- Detecting batch effects
+- Observing batch effects
 - Mitigating batch effects
 - SessionInfo
 
