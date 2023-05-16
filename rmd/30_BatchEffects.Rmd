@@ -179,11 +179,10 @@ In this paragraph, we're going to run the three functions key to Seurat Integrat
 # select features that are repeatedly variable across datasets for integration
 features <- SelectIntegrationFeatures(object.list = panc.list)
 
-anchors <- FindIntegrationAnchors(object.list = panc.list, anchor.features = features)
+anchors <- FindIntegrationAnchors(object.list = panc.list, anchor.features = features, normalization.method = "LogNormalize")
 
 # this command creates an 'integrated' data assay
-panc.combined <- IntegrateData(anchorset = anchors)
-
+panc.combined <- IntegrateData(anchorset = anchors, normalization.method = "LogNormalize")
 ```
 
 Let's clean up some redundant objects from memory.
