@@ -39,6 +39,7 @@ library(ggplot2)
 library(Seurat)
 packageVersion("Seurat")
 ```
+
 ## SCTransform: theory
 
 - Default log-normalization:
@@ -70,7 +71,8 @@ $$
 After applying the transformation, the relation between the scaled residuals ("Pearson residuals") and the total UMI counts per cell is flattened out for most gene tiers. The most highly expressed genes remain difficult to normalize.
 
 ![After](images/SCTransform.F3A.png)
-  Some of the advantages are:
+
+Some of the advantages are:
   - improved UMAP embedding
   - reduction in FDR in differential gene expression analysis
   - improved normalization of shallow- and deep-sequenced datasets
@@ -88,7 +90,7 @@ After applying the transformation, the relation between the scaled residuals ("P
 
 ## SeuratData
 
-We're going to work with IFNB-Stimulated and Control human PBMCs and downsample the datasets for the purpose of the excercise.
+We're going to work with IFNB-Stimulated and Control human PBMCs and downsample the datasets for the purpose of the exercise.
 
 
 ```{r SeuratData}
