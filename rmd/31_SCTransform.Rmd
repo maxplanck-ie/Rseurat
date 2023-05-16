@@ -192,11 +192,9 @@ p1+p2
 
 What has changed and what hasn't ?
 
-## Task
+> ⌨🔥 Exercise: Apply SCTransform to the IfnB-stimulated dataset as well. 
 
-Apply SCTransform to the IfnB-stimulated dataset as well. 
-
-**Poll:** [What amount of standard deviation does the first PC explain after applying sc-transform to the stimulated dataset?](https://PollEv.com/multiple_choice_polls/coHM0QIGIgmNdcxkYIb0i/respond)
+> 🧭✨ Poll: [What amount of standard deviation does the first PC explain after applying sc-transform to the stimulated dataset?](https://PollEv.com/multiple_choice_polls/coHM0QIGIgmNdcxkYIb0i/respond)
 
 
 
@@ -270,9 +268,7 @@ b.interferon.response <- FindMarkers(immune.combined.sct, assay = "SCT", ident.1
 head(b.interferon.response, n = 10)
 ```
 
-## Task
-
-Plot SCT "corrected counts" for one of the DE genes on a lowD representation, splitting by the stimulation status.
+> ⌨🔥 Exercise: Plot SCT "corrected counts" for one of the DE genes on a lowD representation, splitting by the stimulation status.
 
 ## Proposed solution
 
