@@ -117,12 +117,11 @@ In general this is impossible, but one can at least hope to preserve **local** d
 
 Consider a simple geographic map, it shares the same goal.
 Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D.
-That is why we have different projections, depicted here is the Universal Mercator Projection.
-Each of the 6-degree UTM is the projection on a plane using the geoid shape of our planet.
+That is why we have different projections, depicted here are two different works, just as an example. <!-- https://en.wikipedia.org/wiki/List_of_map_projections -->
 
 ```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
-knitr::include_graphics("./images/UTM-Zones-Globe-2.png")
-knitr::include_graphics("./images/Universe-Transverse-Mercator-Cylinder-678x540.png")
+knitr::include_graphics("./images/EarthProjection_Gauss-Kruger_1822.jpg")
+knitr::include_graphics("./images/EarthProjection_Robinson_1963.jpg")
 ```
 
 For single-cell studies, two methodologies are popular: t-SNE and UMAP.
