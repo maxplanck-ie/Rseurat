@@ -17,7 +17,7 @@ output:
 
 ```{r, setup, include=FALSE}
 # .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
+knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = FALSE, tidy = TRUE, tidy.opts = list(width.cutoff = 70))
 ```
 
 ## What else is out there in the scRNAseq analysis
