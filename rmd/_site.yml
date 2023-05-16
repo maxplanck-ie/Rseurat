@@ -52,8 +52,12 @@ navbar:
         href: 31_SCTransform.html
 
       # Day 4
+      - text: Do It Yourself!
+        icon: fa-thumbs-up
+        href: 41_BrainIntegration.html
+
       - text: Analysis Extentions
-        icon: fa-planet-moon
+        icon: fa-compass
         href: 42_AnalysisExtentions.html
 
   right:
