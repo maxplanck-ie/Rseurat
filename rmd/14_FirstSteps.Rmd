@@ -178,7 +178,7 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-> > ⌨🔥 Poll:  How many cells have less than 200 counts in total (summed over all genes)?
+> 🧭✨ Poll:  How many cells have less than 2000 counts in total (summed over all genes)?  Hint: use `colSums`.
 
 Individually these variables may not fully discriminate dead cells, but could also 
 reflect real biological properties (e.g. higher mitochondrial count). Therefore it is useful
@@ -209,7 +209,7 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
   percent.mt < 5)
 ```
 
-> 🧭✨ Poll: What's the current number of cells after this step? 2583, 2638, 2385?
+> 🧭✨ Poll: What's the current number of cells after this step?
 
 ## Normalization
 
@@ -236,7 +236,7 @@ pbmc <- FindVariableFeatures(pbmc)
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
 
 > 🧭✨ Polls:
-> 1. Which are the 10 most highly variable genes? Hint: use `VariableFeatures()`.
+> 1. Which are the 3 most highly variable genes? Hint: use `VariableFeatures()`.
 > 1. What's the variance of the gene `PYCARD`? hint: use `HVFInfo()`.
 
 Plot variable features:
@@ -310,7 +310,7 @@ One quick way to determine the 'dimensionality' of the dataset is by eyeballing 
 ElbowPlot(pbmc)
 ```
 
-> 🧭✨ Poll: How many components should we choose to include? 10? 20? 100?
+> 🧭✨ Poll: How many components should we choose to include? 
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 
