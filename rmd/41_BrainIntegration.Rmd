@@ -21,22 +21,20 @@ We suggest two data sets from the following publications, and their correspondin
 - DiBella celltype information can be pulled from [here](https://singlecell.broadinstitute.org/single_cell/study/SCP1290/molecular-logic-of-cellular-diversification-in-the-mammalian-cerebral-cortex).
 
 Both analyses are centered around mouse brain development. 
-For details and results consult the papers. 
+For details and conclusions driven from these results please consult the original research articles. 
 
-The only steps given below are:
-
-1. setups, libraries and convenience functions.
-2. data loading
-
-Please make sure to run the two code blocks below!
-We made it easy here, but in the real world this may take a substantial amount of time.
-Also notice that there can be various file formats in which to obtain scRNA data.
+**Please make sure to run the two code blocks below!**
 
 
 # Setup
+
 ```{r knitr_opts}
 # Do _NOT_ run any code block below
 knitr::opts_chunk$set(eval = FALSE)
+```
+
+```{r hdf5r}
+if (!"hdf5r" %in% installed.packages()) BiocManager::install("hdf5r")
 ```
 
 
@@ -52,10 +50,14 @@ suppressMessages({
   library(pheatmap)
 })
 
-## convenience functions
-mySCT <- function(x) {
-  # x <- SCTransform()                                                           # older, slower
-  x <- SCTransform(x, method = "glmGamPoi", vst.flavor = "v2", verbose = FALSE) # faster
+## convenient function wrapper, feel free to add your own ;)
+mySCT <- function(...) {
+  SCTransform(
+    method = "glmGamPoi",
+    vst.flavor = "v2",
+    verbose = FALSE,
+    ...
+  )
 }
 
 options(
@@ -71,13 +73,14 @@ cat("library path(s): ", .libPaths())
 ```
 
 # Read data
+
 ```{r ReadData, echo=TRUE}
 # runs ~5min
 dir <- "/scratch/local/rseurat/datasets/mouse_brain/"
 mat_name <- paste0(dir, "Loo/GSE123335_E14_combined_matrix.txt.gz")
 ann_name <- paste0(dir, "Loo/GSE123335_E14_combined_matrix_ClusterAnnotations.txt.gz")
 loo_mat <- read.delim(mat_name, row.names = 1)
-loo_meta <- read.delim(ann_name, row.names = 1) # with cluster annotation (Cluster)
+loo_meta <- read.delim(ann_name, row.names = 1) # meta.data column name = Cluster
 loo <- CreateSeuratObject(counts = loo_mat, meta.data = loo_meta) # 488 MB
 loo$source <- "Loo"
 dim(loo)
@@ -96,6 +99,9 @@ rm(loo_mat, loo_meta, db_mat)
 # rds_name <- paste0(dir,"DiBella/DiBella_SeuratObj.rds")
 # db <- readRDS(rds_name)
 ```
+
+We made it easy here, but in the real world this may take a substantial amount of time.
+Also notice that there can be various file formats in which to obtain scRNAseq datasets.
 
 # Totally on your own ...
 
