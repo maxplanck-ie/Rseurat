@@ -25,13 +25,13 @@ output:
 ## Setup
 
 ```{r, setup, include=FALSE}
-#.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
+# .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 .libPaths()
 library(formatR)
 library(knitr)
 library(magrittr)
 library(RColorBrewer)
-knitr::opts_chunk$set(fig.width=6, fig.height=5,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
+knitr::opts_chunk$set(fig.width = 6, fig.height = 5, message = FALSE, warning = FALSE, tidy = TRUE, tidy.opts = list(width.cutoff = 70))
 ```
 
 ```{r seuratVersion,warning=FALSE,message=FALSE}
@@ -71,9 +71,11 @@ We have subset and pre-processed the full dataset for you. You can download it f
 
 ```{r load_subset}
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
-fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
+fdest <- "datasets/preprocessed_rds/panc_sub_processed.RDS"
 
-if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="curl") }
+if (!file.exists(fdest)) {
+  utils::download.file(forig, destfile = fdest, method = "curl")
+}
 panc_sub <- readRDS(fdest)
 ```
 
@@ -89,11 +91,11 @@ panc_sub <- readRDS(fdest)
 Plot UMAP embedding for the subset dataset. Inspect the cell separation by cell type and by sequencing technology.
 
 ```{r umap_sub, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
-my_cols <- brewer.pal(panc_sub@meta.data$tech %>% unique() %>% length(),"Dark2")
+my_cols <- brewer.pal(panc_sub@meta.data$tech %>% unique() %>% length(), "Dark2")
 
-p1<-DimPlot(panc_sub, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
-p2<-DimPlot(panc_sub, reduction = "umap", group.by="celltype")
-p1+p2
+p1 <- DimPlot(panc_sub, reduction = "umap", group.by = "tech", cols = scales::alpha(my_cols, 0.3))
+p2 <- DimPlot(panc_sub, reduction = "umap", group.by = "celltype")
+p1 + p2
 ```
 
 > 🧭✨ Poll: If every batch (sequencing tech) is  represented in each cluster, is this really a big issue? How would it look if it were less of a problem? Answer: It is an issue, and it would be smaller if we saw intersperced colors inside each cluster, so that the seq. tech really doesn't influence the values obtained in each umap component...
@@ -112,8 +114,7 @@ Here's our proposed solution:
 
 ```{r solution_DEG_before}
 smartseq2.markers <- FindMarkers(panc_sub, ident.1 = "smartseq2", ident.2 = "celseq", only.pos = TRUE)
-VlnPlot(panc_sub, features = "LRRC75A-AS1",group.by="celltype",split.by="tech")
-
+VlnPlot(panc_sub, features = "LRRC75A-AS1", group.by = "celltype", split.by = "tech")
 ```
 
 This gene appears to be mostly expressed in cells sequenced with the smartseq2 technology in multiple cell populations.
@@ -121,17 +122,17 @@ This gene appears to be mostly expressed in cells sequenced with the smartseq2 t
 Let's plot it's expression on the lowD embedding:
 
 ```{r DEG_before_umap,fig.width=6,fig.height=10}
-p1<-FeaturePlot(panc_sub,features="LRRC75A-AS1")
-p2<-DimPlot(panc_sub, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
-p1+p2
+p1 <- FeaturePlot(panc_sub, features = "LRRC75A-AS1")
+p2 <- DimPlot(panc_sub, reduction = "umap", group.by = "tech", cols = scales::alpha(my_cols, 0.3))
+p1 + p2
 ```
 
 On the other hand, what does the expression of known celltype markers look like ? Let's plot the expression of the alpha cell marker gen "GCG".
 
 ```{r marker_before_umap,fig.width=6,fig.height=10}
-p1<-FeaturePlot(panc_sub,features="GCG")
-p2<-DimPlot(panc_sub, reduction = "umap", group.by="celltype")
-p1+p2
+p1 <- FeaturePlot(panc_sub, features = "GCG")
+p2 <- DimPlot(panc_sub, reduction = "umap", group.by = "celltype")
+p1 + p2
 ```
 
 ## What options are there to mitigate batch effects ?
@@ -161,13 +162,13 @@ Seurat authors developed a strategy to "anchor" diverse datasets together:
 Prior to the integration, we want to normalize each dataset to be integrated separately.
 
 ```{r seurat_integrate1}
-# split the dataset into a list of seurat objects 
+# split the dataset into a list of seurat objects
 panc.list <- SplitObject(panc_sub, split.by = "dataset")
 
 # normalize and identify variable features for each dataset independently
 panc.list <- lapply(X = panc.list, FUN = function(x) {
-    x <- NormalizeData(x)
-    x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+  x <- NormalizeData(x)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
 })
 ```
 
@@ -188,7 +189,7 @@ panc.combined <- IntegrateData(anchorset = anchors, normalization.method = "LogN
 Let's clean up some redundant objects from memory.
 
 ```{r cleanup}
-rm(list=c("panc.list","features","anchors"))
+rm(list = c("panc.list", "features", "anchors"))
 gc()
 ```
 
@@ -217,7 +218,6 @@ DefaultAssay(panc.combined) <- "integrated"
 panc.combined <- ScaleData(panc.combined, verbose = FALSE)
 panc.combined <- RunPCA(panc.combined, npcs = 30, verbose = FALSE)
 panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
-
 ```
 
 ## What does the data look like after the integration?
@@ -225,17 +225,17 @@ panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 Let's have a look at the distribution of technology, and celltype, labels in lowD after integration.
 
 ```{r integrated_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
-p1<-DimPlot(panc.combined, reduction = "umap")
-p2<-DimPlot(panc.combined, reduction = "umap",group.by="celltype")
-p1+p2
+p1 <- DimPlot(panc.combined, reduction = "umap")
+p2 <- DimPlot(panc.combined, reduction = "umap", group.by = "celltype")
+p1 + p2
 ```
 
 We can also compare the distribution of cell tech labels before and after integration.
 
 ```{r b_a_umap, echo=FALSE,fig.width=12,fig.show='hold',fig.align='center'}
-p1<-DimPlot(panc_sub, reduction = "umap")
-p2<-DimPlot(panc.combined, reduction = "umap")
-p1+p2
+p1 <- DimPlot(panc_sub, reduction = "umap")
+p2 <- DimPlot(panc.combined, reduction = "umap")
+p1 + p2
 ```
 
 > ⌨🔥 Exercise: plot gene expression after integration
@@ -247,7 +247,7 @@ p1+p2
 Here's our proposed solution:
 
 ```{r solution_DEG_after}
-VlnPlot(panc.combined, features = "LRRC75A-AS1",group.by="celltype",split.by="tech")
+VlnPlot(panc.combined, features = "LRRC75A-AS1", group.by = "celltype", split.by = "tech")
 ```
 
 The expression of this gene hasn't changed - as it is not present in the "integrated" assay, the `VlnPlot` function has fetched it's expression value from the RNA assay, which is not modified by the integration. 
@@ -255,9 +255,9 @@ The expression of this gene hasn't changed - as it is not present in the "integr
 Let's plot it's expression on the lowD embedding:
 
 ```{r DEG_after_umap,fig.width=6,fig.height=10}
-p1<-FeaturePlot(panc.combined,features="LRRC75A-AS1")
-p2<-DimPlot(panc.combined, reduction = "umap", group.by="tech", cols=scales::alpha(my_cols,0.3))
-p1+p2
+p1 <- FeaturePlot(panc.combined, features = "LRRC75A-AS1")
+p2 <- DimPlot(panc.combined, reduction = "umap", group.by = "tech", cols = scales::alpha(my_cols, 0.3))
+p1 + p2
 ```
 
 We can now appreciate that cells highly expressing this gene are distributed over all clusters. Note that the mixing with the cells negative for this marker is imperfect, but such is the result of the integration for this dataset.
@@ -265,9 +265,9 @@ We can now appreciate that cells highly expressing this gene are distributed ove
 Let's ascertain ourselves that the expression of the celltype markers is behaving as expected after integration. For this purpose, let's plot the expression of the alpha cell marker gen "GCG".
 
 ```{r marker_after_umap,fig.width=6,fig.height=10}
-p1<-FeaturePlot(panc.combined,features="GCG")
-p2<-DimPlot(panc.combined, reduction = "umap", group.by="celltype")
-p1+p2
+p1 <- FeaturePlot(panc.combined, features = "GCG")
+p2 <- DimPlot(panc.combined, reduction = "umap", group.by = "celltype")
+p1 + p2
 ```
 
 ## Outlook

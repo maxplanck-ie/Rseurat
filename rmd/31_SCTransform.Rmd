@@ -32,14 +32,13 @@ output:
 library(formatR)
 library(knitr)
 library(magrittr)
-knitr::opts_chunk$set(fig.width=6, fig.height=4,message=FALSE,warning=FALSE,tidy=TRUE, tidy.opts=list(width.cutoff=70)) 
+knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = FALSE, tidy = TRUE, tidy.opts = list(width.cutoff = 70))
 ```
 
 ```{r seuratVersion,warning=FALSE,message=FALSE}
 library(ggplot2)
 library(Seurat)
 packageVersion("Seurat")
-
 ```
 ## SCTransform: theory
 
@@ -96,7 +95,7 @@ We're going to work with IFNB-Stimulated and Control human PBMCs and downsample 
 ```{r SeuratData}
 library(SeuratData)
 ifnb <- LoadData("ifnb")
-ifnb_sub <-subset(x = ifnb, downsample = 1000)
+ifnb_sub <- subset(x = ifnb, downsample = 1000)
 table(ifnb_sub$stim)
 ifnb.list <- SplitObject(ifnb_sub, split.by = "stim")
 
@@ -107,7 +106,7 @@ stim <- ifnb.list[["STIM"]]
 Let's remove some redundant objects from memory:
 
 ```{r cleanup}
-rm(list=c("ifnb","ifnb_sub","ifnb.list"))
+rm(list = c("ifnb", "ifnb_sub", "ifnb.list"))
 gc()
 ```
 
@@ -122,17 +121,16 @@ ctrl <- FindVariableFeatures(ctrl, selection.method = "vst", nfeatures = 2000)
 all.genes <- rownames(ctrl)
 ctrl <- ScaleData(ctrl, features = all.genes)
 ctrl <- RunPCA(ctrl, features = VariableFeatures(object = ctrl))
-ctrl_ln<-ElbowPlot(ctrl,ndims="30")
+ctrl_ln <- ElbowPlot(ctrl, ndims = "30")
 ctrl <- RunUMAP(ctrl, dims = 1:15)
 ```
 
 ## What does the data look like out of the box?
 
 ```{r out_of_the_box_umap, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
-p1<-DimPlot(ctrl, group.by="seurat_annotations") + theme(legend.position = "bottom")
-p2<-FeaturePlot(ctrl,features="nCount_RNA") + theme(legend.position = "right")
-p1+p2
-
+p1 <- DimPlot(ctrl, group.by = "seurat_annotations") + theme(legend.position = "bottom")
+p2 <- FeaturePlot(ctrl, features = "nCount_RNA") + theme(legend.position = "right")
+p1 + p2
 ```
 
 > 🧭✨ Poll: [Which cell population has the highest total counts?](https://PollEv.com/multiple_choice_polls/jHulGlJWYI49AaEVkAbxm/respond) Hint: you can make use of the `FetchData` function to calculated median RNA counts per cell population. Dplyr functions `summarize` and `group_by` could be helpful to summarize a numeric variable over factor levels.
@@ -147,10 +145,10 @@ We're going to use the SCTransform function with some more recent implementation
 ```{r seurat_sctransform1}
 library(sctransform)
 library(glmGamPoi)
-ctrl <- SCTransform(ctrl, method = "glmGamPoi",vst.flavor = "v2", verbose = FALSE)
+ctrl <- SCTransform(ctrl, method = "glmGamPoi", vst.flavor = "v2", verbose = FALSE)
 # store mitochondrial percentage in object meta data
-#ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
-#ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
+# ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
+# ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
 ```
 
 
@@ -160,16 +158,16 @@ We have now gotten a new Assay added to the Seurat object. All we need to do now
 We're also going to save the elbow plot for comparison with the log-normed dataset.
 
 ```{r sct_umap_calc}
-DefaultAssay(ctrl)<-"SCT"        # explain
+DefaultAssay(ctrl) <- "SCT" # explain
 ctrl <- RunPCA(ctrl, verbose = FALSE)
-ctrl_sct<-ElbowPlot(ctrl,ndims="30")
+ctrl_sct <- ElbowPlot(ctrl, ndims = "30")
 ```
 
 Let's compare the elbow plots for the dataset normalzed with either of the two methods:
 
 
 ```{r elbow_byside}
- ctrl_ln+ctrl_sct
+ctrl_ln + ctrl_sct
 ```
 
 What has changed and what hasn't?
@@ -184,10 +182,9 @@ We're going to use 30 top PCs to calculate the UMAP embedding in the SCT assay.
 
 ```{r sct_umap_plot, echo = FALSE, fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
 ctrl <- RunUMAP(ctrl, dims = 1:30, verbose = FALSE)
-p1 <- DimPlot(ctrl, group.by="seurat_annotations") + theme(legend.position = "bottom")
-p2 <- FeaturePlot(ctrl,"nCount_RNA") + theme(legend.position = "right")
-p1+p2
-
+p1 <- DimPlot(ctrl, group.by = "seurat_annotations") + theme(legend.position = "bottom")
+p2 <- FeaturePlot(ctrl, "nCount_RNA") + theme(legend.position = "right")
+p1 + p2
 ```
 
 What has changed and what hasn't ?
@@ -204,12 +201,11 @@ We're now going to revisit dataset integration after sc-transform. We can now se
 SC-transformed data requires an additional preparation step prior to integration. This performs sanity checks i.e. that sctransform residuals specified in to anchor.features are present in each object of the list; subsets the scale.data slot to only contain the residuals for anchor.features.
 
 ```{r sct_stim}
-stim <- SCTransform(stim, method="glmGamPoi",vst.flavor = "v2", verbose = FALSE) %>%
-    RunPCA(npcs = 30, verbose = FALSE)
+stim <- SCTransform(stim, method = "glmGamPoi", vst.flavor = "v2", verbose = FALSE) %>%
+  RunPCA(npcs = 30, verbose = FALSE)
 ifnb.list <- list(ctrl = ctrl, stim = stim)
 features <- SelectIntegrationFeatures(object.list = ifnb.list, nfeatures = 3000)
 ifnb.list <- PrepSCTIntegration(object.list = ifnb.list, anchor.features = features)
-
 ```
 
 
@@ -220,16 +216,17 @@ If normalization.method = "LogNormalize", the integrated data is returned to the
 If normalization.method = "SCT", the integrated data is returned to the scale.data slot and can be treated as centered, corrected Pearson residuals.
 
 ```{r seurat_integrate1}
-immune.anchors <- FindIntegrationAnchors(object.list = ifnb.list, normalization.method = "SCT",
-    anchor.features = features)
+immune.anchors <- FindIntegrationAnchors(
+  object.list = ifnb.list, normalization.method = "SCT",
+  anchor.features = features
+)
 immune.combined.sct <- IntegrateData(anchorset = immune.anchors, normalization.method = "SCT")
-
 ```
 
 Let's cleanup again:
 
 ```{r cleanup2}
-rm(list=c("ctrl","stim","ifnb.list","features","all.genes","immune.anchors"))
+rm(list = c("ctrl", "stim", "ifnb.list", "features", "all.genes", "immune.anchors"))
 gc()
 ```
 
@@ -245,7 +242,7 @@ immune.combined.sct <- RunUMAP(immune.combined.sct, reduction = "pca", dims = 1:
 ## What does the data look like after the integration?
 
 ```{r integrated_umap, echo=FALSE,fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
-DimPlot(immune.combined.sct, reduction = "umap", split.by = "stim",group.by="seurat_annotations") + theme(legend.position = "bottom")
+DimPlot(immune.combined.sct, reduction = "umap", split.by = "stim", group.by = "seurat_annotations") + theme(legend.position = "bottom")
 ```
 It appears that both conditions are contributing to all clusters, as no condition-specific clusters are apparent. 
 How would you go about checking the percentages of cells from each condition in each cluster?
@@ -259,12 +256,15 @@ As we're going to test across conditions, the datasets for which have been sc-tr
 
 ```{r sct_de}
 immune.combined.sct$celltype.stim <- paste(immune.combined.sct$seurat_annotations, immune.combined.sct$stim,
-    sep = "_")
+  sep = "_"
+)
 Idents(immune.combined.sct) <- "celltype.stim"
 immune.combined.sct <- PrepSCTFindMarkers(immune.combined.sct)
 
-b.interferon.response <- FindMarkers(immune.combined.sct, assay = "SCT", ident.1 = "B_STIM", ident.2 = "B_CTRL",
-    verbose = FALSE)
+b.interferon.response <- FindMarkers(immune.combined.sct,
+  assay = "SCT", ident.1 = "B_STIM", ident.2 = "B_CTRL",
+  verbose = FALSE
+)
 head(b.interferon.response, n = 10)
 ```
 
@@ -276,10 +276,12 @@ head(b.interferon.response, n = 10)
 Idents(immune.combined.sct) <- "seurat_annotations"
 inf_genes <- rownames(b.interferon.response)
 DefaultAssay(immune.combined.sct) <- "SCT"
-FeaturePlot(immune.combined.sct, features = inf_genes[1], split.by = "stim",
-    cols = c("grey", "red")) + theme(legend.position = "right")
-
+FeaturePlot(immune.combined.sct,
+  features = inf_genes[1], split.by = "stim",
+  cols = c("grey", "red")
+) + theme(legend.position = "right")
 ```
+
 ## FindConservedMarkers
 
 You may also want to identify markers that are DE between identities _independent_ of the conditions. For that purpose, you can make use of the `FindConservedMarkers` function. The `PrepSCTFindMarkers` command does not to be rerun here.
