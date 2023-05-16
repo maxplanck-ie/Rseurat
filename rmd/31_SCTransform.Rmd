@@ -27,7 +27,7 @@ output:
 ## Setup
 
 ```{r, setup, include=FALSE}
-# .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+# .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 .libPaths()
 library(formatR)
 library(knitr)
@@ -85,6 +85,7 @@ After applying the transformation, the relation between the scaled residuals ("P
 - One function replaces three steps in standard log-normalization workflow: normalization + regressing out nuissance variables + identifying variable features 
 - Removes the effect of sequencing depth through regression
 - Optional: regress other confounding variables out (e.g. perct. MT)
+- Corrected counts are obtained by setting the sequencing depth for all the cells to a fixed value and reversing the learned regularized negative-binomial regression model. 
 
 
 ## SeuratData
@@ -101,6 +102,13 @@ ifnb.list <- SplitObject(ifnb_sub, split.by = "stim")
 
 ctrl <- ifnb.list[["CTRL"]]
 stim <- ifnb.list[["STIM"]]
+```
+
+Let's remove some redundant objects from memory:
+
+```{r cleanup}
+rm(list=c("ifnb","ifnb_sub","ifnb.list"))
+gc()
 ```
 
 ## Standard normalization?
@@ -159,9 +167,10 @@ ctrl_sct<-ElbowPlot(ctrl,ndims="30")
 
 Let's compare the elbow plots for the dataset normalzed with either of the two methods:
 
- ```{r elbow_byside}
+
+```{r elbow_byside}
  ctrl_ln+ctrl_sct
- ```
+```
 
 What has changed and what hasn't?
 
@@ -219,6 +228,13 @@ immune.combined.sct <- IntegrateData(anchorset = immune.anchors, normalization.m
 
 ```
 
+Let's cleanup again:
+
+```{r cleanup2}
+rm(list=c("ctrl","stim","ifnb.list","features","all.genes","immune.anchors"))
+gc()
+```
+
 ## Process the newly integrated dataset
 
 All we need to do now is to run PCA and UMAP on the integrated assay.
@@ -233,10 +249,15 @@ immune.combined.sct <- RunUMAP(immune.combined.sct, reduction = "pca", dims = 1:
 ```{r integrated_umap, echo=FALSE,fig.show='hold',fig.align='center',fig.width=8,fig.height=5}
 DimPlot(immune.combined.sct, reduction = "umap", split.by = "stim",group.by="seurat_annotations") + theme(legend.position = "bottom")
 ```
+It appears that both conditions are contributing to all clusters, as no condition-specific clusters are apparent. 
+How would you go about checking the percentages of cells from each condition in each cluster?
 
 ## DE genes
 
-Get a list of top 10 DE genes between stimulated and unstimulated B cells.
+We're now going to run DGE analysis on the SCT assay, witht he goal of getting a list of top 10 DE genes between stimulated and unstimulated B cells.
+First, we're going to rename cell identities to a concatenation of celltype and condition.
+
+As we're going to test across conditions, the datasets for which have been sc-transformed separately (multiple SCT models), we'll have to invoke `PrepSCTFindMarkers` before we can run the `FindMarkers` function. This is going to recorrect the counts in the `count` slots using minimum of the median UMI of individual objects to reverse the individual SCT regression models. `FindMarkers` is going to use the recorrected `count` slots. 
 
 ```{r sct_de}
 immune.combined.sct$celltype.stim <- paste(immune.combined.sct$seurat_annotations, immune.combined.sct$stim,
@@ -263,6 +284,10 @@ FeaturePlot(immune.combined.sct, features = inf_genes[1], split.by = "stim",
     cols = c("grey", "red")) + theme(legend.position = "right")
 
 ```
+## FindConservedMarkers
+
+You may also want to identify markers that are DE between identities _independent_ of the conditions. For that purpose, you can make use of the `FindConservedMarkers` function. The `PrepSCTFindMarkers` command does not to be rerun here.
+
 
 ## SessionInfo
 

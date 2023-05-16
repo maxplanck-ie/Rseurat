@@ -70,28 +70,17 @@ pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 ```
 
 # Searching for Markers
-Having identified (and visualized) clusters of cells we want to learn about the most important genes and differential gene sets that may explain the different cluster solutions in molecular terms.
 
-Probably you already have prior knowledge and genes of interest, but here we will focus on how to derive **marker genes** for any given groups of cells.
+Having identified (and visualized) clusters of cells we want to learn about the specific genes under differential expression.
 
-To this end, Seurat has different convenience functions for **Differential Expression (DE)** tests. 
-The main function is `FindMarkers()`. Again there are many parameters, the main ones are:
+We will focus on how to derive **marker genes** for any given groups of cells. To this end, Seurat has different convenient functions that run **Differential Expression (DE)** tests. One such function, and the main one is `FindMarkers()`. Among other parameters, it takes:
 
-- ident.1, ident.2: typically these denote specific cluster numbers ("identities") of cells, but any other annotation from the metadata will work as well.
-- test.use: select from a wide range of statistical models and/ or methodologies (we end to use "MAST")
-- ?FindMarkers: have a look at other parameters and their defaults when a Seurat objec is passed to this function
+- `ident.1`, and `ident.2`: typically these denote specific cluster numbers ("identities") of cells, but any other annotation from the metadata will work as well.
+- `test.use`: select from a wide range of statistical models and/ or methodologies (we use ["MAST"](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0844-5))
 
-[TM: I don't understand the following paragraph, please clarify. One should highlight the relation to DESEQ, NB, dispersion estimates. 
-I guess it is a) easier because a cluster tends to have many more cells, and b) harder because of sparsity. Not sure how MAST fits into this.]
+**In a nutshell: MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression. Another popular option is `DESeq2`, with [plenty of caveats](https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis) that the Seurat authors may have addressed.
 
-We'll be using `MAST`, because it accounts for the bimodality of single-cell data by jointly modeling rates of expression (discrete) and positive mean expression (continuous) values.Information from the discrete and continuous parts is combined to infer changes in expression levels using gene or gene set-based statistics. Given that this approach uses a generalized linear framework, it can be used to jointly estimate nuisance variation from biological and technical sources, as well as biological effects of interest.
-
-**In a nutshell: MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression.
-
-<!-- https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis
-
-This research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612>
--->
+<!-- This research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612> -->
 
 Let's do a comparison between cells that were assigned to either cluster 1 or 2.
 
@@ -115,12 +104,9 @@ The resulting object is a data frame with the following columns:
 
 You may inspect the results with either `View()` or `head()`.
 
-[TM: I remove the DT reference because this is not a course on markdown formatting.]
-
-**Poll** What is the marker gene with the largest upregulation in cluster 1?
-
-> ⌨🔥 Exercise: What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?
-
+> 🧭✨ Polls:
+> 1. Which marker gene is the most expressed in cluster 1 when comparing it to cluster 2?
+> 1. What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?
 
 **Notice**: 
 
@@ -139,16 +125,14 @@ There are different flavors of these `Find*` functions. **It's important to get 
 
 ## Graphical Exploration
 
-Seurat includes several tools for visualizing marker expression. `VlnPlot()` and `RidgePlot` show the probability density distributions of expression values across clusters, and `FeaturePlot()` visualizes feature expression in a 2D projection (ee.g. PCA, t-SNE, or UMAP). 
-
-[TM: do we need CellScatter latter? Otherwise I would skip it here.]
+Seurat includes several tools for visualizing marker expression. `VlnPlot` and `RidgePlot` show the probability density distributions of expression values across clusters, and `FeaturePlot()` visualizes feature expression in a reduction (e.g. PCA, t-SNE, or UMAP). The latter is equivalent to `DimPlot`.
 
 ```{r markers_viz}
-feats = rownames(markers1v2)[1:2]    # define genes of interest
+feats = rownames(markers1v2)[1:2]
 
-VlnPlot(pbmc, features = feats)      # violin alternative: RidgePlot(pbmc, features = feats) 
+VlnPlot(pbmc, features = feats)
 
-FeaturePlot(pbmc, features = feats)  # the equivalent of DimPlot() for quantitative features 
+FeaturePlot(pbmc, features = feats)
 ```
 
 
@@ -173,11 +157,10 @@ print(markers.between.clusters)
 
 ## DotPlot
 
-[TM: Still need some text and explanation here]
+There is another common visualization technique that involves mapping the percent of cells that express a certain gene to the size of a dot, and color it according to the average expression value. Here's an example:
 
 ```{r dotplot}
-# notice that we take the markers from pbmc_small, but use them tto dotplot pbmc
-DotPlot(pbmc, features = rownames(markers.between.clusters)[1:10])
+DotPlot(pbmc_small, features = rownames(markers.between.clusters)[1:10]) + RotatedAxis()
 ```
 
 
@@ -202,4 +185,13 @@ markers.between.clusters %>% head()
 > )
 > ```
 
-Apart from getting and visualizing marker genes, we would ultimately want to seee whether there are common functional themes in those marker lists. This will be covered in the next section.
+Apart from getting and visualizing marker genes, we would ultimately want to see whether there are common functional themes in those marker lists. This will be covered in the next section.
+
+# End
+
+<!--
+# fig.asp? sets the height-to-width ratio of the figure. Use in combination with either fig.width and fig.height if needed.
+# https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html
+# value < 1 makes the plot wider
+# value > 1 makes the plot taller
+-->

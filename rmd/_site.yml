@@ -30,16 +30,12 @@ navbar:
         href: 14_FirstSteps.html
 
       - text: Embeddings
-        icon: fa-hand-spock-o
+        icon: fa-question-circle
         href: 16_UMAP.html
 
       # Day 2
-      - text: Data Viz.
+      - text: Data viz + DE
         icon: fa-map-marker
-        href: 18_Viz.html
-
-      - text: Diff. Expression
-        icon: fa-question-circle
         href: 21_DE.html
 
       - text: Ontologies Enrichment
@@ -54,14 +50,6 @@ navbar:
       - text: SCTransform
         icon: fa-bolt-lightning
         href: 31_SCTransform.html
-
-      - text: Cell Annotation
-        icon: fa-paintbrush
-        href: 40_CellAnnotation.html
-
-      - text: Dataset Challenge
-        icon: fa-mountain
-        href: 41_DatasetChallenge.html
 
       # Day 4
       - text: Analysis Extentions

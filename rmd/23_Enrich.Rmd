@@ -30,8 +30,10 @@ set.seed(8211673)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 
-options(parallelly.fork.enable = FALSE,
-        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+options(
+  parallelly.fork.enable = FALSE,
+  future.globals.maxSize = 8 * 1024^2 * 1000
+)
 
 plan("multicore", workers = 8)
 ```
@@ -116,7 +118,10 @@ dbs <- c(
 
 
 ```{r enrichr}
-result.1 <- markers.between.clusters %>% filter(cluster == 1) %>% rownames() %>% enrichr(dbs)
+result.1 <- markers.between.clusters %>%
+  filter(cluster == 1) %>%
+  rownames() %>%
+  enrichr(dbs)
 ```
 
 > ⌨🔥 Exercise(s):
@@ -134,12 +139,14 @@ plotEnrich(result.1[[1]], showTerms = 10, numChar = 40, y = "Count", orderBy = "
 Also, we may customize the selection and subsetting of top ranking categories that are visualized:
 
 ```{r plotenrich_finetuning}
-result.1$GO_Cellular_Component_2021 %>% 
-  filter(Adjusted.P.value < 5e-2,
-         Odds.Ratio != 1) %>%
-  arrange(-Combined.Score) %>% 
+result.1$GO_Cellular_Component_2021 %>%
+  filter(
+    Adjusted.P.value < 5e-2,
+    Odds.Ratio != 1
+  ) %>%
+  arrange(-Combined.Score) %>%
   # Combined.Score = ln(p)*z
-  plotEnrich(showTerms=20, numChar=50, y="Ratio")
+  plotEnrich(showTerms = 20, numChar = 50, y = "Ratio")
 ```
 
 # End

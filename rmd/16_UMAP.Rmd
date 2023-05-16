@@ -29,8 +29,10 @@ set.seed(8211673)
 knitr::opts_chunk$set(echo = TRUE, format = TRUE, out.width = "100%")
 
 
-options(parallelly.fork.enable = FALSE,
-        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+options(
+  parallelly.fork.enable = FALSE,
+  future.globals.maxSize = 8 * 1024^2 * 1000
+)
 
 plan("multicore", workers = 8)
 ```
@@ -71,7 +73,9 @@ pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 Clusters can be shown on heatmaps:
 
 ```{r heatmap, echo=FALSE}
-ann <- pbmc@meta.data %>%  select(seurat_clusters) %>% arrange(seurat_clusters)
+ann <- pbmc@meta.data %>%
+  select(seurat_clusters) %>%
+  arrange(seurat_clusters)
 
 # extract CELL-PC matrix, transpose, and plot
 pbmc@reductions$pca@cell.embeddings[rownames(ann), 1:5] %>%
@@ -94,7 +98,7 @@ This is useful to identify informative directions and reduce noise (before clust
 The projection on the first two components is often visualized because those correspond to the directions of maximal variation in the data. And as we might expect, the different clusters can be seen as --more or less-- separating in this projection:
 
 ```{r pca, echo=FALSE}
-#easier: DimPlot(pbmc, reduction = "pca")
+# easier: DimPlot(pbmc, reduction = "pca")
 
 ggplot(
   pbmc@reductions$pca@cell.embeddings[, 1:2] %>% as.data.frame(),
@@ -103,7 +107,9 @@ ggplot(
     y = PC_2,
     color = pbmc@meta.data$seurat_clusters
   )
-) + geom_point() + NoLegend()
+) +
+  geom_point() +
+  NoLegend()
 ```
 
 There are other **non-linear** projection techniques that aim specifically to preserve distances between samples in 2 dimensions. In general this is impossible, but one can at least hope to preserve **local** distances: nearby cells in high dimension will be nearby in 2D.
@@ -126,8 +132,6 @@ Here the key idea is to first assign distances between cells/ samples, $i$ and $
 - in high dimensions:  $d_{ij} \to p_{ij}$,
 - in low dimensions (2D):  $\delta_{ij} \to q_{ij}$
 
-<!-- [TM: ] [illustration?] -->
-
 Cells are then iteratively moved around in 2D until $q_{ij} \approx p_{ij}$.
 
 The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \to q_{ij}$ which has proved useful for a wide range of applications. For further details, see some of these resources:
@@ -148,17 +152,16 @@ Notice that there are many parameters (with default values) that will affect the
 
 > ⌨🔥 Exercise: Find out which parameters are used per default. Explore some parameter choices together with your classmates and observe if this will affect the plot. 
 
-<!--
-**Poll**: Is t-SNE affected by the seed variable?
-- No. Changing seed has no affect.
-- No. tSNE should always be run with seed=1
-- Yes there is a noticable change.
--->
+> 🧭✨ Poll: Is t-SNE affected by the seed variable?
 
 
 ```{r tsne_stochastic, eval=FALSE}
-p1 <- pbmc %>% RunTSNE(seed.use = NULL) %>% DimPlot(reduction = "tsne")
-p2 <- pbmc %>% RunTSNE(seed.use = NULL) %>% DimPlot(reduction = "tsne")
+p1 <- pbmc %>%
+  RunTSNE(seed.use = NULL) %>%
+  DimPlot(reduction = "tsne")
+p2 <- pbmc %>%
+  RunTSNE(seed.use = NULL) %>%
+  DimPlot(reduction = "tsne")
 p1 + p2
 ```
 
@@ -180,8 +183,8 @@ UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspe
 Thanks to Seurat, and the underlying package (see `?uwot::umap`), finding and plotting the UMAP projection is also straightforward:
 
 ```{r umap, warning=FALSE}
-pbmc <- RunUMAP(pbmc, dims=1:5, verbose=FALSE)
-DimPlot(pbmc, reduction = "umap") 
+pbmc <- RunUMAP(pbmc, dims = 1:5, verbose = FALSE)
+DimPlot(pbmc, reduction = "umap")
 ```
 
 Unsurprisingly there are again many parameters that can change the visualization.
