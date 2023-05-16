@@ -1,0 +1,5 @@
+Activity,Type,Title,Option,Option,Option,Option,Option
+Poll,Multiple choice,"Given that genes used for clustering are the same genes tested for differential expression, Would you interpret the (adjusted) p-values without concerns?","No concerns, the workflow is trusted by tons of citations.",I’d be cautious…,,,
+Poll,Multiple choice,Which marker gene is the most expressed in cluster 1 when comparing it to cluster 2?,S100A,LYZ,S100A8,S100A9,
+Poll,Multiple choice,"What would happen if we used `ident.1 = 2`, and `ident.2 = 1` instead?","There’s no symmetry, nor proportional law in the results.",Both Avg. Log2 FC and P-values would be different.,Average log2 Fold Change sign would swap (FC * -1),Average log2 Fold Change would be inverted (1 / FC),
+Poll,Multiple choice,How would you extract the 'gene signature' of a given cluster? By DE testing with…,"ROC analysis, against all remaining clusters","Logistic regression, against all remaining clusters","Any test, against the most distant cell type as the cleanest baseline","Any test, against the remaining clusters",
