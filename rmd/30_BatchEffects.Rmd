@@ -73,7 +73,7 @@ We have subset and pre-processed the full dataset for you. You can download it f
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
 fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
 
-if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="wget") }
+if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="curl") }
 panc_sub <- readRDS(fdest)
 table(panc_sub$dataset)
 ```
