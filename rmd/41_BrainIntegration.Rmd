@@ -161,14 +161,17 @@ metadata column 'Cluster'.
 *Notice:* per default the clusters are sorted by their sizes and the largest one has index 0 !
 
 ```{r explore_clusters}
-# just some suggestions ...
+# just some suggestions!
+
 loo_alone@meta.data %>%
   select(starts_with("SCT")) %>%
   lapply(table) # cluster sizes for all resolutions
+
 loo_alone@meta.data %>%
   select(c("Cluster", "__your_choice_here")) %>%
   table() %>%
   pheatmap() # compare cluster solution with previous annotation
+
 loo_alone %>%
   subset(idents = "__your_choice_here") %>%
   DimPlot() # cluster selection
@@ -236,9 +239,11 @@ DotPlot(so, ....)
 ```
 
 ## Writing to file
+
 Do you remember how to send a figure to file? 
 
 1. Pick one of the plots above and `ggsave` it. Make sure you know into which directory you will be writing.
+
 2. Since this part of the analysis is done, let's be kind to RAM and remove large temporary objects
 
 ```{r save}
