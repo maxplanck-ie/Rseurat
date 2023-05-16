@@ -84,9 +84,12 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
 
 
 > 🧭✨ Polls:
-> 1. How many genes and cells does this dataset have?
-> 2. How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
-> 3. Which are the top 3 genes with the highest total count? Hint: `rowSums()`  and `sort`.
+>
+> How many genes and cells does this dataset have?
+>
+> How many genes are not expressed in any cell? Hint: subset genes with `rowSums()`.
+>
+> Which are the top 3 genes with the highest total count? Hint: `rowSums()`  and `sort`.
 
 > ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
 
@@ -114,7 +117,7 @@ With these filters in this particular dataset, we are reducing the number of gen
 
 The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For example, the count matrix is stored in `pbmc[["RNA"]]@counts`. On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
-> 🧭✨ Polls In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? Hint: subset the assay data, `pbmc@assays$RNA`.
+> 🧭✨ Poll: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? Hint: subset the assay data, `pbmc@assays$RNA`.
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively. The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
 
@@ -178,7 +181,7 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-> 🧭✨ Poll:  How many cells have less than 2000 counts in total (summed over all genes)?  Hint: use `colSums`.
+> 🧭✨ Poll: How many cells have less than 2000 counts in total (summed over all genes)? Hint: use `colSums`.
 
 Individually these variables may not fully discriminate dead cells, but could also 
 reflect real biological properties (e.g. higher mitochondrial count). Therefore it is useful
@@ -236,8 +239,10 @@ pbmc <- FindVariableFeatures(pbmc)
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
 
 > 🧭✨ Polls:
-> 1. Which are the 3 most highly variable genes? Hint: use `VariableFeatures()`.
-> 1. What's the variance of the gene `PYCARD`? hint: use `HVFInfo()`.
+>
+> Which are the 3 most highly variable genes? Hint: use `VariableFeatures()`.
+>
+> What's the variance of the gene `PYCARD`? hint: use `HVFInfo()`.
 
 Plot variable features:
 
