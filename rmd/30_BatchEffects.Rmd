@@ -18,14 +18,14 @@ output:
 - Setup
 - Sources of batch effects
 - Dataset
-- Detecting batch effects
+- Observing batch effects
 - Mitigating batch effects
 - SessionInfo
 
 ## Setup
 
 ```{r, setup, include=FALSE}
-#.libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
+#.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 .libPaths()
 library(formatR)
 library(knitr)
@@ -73,12 +73,12 @@ We have subset and pre-processed the full dataset for you. You can download it f
 forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
 fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
 
-if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="wget") }
+if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="curl") }
 panc_sub <- readRDS(fdest)
 table(panc_sub$dataset)
 ```
 
-**Poll:** Which sequencing technologies are retained in the subset dataset?
+**Poll:** [Which sequencing technologies are retained in the subset dataset?](https://PollEv.com/multiple_choice_polls/j2zBwetamS5edfxq0JDs8/respond)
 
 
 ## Revisit UMAP
@@ -101,7 +101,7 @@ In the previous course units, you have learned to call differentially expressed 
 - plot a violin plot for the top gene
 - plot a feature plot for the top gene
 
-**Poll** What is the name of the top DE gene ?
+**Poll** [What is the name of the top DE gene ?](https://PollEv.com/multiple_choice_polls/D5BfavArbiXgs8QeHvDNn/respond)
 
 
 Here's our proposed solution:
@@ -182,10 +182,17 @@ panc.combined <- IntegrateData(anchorset = anchors)
 
 ```
 
+Let's clean up some redundant objects from memory.
+
+```{r cleanup}
+rm(list=c("panc.list","features","anchors"))
+gc()
+```
+
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
 
-**Poll** What is the new assay called? Hint: you can access assays of a Seurat object with `Assays()`.
+**Poll** [What is the new assay called?](https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond) Hint: you can access assays of a Seurat object with `Assays()`.
 
 
 ## Process the newly integrated dataset
