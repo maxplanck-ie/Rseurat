@@ -135,7 +135,7 @@ p1+p2
 
 ```
 
-**Poll** Which cell population has the highest total counts?
+**Poll** Which cell population has the highest total counts? Hint: you can make use of the `FetchData` function to calculated median RNA counts per cell population. Dplyr functions `summarize` and `group_by` could be helpful to summarize a numeric variable over factor levels.
 
 
 ## Seurat SCTransform
@@ -174,7 +174,7 @@ Let's compare the elbow plots for the dataset normalzed with either of the two m
 
 What has changed and what hasn't?
 
-**Poll** What amount of standard deviation does PC1 explain after sc-transform?
+**Poll** What amount of standard deviation does PC1 explain after sc-transform? Hint: if you'd like to determine it numerically, you can use the `Stdev` accessor function to access the standard deviations for PC components in a Seurat object.
 
 ## Revisit UMAP
 
