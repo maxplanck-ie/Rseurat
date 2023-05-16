@@ -75,10 +75,13 @@ fdest <-"datasets/preprocessed_rds/panc_sub_processed.RDS"
 
 if (!file.exists(fdest)){ utils::download.file(forig,destfile=fdest,method="curl") }
 panc_sub <- readRDS(fdest)
-table(panc_sub$dataset)
 ```
 
-**Poll:** [Which sequencing technologies are retained in the subset dataset?](https://PollEv.com/multiple_choice_polls/j2zBwetamS5edfxq0JDs8/respond)
+> 🧭✨ Poll: 
+>
+> [Which sequencing technologies are retained in the subset dataset?](https://PollEv.com/multiple_choice_polls/j2zBwetamS5edfxq0JDs8/respond)
+>
+> How many cells were sequenced in each experiment?
 
 
 ## Revisit UMAP
@@ -93,15 +96,16 @@ p2<-DimPlot(panc_sub, reduction = "umap", group.by="celltype")
 p1+p2
 ```
 
+> 🧭✨ Poll: If every batch (sequencing tech) is  represented in each cluster, is this really a big issue? How would it look if it were less of a problem? Answer: It is an issue, and it would be smaller if we saw intersperced colors inside each cluster, so that the seq. tech really doesn't influence the values obtained in each umap component...
 
-## Task: plot gene expression
+> ⌨🔥 Exercise: plot gene expression
+>
+> In the previous course units, you have learned to call differentially expressed genes with Seurat. In this task, we ask you to:
+> - call genes differentially expressed between cells sequenced with the smartseq2 technology and those with the celseq technology
+> - plot a violin plot for the top gene
+> - plot a feature plot for the top gene
 
-In the previous course units, you have learned to call differentially expressed genes with Seurat. In this task, we ask you to:
-- call genes differentially expressed between cells sequenced with the smartseq2 technology and those with the celseq technology
-- plot a violin plot for the top gene
-- plot a feature plot for the top gene
-
-**Poll** [What is the name of the top DE gene ?](https://PollEv.com/multiple_choice_polls/D5BfavArbiXgs8QeHvDNn/respond)
+> 🧭✨ Poll: [What is the name of the top DE gene ?](https://PollEv.com/multiple_choice_polls/D5BfavArbiXgs8QeHvDNn/respond)
 
 
 Here's our proposed solution:
@@ -192,7 +196,13 @@ gc()
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
 
-**Poll** [What is the new assay called?](https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond) Hint: you can access assays of a Seurat object with `Assays()`.
+> 🧭✨ Poll: 
+>
+> What is the new assay called?](https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond) Hint: you can access assays of a Seurat object with `Assays()`.
+>
+> Which assay would be used if we run PCA now?
+>
+> If we run PCA now, would it be using scaled values?
 
 
 ## Process the newly integrated dataset
@@ -233,17 +243,16 @@ p2<-DimPlot(panc.combined, reduction = "umap")
 p1+p2
 ```
 
-## Task: plot gene expression after integration
-
-You have previously plotted the expression of a DE gene between the sequencing technologies on the dataset before integration.
-Repeat the violin and the feature plot for the dataset after integration.
-What has changed, what hasn't, and why?
+> ⌨🔥 Exercise: plot gene expression after integration
+> 
+> You have previously plotted the expression of a DE gene between the sequencing technologies on the dataset before integration.
+> Repeat the violin and the feature plot for each seq. tech dataset after integration.
+> What has changed?, What didn't change? and, Why?
 
 Here's our proposed solution:
 
 ```{r solution_DEG_after}
 VlnPlot(panc.combined, features = "LRRC75A-AS1",group.by="celltype",split.by="tech")
-
 ```
 
 The expression of this gene hasn't changed - as it is not present in the "integrated" assay, the `VlnPlot` function has fetched it's expression value from the RNA assay, which is not modified by the integration. 
