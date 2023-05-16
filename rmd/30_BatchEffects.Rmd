@@ -182,6 +182,13 @@ panc.combined <- IntegrateData(anchorset = anchors)
 
 ```
 
+Let's clean up some redundant objects from memory.
+
+```{r cleanup}
+rm(list=c("panc.list","features","anchors"))
+gc()
+```
+
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
 

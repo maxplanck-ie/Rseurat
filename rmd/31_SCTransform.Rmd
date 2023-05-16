@@ -104,6 +104,13 @@ ctrl <- ifnb.list[["CTRL"]]
 stim <- ifnb.list[["STIM"]]
 ```
 
+Let's remove some redundant objects from memory:
+
+```{r cleanup}
+rm(list=c("ifnb","ifnb_sub","ifnb.list"))
+gc()
+```
+
 ## Standard normalization?
 
 Lets process the control dataset in a standard way.
@@ -160,9 +167,10 @@ ctrl_sct<-ElbowPlot(ctrl,ndims="30")
 
 Let's compare the elbow plots for the dataset normalzed with either of the two methods:
 
- ```{r elbow_byside}
+
+```{r elbow_byside}
  ctrl_ln+ctrl_sct
- ```
+```
 
 What has changed and what hasn't?
 
@@ -218,6 +226,13 @@ immune.anchors <- FindIntegrationAnchors(object.list = ifnb.list, normalization.
     anchor.features = features)
 immune.combined.sct <- IntegrateData(anchorset = immune.anchors, normalization.method = "SCT")
 
+```
+
+Let's cleanup again:
+
+```{r cleanup2}
+rm(list=c("ctrl","stim","ifnb.list","features","all.genes","immune.anchors"))
+gc()
 ```
 
 ## Process the newly integrated dataset
