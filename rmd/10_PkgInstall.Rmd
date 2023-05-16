@@ -232,10 +232,12 @@ For the later part of the course, we have preprocessed a couple of large dataset
 If you will be using RStudio from your laptop, then you may download from zenodo:
 
 1. ["datasets/preprocessed_rds/panc_sub.RDS"](https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1)
-1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7866848/files/pbmc_ref_sce_sel.RDS?download=1)
-1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7866848/files/pbmc_ref.seurat.sel.RDS?download=1)
 
-Depending on your bandwidth, the downloads may take 15-30 minutes.
+<!-- SKIP, correspond to 40* in archived Rmds
+1. ["datasets/preprocessed_rds/ref.labels.RDS"](https://zenodo.org/record/7866848/files/pbmc_ref_sce_sel.RDS?download=1)
+1. ["datasets/preprocessed_rds/pbmc_ref.seurat.RDS"](https://zenodo.org/record/7866848/files/pbmc_ref.seurat.sel.RDS?download=1) -->
+
+Depending on your bandwidth, the downloads may take a couple of minutes.
 
 #### Workbench Users
 
