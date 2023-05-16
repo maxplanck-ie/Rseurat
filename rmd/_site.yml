@@ -51,14 +51,6 @@ navbar:
         icon: fa-bolt-lightning
         href: 31_SCTransform.html
 
-      - text: Cell Annotation
-        icon: fa-paintbrush
-        href: 40_CellAnnotation.html
-
-      - text: Dataset Challenge
-        icon: fa-mountain
-        href: 41_DatasetChallenge.html
-
       # Day 4
       - text: Analysis Extentions
         icon: fa-planet-moon
