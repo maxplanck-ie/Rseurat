@@ -1,5 +1,6 @@
 ---
 title: 'Practical Exploration: Brain Integration'
+
 output:
   html_document:
     toc: yes
@@ -29,13 +30,13 @@ The only steps given below are:
 
 Please make sure to run the two code blocks below!
 We made it easy here, but in the real world this may take a substantial amount of time.
-Also notice that there can be various data formats in which to obtain scRNA data.
+Also notice that there can be various file formats in which to obtain scRNA data.
 
 
 # Setup
 ```{r knitr_opts}
 # Do _NOT_ run any code block below
-knitr::opts_chunk$set(eval=FALSE) 
+knitr::opts_chunk$set(eval = FALSE)
 ```
 
 
@@ -52,59 +53,60 @@ suppressMessages({
 })
 
 ## convenience functions
-mySCT <- function(x){
+mySCT <- function(x) {
   # x <- SCTransform()                                                           # older, slower
-  x <- SCTransform(x, method = "glmGamPoi",vst.flavor = "v2", verbose = FALSE)  # faster
-} 
+  x <- SCTransform(x, method = "glmGamPoi", vst.flavor = "v2", verbose = FALSE) # faster
+}
 
-options(parallelly.fork.enable = FALSE,
-        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+options(
+  parallelly.fork.enable = FALSE,
+  future.globals.maxSize = 8 * 1024^2 * 1000
+)
 
 plan("multicore", workers = 8)
 
 cat("work directory: ", getwd())
 cat("\n")
 cat("library path(s): ", .libPaths())
-
 ```
 
 # Read data
 ```{r ReadData, echo=TRUE}
 # runs ~5min
 dir <- "/scratch/local/rseurat/datasets/mouse_brain/"
-mat_name <- paste0(dir,"Loo/GSE123335_E14_combined_matrix.txt.gz")
-ann_name <- paste0(dir,"Loo/GSE123335_E14_combined_matrix_ClusterAnnotations.txt.gz")
-loo_mat  <- read.delim(mat_name, row.names = 1)
+mat_name <- paste0(dir, "Loo/GSE123335_E14_combined_matrix.txt.gz")
+ann_name <- paste0(dir, "Loo/GSE123335_E14_combined_matrix_ClusterAnnotations.txt.gz")
+loo_mat <- read.delim(mat_name, row.names = 1)
 loo_meta <- read.delim(ann_name, row.names = 1) # with cluster annotation (Cluster)
-loo <- CreateSeuratObject(counts = loo_mat, meta.data = loo_meta)  # 488 MB
-loo$source <- 'Loo'
+loo <- CreateSeuratObject(counts = loo_mat, meta.data = loo_meta) # 488 MB
+loo$source <- "Loo"
 dim(loo)
 
-h5_name <- paste0(dir,"DiBella/GSM4635075_E14_5_filtered_gene_bc_matrices_h5.h5")
+h5_name <- paste0(dir, "DiBella/GSM4635075_E14_5_filtered_gene_bc_matrices_h5.h5")
 db_mat <- Read10X_h5(filename = h5_name)
-db <- CreateSeuratObject(counts = db_mat)  # 222 MB
-db$source <- 'DiBella'
+db <- CreateSeuratObject(counts = db_mat) # 222 MB
+db$source <- "DiBella"
 dim(db)
 
 # clean-up
 rm(loo_mat, loo_meta, db_mat)
 
 # in case there are problems with hd5
-# saveRDS(db, file='DiBella_SeuratObj.rds') # 
+# saveRDS(db, file='DiBella_SeuratObj.rds') #
 # rds_name <- paste0(dir,"DiBella/DiBella_SeuratObj.rds")
 # db <- readRDS(rds_name)
 ```
 
 # Totally on your own ...
 
-...just kidding. Apart from our lecture material and general R/Google help there are excellent resources available. 
+...just kidding. Apart from our lecture material, you are encouraged to use general searches on the WWW (e.g. [Rseek](https://rseek.org/)). There are excellent resources available. 
 
 Especially for Seurat, there is one outstanding cheat sheet which should help you with most of the tasks below: https://satijalab.org/seurat/articles/essential_commands.html
 
 
 # Loo Data
 
-The analysis of Loo *et al.* highlighted the role of Neurod2, Gad2, Eomes, and Mki67.
+The analysis of Loo *et al.* highlighted the role of `Neurod2`, `Gad2`, `Eomes`, and `Mki67.`
 - Prepare the data for dimensional reduction (filtering, normalization, PCA)
 - Check a suitable number of principal components to keep)
 - Plot the normalized expression of these important genes on a UMAP.
@@ -114,10 +116,7 @@ with `View()` - it's huge and has many `slots` that will be changing as the anal
 
 *Notice:* Here we only use the data for E14.5 (not P0)
 
-```{r}
-# choice of name for subset is totally yours
-loo_alone <- ....
-```
+`loo_alone <- ...`
 
 
 
@@ -130,8 +129,8 @@ In fact, the authors invested much effort to identify a proper number of cluster
 
 Use variable resolution parameters and inspect the results - which resolution (=number of clusters) would you choose?
 
-```{r loo_cluster}
-# FindNeighbors(....)
+<code>
+# FindNeighbors(...)
 
 # Define Resolutions, e.g. res=c(0.1, 0.25, 0.5, 0.75, 1.0)
 
@@ -141,7 +140,7 @@ Use variable resolution parameters and inspect the results - which resolution (=
 
 # Plot UMAP for different resolutions (hint: change group.by= ...)
 
-```
+</code>
 
 
 1. Explore the different cluster solutions with respect to their sizes and pairwise relationships (hint: table).
@@ -155,9 +154,16 @@ metadata column 'Cluster'.
 
 ```{r explore_clusters}
 # just some suggestions ...
-loo_alone@meta.data %>% select(starts_with("SCT")) %>% lapply(table)                             # cluster sizes for all resolutions
-loo_alone@meta.data %>% select(c("Cluster","__your_choice_here")) %>% table() %>% pheatmap()     # compare cluster solution with previous annotation
-loo_alone %>% subset(idents=__your_choice_here) %>% DimPlot()                                    # cluster selection
+loo_alone@meta.data %>%
+  select(starts_with("SCT")) %>%
+  lapply(table) # cluster sizes for all resolutions
+loo_alone@meta.data %>%
+  select(c("Cluster", "__your_choice_here")) %>%
+  table() %>%
+  pheatmap() # compare cluster solution with previous annotation
+loo_alone %>%
+  subset(idents = "__your_choice_here") %>%
+  DimPlot() # cluster selection
 ```
 
 If you have more time and energy, try changing the number of PCA components and consider how this will affect the clusters.
@@ -172,9 +178,9 @@ the calculated slots inside.
 This will be an important checkpoint for future exploration;  try to read it to make sure it works.
 
 Keep track on **where** you are writing and reading from:
+
 ```{r checkpoint1}
 getwd()
-
 ```
 
 
@@ -190,10 +196,13 @@ If you plan a really long coffee break, you can also try to find **all markers**
 
 ```{r markers}
 # default identity = 'seurat_cluster' (after clustering)
-c_choice <- '__Your_choice_here_'     # explicit choice of cluster solution
-Idents(loo_alone) <- c_choice         # redefines identity --> slot `active.ident`
+c_choice <- "__Your_choice_here_" # explicit choice of cluster solution
+Idents(loo_alone) <- c_choice # redefines identity --> slot `active.ident`
 
-loo_alone %>% Idents %>% table()  %>% barplot()   # number of cells per cluster
+loo_alone %>%
+  Idents() %>%
+  table() %>%
+  barplot() # number of cells per cluster
 
 # Find and Inspect marker for certain clusters (=identities)
 
@@ -211,11 +220,11 @@ and if their expression is strong (the papers motivates subclustering based on t
 We have a powerful tool to visualize this issue: ?DotPlot. Try it out.
 
 ```{r marker_vis}
-so <- loo_alone %>% subset(idents=....)   # you might want to chose big clusters only
+so <- loo_alone %>% subset(idents = ....) # you might want to chose big clusters only
 
 DoHeatmap(so, ....)
 
-DotPlot(so, ....) 
+DotPlot(so, ....)
 ```
 
 ## Writing to file
@@ -225,15 +234,19 @@ Do you remember how to send a figure to file?
 2. Since this part of the analysis is done, let's be kind to RAM and remove large temporary objects
 
 ```{r save}
-
 ggsave(...)
 
-rm(...Think_before_you_delete...) 
+rm(...Think_before_you_delete...)
 ```
 
-> PS> Have a look at https://github.com/jeremymsimon/MouseCortex/blob/master/E14_processing.R
+> PS: Have a look at the author's [processing R script](https://github.com/jeremymsimon/MouseCortex/blob/master/E14_processing.R),
 and appreciate how much software has developed since 2019 - and simplified analyses.
 
+## BREAK
+
+> You're doing great! At this point, you might want to make a pause.
+
+![You... are allowed to... rest](images/rest.jpg)
 
 # Integration
 
@@ -251,7 +264,7 @@ If you have more time you can also skip the downsampling.
 
 ```{r subsample}
 # subsampling is per identity: loo has 6
-db  <- db %>% subset(...)
+db <- db %>% subset(...)
 loo <- loo %>% subset(...)
 ```
 
@@ -266,7 +279,6 @@ and plot a UMAP to show that there is a strong batch effect.
 merged <- merge(loo, db)
 
 # Standard workflow up to UMAP
-
 ```
 
 **Message:** Simple merge is too simple! There should be more commonalities in those 2 datasets.
@@ -274,8 +286,8 @@ merged <- merge(loo, db)
 ## SCT integration
 Try to account for batch effects using anchors
 ```{r SCT_integration}
-sl <- c(loo, db)                            # list of individual datasets
-sl <- lapply(sl, mySCT)                     # individual normalizations
+sl <- c(loo, db) # list of individual datasets
+sl <- lapply(sl, mySCT) # individual normalizations
 
 # continue with integration
 ```
@@ -297,8 +309,7 @@ For the last step just assume some typical resolution; e.g. `resolution=0.5` for
 This will take a while. So again it is a good idea to save the seurat object after you are done
 
 ```{r analyse_int}
-DefaultAssay(int) <- "integrated"   # set default assay
-
+DefaultAssay(int) <- "integrated" # set default assay
 ```
 
 ## Joint Visualization
@@ -310,14 +321,12 @@ You are almost done. Time to make a few more UMAPs in which you label
 - cluster ID (as obtained from simple clustering of the integrated set)
 
 ```{r int_viz, fig.width=12, fig.height=4}
-
 ```
 
 With some luck we should be able to draw a correspondence of the annotated cell type (only defined for the Loo data)
 and our cluster ID (defined for all cells in the integrated dataset).
 
 ```{r cluster_mapping}
-
 ```
 
 # SessionInfo
