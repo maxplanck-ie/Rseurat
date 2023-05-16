@@ -104,7 +104,7 @@ To understand how these scores are calculated, take a look at the [original rese
 
 <!-- https://shiny.rstudio.com/gallery/shiny-wysiwyg.html -->
 
-Check out `rmd/brushedPlot.R`, an interactive app that allows you to select cells from any 2D plot, and get their names for downstream removal (e.g. cleaning doublets).
+Check out `rmd_archive/brushedPlot.R`, an interactive app that allows you to select cells from any 2D plot, and get their names for downstream removal (e.g. cleaning doublets).
 
 ## openXLSX
 
@@ -441,7 +441,7 @@ DT::datatable(pbmc@meta.data %>% dplyr::count(seurat_clusters))
 
 You may also need to combine the use of `ident.1` argument with others like `group`, to use some metadata.
 
-For example, to take all cells in cluster 2, and find markers that separate cells in the 'g1' group (metadata variable 'group'):
+For example, to take all cells in cluster 2, and find markers that separate cells in the 'g1' group (metadata column 'group'):
 
 ```{r}
 markers.2.g1 <- FindMarkers(pbmc_small, ident.1 = "g1", group.by = 'groups', subset.ident = "2")
