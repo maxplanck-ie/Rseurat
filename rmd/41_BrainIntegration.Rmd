@@ -3,14 +3,16 @@ title: 'Practical Exploration: Brain Integration'
 
 output:
   html_document:
-    toc: yes
+    theme: spacelab
+    highlight: pygments
+    code_folding: show
+    toc: true
     toc_float: true
     toc_depth: 2
     df_print: paged
-    code_folding: hide
-    highlight: pygments
-    theme: spacelab
 ---
+
+<link rel="stylesheet" href="headers.css">
 
 > This days is meant for **free data exploration** !
 
