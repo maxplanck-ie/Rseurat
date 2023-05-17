@@ -370,7 +370,7 @@ This algorithm in particular is the K Nearest Neighbors (KNN) graph that is cons
 For an example of building such a graph, imagine we took only two PCs (principal components) and had such an arrangement of cells like these dots in a 2D plane...
 
 ```{r, echo=FALSE}
-knitr::include_graphics("./images/KnnClassification.svg")
+knitr::include_graphics("./images/KnnClassification.png")
 ```
 
 On our example of k-NN classification for a cell highlighted in green color, the test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles.
