@@ -14,6 +14,13 @@ output:
 
 # Setup
 
+> **Note for Workbench users**
+>
+> If you have chosen to use the common library sitting at `/scratch/local/rseurat/pkg-lib-4.1.3`, and the following code block fails (after uncommenting the first line).
+> Try this: restart R (`Ctrl+Shift+F10`), and then execute `.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")` in the Console directly (no code block this time).
+>
+> This may be run up to two times, we did had the unexpected experience were this was the case... 🤷
+
 ```{r setup}
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
