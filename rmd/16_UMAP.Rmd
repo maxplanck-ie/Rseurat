@@ -233,7 +233,7 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 
 1.  Differences in cluster size mean nothing.
 2.  Distances between clusters might not mean anything.
-3.  You should look to more than one plot, changing its hyperparameters.
+3.  You should look to more than one plot, changing its parameters.
 
 # End
 
