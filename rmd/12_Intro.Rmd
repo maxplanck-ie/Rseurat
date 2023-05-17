@@ -4,10 +4,6 @@ title: "Introduction to Sequencing Techniques"
 output:
   html_document:
     theme: spacelab
-    highlight: pygments
-    code_folding: hide
-    toc: false
-    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
