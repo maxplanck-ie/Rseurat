@@ -44,7 +44,7 @@ cat("library path(s): ", .libPaths())
 
 # Load Data
 
-We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
+We'll be working with the data from "First steps", let's quickly re-load and re-process again:
 
 ```{r initial, warning=FALSE}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
@@ -66,6 +66,11 @@ pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
 
 pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 ```
+
+When working on your own, you will avoid re-running everything like we did here.
+We had the privilege of working with an educational dataset that has only 2700 cells.
+So these steps are not super intensive to re-compute. On a real dataset, you would _write_ it to disk with `saveRDS(SeuratObj, file = "./data.rds")`.
+And afterwards, you would _load_ from disk with the function `readRDS`.
 
 # Heatmaps
 
