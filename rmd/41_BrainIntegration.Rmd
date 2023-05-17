@@ -12,8 +12,6 @@ output:
     df_print: paged
 ---
 
-<link rel="stylesheet" href="headers.css">
-
 > This days is meant for **free data exploration** !
 
 We suggest two data sets from the following publications, and their corresponding data repositories.
@@ -32,8 +30,7 @@ For details and conclusions driven from these results please consult the origina
 <link rel="stylesheet" href="headers.css">
 
 ```{r knitr_opts}
-# Do _NOT_ run any code block below
-knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(eval = FALSE, echo = TRUE, format = TRUE, out.width = "100%")
 ```
 
 ```{r hdf5r}
@@ -41,7 +38,8 @@ if (!"hdf5r" %in% installed.packages()) BiocManager::install("hdf5r")
 ```
 
 ```{r setup, echo=TRUE}
-set.seed(123)
+set.seed(8211673)
+
 # necessary because of the read-in of the Loo et al matrix
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 5)
 
@@ -62,10 +60,8 @@ mySCT <- function(...) {
   )
 }
 
-options(
-  parallelly.fork.enable = FALSE,
-  future.globals.maxSize = 8 * 1024^2 * 1000
-)
+options(parallelly.fork.enable = FALSE,
+        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
 
 plan("multicore", workers = 8)
 
