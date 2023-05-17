@@ -27,6 +27,8 @@ For details and conclusions driven from these results please consult the origina
 
 # Setup
 
+<link rel="stylesheet" href="headers.css">
+
 ```{r knitr_opts}
 # Do _NOT_ run any code block below
 knitr::opts_chunk$set(eval = FALSE)

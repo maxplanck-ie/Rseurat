@@ -12,6 +12,8 @@ output:
     df_print: paged
 ---
 
+<link rel="stylesheet" href="headers.css">
+
 ```{r setup}
 knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)

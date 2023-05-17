@@ -14,6 +14,8 @@ output:
 
 # Setup
 
+<link rel="stylesheet" href="headers.css">
+
 ```{r setup}
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 

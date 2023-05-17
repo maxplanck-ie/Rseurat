@@ -6,6 +6,8 @@ output:
     theme: spacelab
 ---
 
+<link rel="stylesheet" href="headers.css">
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
 ```
