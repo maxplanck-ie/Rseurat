@@ -131,7 +131,8 @@ The `SeuratObject` serves as a container that contains both data (like the count
 For example, the count matrix is stored in `pbmc[["RNA"]]@counts`.
 On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
-> 🧭✨ Poll: In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
+> 🧭✨ Poll: 
+> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
 > Hint: subset the assay data, `pbmc@assays$RNA`.
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively.
