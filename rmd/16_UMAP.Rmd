@@ -226,8 +226,7 @@ Unsurprisingly there are again many parameters that can change the visualization
 > ⌨🔥 Exercise: For UMAP, an important parameter is the number of neighbors.
 > Play around with a couple of values!
 
-> 🧭✨ Polls:
->
+> 🧭✨ Poll:
 > Run the UMAP without seed a couple of times and compare.
 > Is it more affected than t-SNE?
 > Or less?
