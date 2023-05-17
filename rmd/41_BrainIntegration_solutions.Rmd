@@ -59,7 +59,7 @@ mySCT <- function(x){
 options(parallelly.fork.enable = FALSE,
         future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
 
-plan("multicore", workers = 8)
+# plan("multicore", workers = 8) # future doesn't work for me with a couple of commands
 
 cat("work directory: ", getwd())
 cat("\n")
@@ -161,9 +161,10 @@ metadata column 'Cluster'.
 
 *Notice:* per default the clusters are sorted by their sizes and the largest one has index 0 !
 ```{r explore_clusters}
+loo_alone$cell_type <- str_remove(loo_alone$Cluster, pattern = ' \\[.*')    # cell types in the Loo annotation have a cluster added which needs to be cleaned
 loo_alone@meta.data %>% select(starts_with("SCT")) %>% lapply(table)       # cluster sizes for all resolutions
 loo_alone@meta.data %>% select(starts_with("SCT")) %>% select(4,5) %>% table() %>% pheatmap()  # pairwise cluster comparisons
-loo_alone@meta.data %>% select(c("Cluster","SCT_snn_res.0.75")) %>% table() %>% pheatmap()     # compare cluster solution with previous annotation
+loo_alone@meta.data %>% select(c("cell_type","SCT_snn_res.0.75")) %>% table() %>% pheatmap()     # compare cluster solution with previous annotation
 loo_alone %>% subset(idents=0:2) %>% DimPlot()                                                 # cluster selection
 ```
 
@@ -307,7 +308,7 @@ anchors <- FindIntegrationAnchors(sl, anchor.features = int_feat, normalization.
 int     <- IntegrateData(anchorset = anchors,  normalization.method = "SCT")              # define integrated data set based on anchors
 
 # checkpoint: good work, time to save the object
-saveRDS(int, file='int.rds')
+# saveRDS(int, file='int.rds')
 ```
 
 ## Joint Analysis
@@ -336,7 +337,7 @@ int <- FindNeighbors(int, reduction = "pca", dims = 1:30, verbose = vf)
 int <- FindClusters(int, resolution = 0.5)
 
 # checkpoint: 5 min later
-saveRDS(int, file='int_processed.rds')
+# saveRDS(int, file='int_processed.rds')
 ```
 
 ## Joint Visualization
@@ -346,14 +347,14 @@ You are almost done. Time to make a few more UMAPs in which you label
 - the data source
 - cell type (as from annotations by Loo)
 - cluster ID (as obtained from simple clustering of the integrated set)
-```{r int_viz, fig.width=12, fig.height=4}
+```{r int_viz, fig.width=18, fig.height=6}
 
-int$cell_type <- str_remove(int$Cluster, pattern = ' .*')
+int$cell_type <- str_remove(int$Cluster, pattern = ' \\[.*') # need to capture the space before the square brackets, not spaces in cell types
 col = alpha(c('lightgrey', 'darkblue'), 0.5)
 
-p1 <- DimPlot(int, group.by = "source", cols = col, pt.size = 0.4)
-p2 <- DimPlot(int, group.by = 'cell_type')
-p3 <- DimPlot(int, group.by = 'seurat_clusters')
+p1 <- DimPlot(int, group.by = "source", cols = col, pt.size = 0.8)
+p2 <- DimPlot(int, group.by = 'cell_type', pt.size = 0.8, label = T) + theme(legend.position = 'none')
+p3 <- DimPlot(int, group.by = 'seurat_clusters', pt.size = 0.8)
 p1 + p2 + p3
 ```
 
@@ -361,7 +362,7 @@ With some luck we should be able to draw a correspondence of the annotated cell 
 and our cluster ID (defined for all cells in the integrated dataset).
 
 ```{r cluster_mapping}
-int@meta.data %>% select(c("cell_type","seurat_clusters")) %>% table() %>% pheatmap()
+int@meta.data %>% select(c("cell_type","seurat_clusters")) %>% table() %>% sweep(2, colSums(.), FUN="/") %>% pheatmap() # added per cplumn normalization for better interpretation
 ```
 
 # SessionInfo
