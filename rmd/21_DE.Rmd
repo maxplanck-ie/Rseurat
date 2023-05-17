@@ -172,6 +172,8 @@ VlnPlot(pbmc, features = feats)
 FeaturePlot(pbmc, features = feats)
 ```
 
+> ⌨🔥 Exercise: Draw a RidgePlot with the vector `feats`.
+
 ## Markers Per Cluster (between)
 
 What are the differences between clusters?
