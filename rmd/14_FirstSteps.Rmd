@@ -324,10 +324,6 @@ Examine and visualize PCA results a few different ways:
 DimPlot(pbmc, reduction = "pca") + NoLegend()
 ```
 
-> 🧭✨ Poll: Imagine we pick a pair of cells, one right next to the other, that have an absolute distance on the X-axis of two units (the distance on Y-axis is null).
-> Then, we pick another different pair of cells, one on top of the other; we measure their distance on the Y-axis, and it's again of two units (the distance on the X-axis is null).
-> So, both have a distance of two units, but the first pair does so in X-axis and the other on the Y-axis.
-> Which pair of cells is more divergent between themselves?
 
 ```{r printpca}
 print(pbmc[["pca"]], dims = 1:5, nfeatures = 5)

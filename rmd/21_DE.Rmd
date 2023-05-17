@@ -71,15 +71,13 @@ pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 >
 > What would happen if we ran `FindVariableFeatures` after `ScaleData`?
 >
-> And before `NormalizeData`?
->
 > What would happen if we skip `ScaleData`?
 > Would PCA be affected?
 >
 > What would happen if we skip `NormalizeData`?
 > Would UMAP be affected?
 >
-> Would it be any different if we ran `FindNeighbors` and `FindClusters` but only after UMAP?
+> Would it be any difference if we ran `FindNeighbors` and `FindClusters` but only after UMAP?
 
 # Searching for Markers
 
