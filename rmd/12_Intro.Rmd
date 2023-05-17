@@ -4,11 +4,9 @@ title: "Introduction to Sequencing Techniques"
 output:
   html_document:
     theme: spacelab
-    highlight: pygments
-    code_folding: hide
-    toc: false
-    df_print: paged
 ---
+
+<link rel="stylesheet" href="headers.css">
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
