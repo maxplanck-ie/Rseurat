@@ -139,7 +139,6 @@ knitr::include_graphics("images/tsne01.png")
 knitr::include_graphics("images/tsne02.png")
 ```
 
-
 Here the key idea is to first map distances between cells/ samples, $i$ and $j$, to probabilities
 
 -   in high dimensions: $d_{ij} \to p_{ij}$,
@@ -151,20 +150,20 @@ The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \t
 For further details, see some of these resources:
 
 -   [Google TechTalk](https://www.youtube.com/watch?v=RJVL80Gg3lA&list=UUtXKDgv1AVoG88PLl8nGXmw) (Duration 55 min.)
--   [StatQuest!](https://www.youtube.com/watch?v=NEaUSP4YerM) video (Duration 10 min.)
+-   [StatQuest!](https://www.youtube.com/watch?v=NEaUSP4YerM) video (Duration 10 min.) The screenshots included above come from here.
 -   [Article at Distill](https://distill.pub/2016/misread-tsne/) on the effects of parameters.
 -   [2019 paper](https://www.nature.com/articles/s41467-019-13056-x) summarizing the challenges of t-SNE for scRNA-seq data.
 -   [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
 
 The technical details may be challenging, but the execution in Seurat is straightforward.
+Keep in mind that this algorithm has many parameters that can be adjusted, the most relevant is probably the **perplexity** (see `?Rtsne::Rtsne` for further details.)
+This value is our way of telling to the algorithm (loosely) how to balance attention between local and global aspects of your data.
+The parameter is, in a sense, a guess about the number of close neighbors each point has.
 
 ```{r tsne}
 pbmc <- RunTSNE(pbmc)
 DimPlot(pbmc, reduction = "tsne")
 ```
-
-Notice that there are many parameters (with default values) that will affect the visualization.
-The most important are: input data and its dimensionality, a seed variable and the **perplexity** (see `?Rtsne::Rtsne` for further details on this.)
 
 > ⌨🔥 Exercise: Find out which parameters are used per default.
 > Explore some parameter choices together with your classmates and observe if this will affect the plot.
@@ -187,15 +186,25 @@ p2 <- pbmc %>%
 p1 + p2
 ```
 
-> **Conclusion:** t-SNE is a stochastic algorithm!!!
+> **Conclusion:** t-SNE is a stochastic algorithm. It starts with a random projection, and then accommodates the points in the lower dimension by moving them iteratively, guided by the similarity scores (the Student distribution.)
 
 ## UMAP: Uniform Manifold Approximation and Projection
 
 t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure.
+
+One of the differences between UMAP and t-SNE is that instead of using the Normal Probability Density Function (Gaussian bell depicted in the pictures above), we'll be using an asymmetric function: the base-2 logarithm of a given integer. This integer is one of our biggest parameter to explore: number of neighbors.
+
+```{r}
+knitr::include_graphics("images/umap.png")
+```
+
 For further details, see some of these resources:
 
 -   [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
 -   [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
+-   [StatQuest video](https://www.youtube.com/watch?v=eN0wFzBA4Sc), the screenshot above comes from this one.
+
+One of the key differences with t-SNE, is that instead of starting from a completely random projection, UMAP starts with an 'Spectral Embedding'. That's a whole another Manifold learning algorithm, but what's important is that this is going to be a better approximation than just using a random setting.
 
 UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspects of the data structure.
 It has several advantages:
