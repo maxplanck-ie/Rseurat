@@ -124,10 +124,16 @@ knitr::include_graphics("./images/EarthProjection_Gauss-Kruger_1822.jpg")
 knitr::include_graphics("./images/EarthProjection_Robinson_1963.jpg")
 ```
 
-For single-cell studies, two methodologies are popular: t-SNE and UMAP.
+For single-cell studies, two (similar) methodologies are popular: t-SNE and UMAP.
 The second one was developed 10 years later, and it adds a bunch of advantages.
 
 ## t-SNE: t-distributed stochastic neighbor embedding
+
+```{r, fig.show='hold'}
+knitr::include_graphics("images/tsne01.png")
+knitr::include_graphics("images/tsne02.png")
+```
+
 
 Here the key idea is to first map distances between cells/ samples, $i$ and $j$, to probabilities
 
