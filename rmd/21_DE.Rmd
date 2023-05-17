@@ -216,6 +216,8 @@ markers.between.clusters %>% head()
 > ⌨🔥 Exercise: We'll distribute the room in groups again (N\<=9), and assign a cluster to each.
 > Get the "gene signature" of your assigned cluster, see if you can assign the correct celltypes by using the following list of gene markers.
 >
+> <!-- Note for instructors: clusters 0 and 2 are the more difficult. Cluster 5 is a bit less straightforward but okay. -->
+>
 > ```{r}
 > list(
 >   `Naive CD4+ T` = c("IL7R", "CCR7"),
