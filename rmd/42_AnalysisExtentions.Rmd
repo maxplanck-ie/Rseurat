@@ -4,24 +4,16 @@ title: "Analysis Extentions"
 output:
   html_document:
     theme: spacelab
-    highlight: monochrome
-    code_folding: show
-    toc: true
-    toc_float: true
-    toc_depth: 2
-    df_print: paged
 ---
 
-## Setup
-
 ```{r, setup, include=FALSE}
-# .libPaths("/rstudio/sikora/rstudio/R/workbench-library/4.1")
 knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = FALSE, tidy = TRUE, tidy.opts = list(width.cutoff = 70))
 ```
 
 ## What else is out there in the scRNAseq analysis
 
--   We have been looking mostly to what's available within the R-language in general, and Seurat in particular. That means we skipped the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).)
+-   We have been looking mostly to what's available within the R-language in general, and Seurat in particular.
+    That means we skipped the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).)
 
 -   Monocle3: trajectory analysis -> <https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/>
 
@@ -35,7 +27,8 @@ knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = 
 
 -   Also, we may have skipped part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
 
--   It's a new framework, bringing `SingleCellExperiment` (not `SeuratObject`!) to the tidyverse idioms. Websites to explore:
+-   It's a new framework, bringing `SingleCellExperiment` (not `SeuratObject`!) to the tidyverse idioms.
+    Websites to explore:
 
     -   [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/)
     -   [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
