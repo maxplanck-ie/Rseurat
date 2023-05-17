@@ -124,7 +124,7 @@ Consider a simple geographic map, it shares the same goal.
 Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D.
 That is why we have different projections, depicted here are two different works, just as an example. <!-- https://en.wikipedia.org/wiki/List_of_map_projections -->
 
-```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
+```{r cartography, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
 knitr::include_graphics("./images/EarthProjection_Gauss-Kruger_1822.jpg")
 knitr::include_graphics("./images/EarthProjection_Robinson_1963.jpg")
 ```
@@ -134,7 +134,7 @@ The second one was developed 10 years later, and it adds a bunch of advantages.
 
 ## t-SNE: t-distributed stochastic neighbor embedding
 
-```{r, fig.show='hold'}
+```{r sq_tsne, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
 knitr::include_graphics("images/tsne01.png")
 knitr::include_graphics("images/tsne02.png")
 ```
@@ -173,6 +173,7 @@ DimPlot(pbmc, reduction = "tsne")
 > Is t-SNE affected by the seed?
 >
 > According to the docs, perplexity should always follow: `3 * perplexity < nrow(X) -1`.
+>
 > Are the rows referring to genes or cells?
 > Hint: see description of the matrix `X` in the help of `Rtsne()`...
 
@@ -194,7 +195,7 @@ t-SNE and UMAP have the same principle and workflow: create a high dimensional g
 
 One of the differences between UMAP and t-SNE is that instead of using the Normal Probability Density Function (Gaussian bell depicted in the pictures above), we'll be using an asymmetric function: the base-2 logarithm of a given integer. This integer is one of our biggest parameter to explore: number of neighbors.
 
-```{r}
+```{r sq_umap, echo=FALSE, fig.align="center"}
 knitr::include_graphics("images/umap.png")
 ```
 
