@@ -378,6 +378,66 @@ Also, if your research questions aim towards rare celltypes, you may definitely 
 
 <!-- Another methodology is using the JackStraw procedure: We randomly permute a subset of the data (1% by default) and rerun PCA, constructing a 'null distribution' of feature scores, and repeat this procedure. We identify 'significant' PCs as those who have a strong enrichment of low p-value features. Of course, such permutations tend to be cumbersome and this is a highly intense computational procedure, so we're skipping it in the course. -->
 
+# Playing around with metadata
+
+Let's have a look again into the values we got in `percent.mt`:
+
+```{r}
+hist(pbmc$percent.mt)
+```
+
+```{r}
+summary(pbmc$percent.mt)
+```
+
+Now, let's add a column annotating samples with low, medium or high `percent.mt`
+
+```{r}
+pbmc$mt.categories <- NA
+pbmc$mt.categories[pbmc$percent.mt <= 1.520] <- "Low"
+pbmc$mt.categories[pbmc$percent.mt > 1.520 &
+                     pbmc$percent.mt <= 2.591 ] <- "Medium"
+pbmc$mt.categories[pbmc$percent.mt > 2.591] <- "High"
+```
+
+Let's explore what we just did:
+
+```{r mt_categories, out.width="32%", out.height="32%", fig.show='hold', fig.align="center"}
+lapply(c("Low", "Medium", "High"), function(level) {
+  subset(pbmc, mt.categories == level) %>%
+         VlnPlot(features = "percent.mt") +
+    labs(title=level) + NoLegend()
+})
+```
+
+Finally, we are able to plot PCA, and have shape by these categories:
+
+```{r}
+DimPlot(pbmc, shape.by = "mt.categories")
+```
+
+What about using colors?
+
+To do that, we need to 'speak' to the Seurat function (`DimPlot`) through the `SeuratObj`.
+There is a variable (actually, it's a slot) inside it, called `active.ident`.
+To access or set this to different values (e.g. metadata columns) we use the `Idents()` function:
+
+```{r}
+Idents(pbmc) %>% head(3)
+```
+
+By default, all our cells have one single value, that was set while creating the Seurat object in our early steps.
+
+Let's set our new metadata column as the new active identity, and let `DimPlot` play out it's straightforward behavior:
+
+```{r}
+Idents(pbmc) <- 'mt.categories'
+
+DimPlot(pbmc)
+```
+
+**It's important that we keep track of our active identity.**
+
 # Clustering
 
 The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations.
@@ -431,6 +491,7 @@ pbmc <- FindClusters(pbmc, resolution = 0.5)
 ```
 
 After this process, we have a new `seurat_clusters` column in our `meta.data` slot.
+Also, this is our new active identity!
 
 > 🧭✨ Poll: How many clusters did we find?
 
