@@ -14,6 +14,8 @@ output:
 
 # Setup
 
+<link rel="stylesheet" href="headers.css">
+
 ```{r setup}
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
@@ -44,7 +46,7 @@ cat("library path(s): ", .libPaths())
 
 # Load Data
 
-We'll be working with the data from Day 1 ("First steps"), let's quickly re-load and re-process again:
+We'll be working with the data from "First steps", let's quickly re-load and re-process again:
 
 ```{r initial, warning=FALSE}
 pbmc <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/") %>%
@@ -66,6 +68,11 @@ pbmc <- FindNeighbors(pbmc, dims = seq_len(10), verbose = FALSE)
 
 pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 ```
+
+When working on your own, you will avoid re-running everything like we did here.
+We had the privilege of working with an educational dataset that has only 2700 cells.
+So these steps are not super intensive to re-compute. On a real dataset, you would _write_ it to disk with `saveRDS(SeuratObj, file = "./data.rds")`.
+And afterwards, you would _load_ from disk with the function `readRDS`.
 
 # Heatmaps
 
@@ -117,18 +124,22 @@ In general this is impossible, but one can at least hope to preserve **local** d
 
 Consider a simple geographic map, it shares the same goal.
 Given its limits, it requires some choices: a sphere cannot be mapped uniquely into 2D.
-That is why we have different projections, depicted here is the Universal Mercator Projection.
-Each of the 6-degree UTM is the projection on a plane using the geoid shape of our planet.
+That is why we have different projections, depicted here are two different works, just as an example. <!-- https://en.wikipedia.org/wiki/List_of_map_projections -->
 
-```{r, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
-knitr::include_graphics("./images/UTM-Zones-Globe-2.png")
-knitr::include_graphics("./images/Universe-Transverse-Mercator-Cylinder-678x540.png")
+```{r cartography, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
+knitr::include_graphics("./images/EarthProjection_Gauss-Kruger_1822.jpg")
+knitr::include_graphics("./images/EarthProjection_Robinson_1963.jpg")
 ```
 
-For single-cell studies, two methodologies are popular: t-SNE and UMAP.
+For single-cell studies, two (similar) methodologies are popular: t-SNE and UMAP.
 The second one was developed 10 years later, and it adds a bunch of advantages.
 
 ## t-SNE: t-distributed stochastic neighbor embedding
+
+```{r sq_tsne, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
+knitr::include_graphics("images/tsne01.png")
+knitr::include_graphics("images/tsne02.png")
+```
 
 Here the key idea is to first map distances between cells/ samples, $i$ and $j$, to probabilities
 
@@ -141,19 +152,20 @@ The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \t
 For further details, see some of these resources:
 
 -   [Google TechTalk](https://www.youtube.com/watch?v=RJVL80Gg3lA&list=UUtXKDgv1AVoG88PLl8nGXmw) (Duration 55 min.)
--   [StatQuest!](https://www.youtube.com/watch?v=NEaUSP4YerM) video (Duration 10 min.)
+-   [StatQuest!](https://www.youtube.com/watch?v=NEaUSP4YerM) video (Duration 10 min.) The screenshots included above come from here.
+-   [Article at Distill](https://distill.pub/2016/misread-tsne/) on the effects of parameters.
 -   [2019 paper](https://www.nature.com/articles/s41467-019-13056-x) summarizing the challenges of t-SNE for scRNA-seq data.
 -   [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
 
 The technical details may be challenging, but the execution in Seurat is straightforward.
+Keep in mind that this algorithm has many parameters that can be adjusted, the most relevant is probably the **perplexity** (see `?Rtsne::Rtsne` for further details.)
+This value is our way of telling to the algorithm (loosely) how to balance attention between local and global aspects of your data.
+The parameter is, in a sense, a guess about the number of close neighbors each point has.
 
 ```{r tsne}
 pbmc <- RunTSNE(pbmc)
 DimPlot(pbmc, reduction = "tsne")
 ```
-
-Notice that there are many parameters (with default values) that will affect the visualization.
-The most important are: input data and its dimensionality, a seed variable and the **perplexity** (see `?Rtsne::Rtsne` for further details on this.)
 
 > ⌨🔥 Exercise: Find out which parameters are used per default.
 > Explore some parameter choices together with your classmates and observe if this will affect the plot.
@@ -163,6 +175,7 @@ The most important are: input data and its dimensionality, a seed variable and t
 > Is t-SNE affected by the seed?
 >
 > According to the docs, perplexity should always follow: `3 * perplexity < nrow(X) -1`.
+>
 > Are the rows referring to genes or cells?
 > Hint: see description of the matrix `X` in the help of `Rtsne()`...
 
@@ -176,16 +189,25 @@ p2 <- pbmc %>%
 p1 + p2
 ```
 
-> **Conclusion:** t-SNE is a stochastic algorithm!!!
+> **Conclusion:** t-SNE is a stochastic algorithm. It starts with a random projection, and then accommodates the points in the lower dimension by moving them iteratively, guided by the similarity scores (the Student distribution.)
 
 ## UMAP: Uniform Manifold Approximation and Projection
 
 t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure.
-While t-SNE moves the high dimensional graph to a lower dimensional space points by points; UMAP compresses that graph.
+
+One of the differences between UMAP and t-SNE is that instead of using the Normal Probability Density Function (Gaussian bell depicted in the pictures above), we'll be using an asymmetric function: the base-2 logarithm of a given integer. This integer is one of our biggest parameter to explore: number of neighbors.
+
+```{r sq_umap, echo=FALSE, fig.align="center"}
+knitr::include_graphics("images/umap.png")
+```
+
 For further details, see some of these resources:
 
 -   [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
 -   [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
+-   [StatQuest video](https://www.youtube.com/watch?v=eN0wFzBA4Sc), the screenshot above comes from this one.
+
+One of the key differences with t-SNE, is that instead of starting from a completely random projection, UMAP starts with an 'Spectral Embedding'. That's a whole another Manifold learning algorithm, but what's important is that this is going to be a better approximation than just using a random setting.
 
 UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspects of the data structure.
 It has several advantages:
@@ -206,8 +228,7 @@ Unsurprisingly there are again many parameters that can change the visualization
 > ⌨🔥 Exercise: For UMAP, an important parameter is the number of neighbors.
 > Play around with a couple of values!
 
-> 🧭✨ Polls:
->
+> 🧭✨ Poll:
 > Run the UMAP without seed a couple of times and compare.
 > Is it more affected than t-SNE?
 > Or less?
@@ -228,7 +249,7 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 
 1.  Differences in cluster size mean nothing.
 2.  Distances between clusters might not mean anything.
-3.  You should look to more than one plot, changing its hyperparameters.
+3.  You should look to more than one plot, changing its parameters.
 
 # End
 
@@ -237,7 +258,7 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 
 > 🧭✨ Polls:
 >
-> Would decreasing the number of PCs fed onto the clustering algorithm change our visualization?
+> Would decreasing the number of PCs fed to the UMAP algorithm change our visualization?
 > Would you say the results are 'better'?
 >
 > Could you have the UMAP projection onto 3 axis instead of 2?
