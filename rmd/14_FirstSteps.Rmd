@@ -407,9 +407,10 @@ Let's explore what we just did:
 
 ```{r mt_categories}
 VlnPlot(pbmc,
-        features = "percent.mt",
-        group.by = "mt.categories",
-        sort = "decreasing") +
+  features = "percent.mt",
+  group.by = "mt.categories",
+  sort = "decreasing"
+) +
   ggtitle(NULL) + NoLegend()
 ```
 
@@ -434,7 +435,7 @@ By default, all our cells have one single value, that was set while creating the
 Let's set our new metadata column as the new active identity, and let `DimPlot` play out it's straightforward behavior:
 
 ```{r}
-Idents(pbmc) <- 'mt.categories'
+Idents(pbmc) <- "mt.categories"
 
 DimPlot(pbmc)
 ```

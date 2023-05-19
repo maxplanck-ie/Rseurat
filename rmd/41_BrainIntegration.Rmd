@@ -60,8 +60,10 @@ mySCT <- function(...) {
   )
 }
 
-options(parallelly.fork.enable = FALSE,
-        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+options(
+  parallelly.fork.enable = FALSE,
+  future.globals.maxSize = 8 * 1024^2 * 1000
+)
 
 plan("multicore", workers = 8)
 
