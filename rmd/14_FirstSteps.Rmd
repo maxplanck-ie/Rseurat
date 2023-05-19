@@ -405,13 +405,12 @@ stopifnot(all(! is.na(pbmc$percent.mt)))
 
 Let's explore what we just did:
 
-```{r mt_categories, out.height="32%", fig.show='hold', fig.align="center"}
-lapply(c("High", "Medium", "Low"), function(level) {
-  subset(pbmc, mt.categories == level) %>%
-         VlnPlot(features = "percent.mt") +
-    ggtitle(level) + NoLegend() + NoAxes() +
-  theme(plot.title = element_text(hjust = 1, vjust = -10))
-})
+```{r mt_categories}
+VlnPlot(pbmc,
+        features = "percent.mt",
+        group.by = "mt.categories",
+        sort = "decreasing") +
+  ggtitle(NULL) + NoLegend()
 ```
 
 Finally, we are able to plot PCA, and have shape by these categories:
