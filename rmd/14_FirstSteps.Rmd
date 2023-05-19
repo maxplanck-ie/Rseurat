@@ -394,19 +394,23 @@ Now, let's add a column annotating samples with low, medium or high `percent.mt`
 
 ```{r}
 pbmc$mt.categories <- NA
+
 pbmc$mt.categories[pbmc$percent.mt <= 1.520] <- "Low"
 pbmc$mt.categories[pbmc$percent.mt > 1.520 &
                      pbmc$percent.mt <= 2.591 ] <- "Medium"
 pbmc$mt.categories[pbmc$percent.mt > 2.591] <- "High"
+
+stopifnot(all(! is.na(pbmc$percent.mt)))
 ```
 
 Let's explore what we just did:
 
-```{r mt_categories, out.width="32%", out.height="32%", fig.show='hold', fig.align="center"}
-lapply(c("Low", "Medium", "High"), function(level) {
+```{r mt_categories, out.height="32%", fig.show='hold', fig.align="center"}
+lapply(c("High", "Medium", "Low"), function(level) {
   subset(pbmc, mt.categories == level) %>%
          VlnPlot(features = "percent.mt") +
-    labs(title=level) + NoLegend()
+    ggtitle(level) + NoLegend() + NoAxes() +
+  theme(plot.title = element_text(hjust = 1, vjust = -10))
 })
 ```
 
