@@ -239,11 +239,11 @@ This will be covered in the next section.
 
 # End
 
-```{=html}
-<!--
-# fig.asp? sets the height-to-width ratio of the figure. Use in combination with either fig.width and fig.height if needed.
-# https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html
-# value < 1 makes the plot wider
-# value > 1 makes the plot taller
+<!-- fig.asp knitr option sets the height-to-width ratio of the figure.
+
+value < 1 makes the plot wider
+value > 1 makes the plot taller
+
+Use in combination with either fig.width and fig.height if needed.
+https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html
 -->
-```
