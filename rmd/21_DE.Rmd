@@ -69,6 +69,8 @@ pbmc <- FindClusters(pbmc, resolution = 0.5, verbose = FALSE)
 pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 ```
 
+<!-- TODO: move clustering into day 2, since it's more tightly coupled to DE analysis -->
+
 > 🧭✨ Polls:
 >
 > <!-- TODO: Add an option 'Depends' on the slot taken by the seurat function. This would be the correct answer actually. So, we need to rethink and/or rephrase questions and answers in this section. Overall, the goal is a good one, revisiting concepts and so on... -->
