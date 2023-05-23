@@ -16,22 +16,6 @@ output:
 
 <link rel="stylesheet" href="headers.css">
 
-<div class="alert alert-dismissible alert-warning"><h4 class="alert-heading">
-
-Note for Workbench users
-
-</h4><p class="mb-0">
-
-If you have chosen to use the common library sitting at <code>/scratch/local/rseurat/pkg-lib-4.1.3</code>, and the following code block fails (after uncommenting the first line). 
-Try this: restart R (<code>Ctrl+Shift+F10</code>), and then execute in the Console directly (no code block this time):
-
-<code class="sourceCode r">.libPaths(new="/scratch/local/rseurat/pkg-lib-4.1.3")</code>
-
-<br />This (incl. restart) may be run up to two times, we did had the unexpected experience were this was the case... 🤷
-
-</p>
-</div>
-
 ```{r setup}
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
 
@@ -86,6 +70,8 @@ pbmc <- RunUMAP(pbmc, dims = seq_len(10), verbose = FALSE)
 ```
 
 > 🧭✨ Polls:
+>
+> <!-- TODO: Add an option 'Depends' on the slot taken by the seurat function. This would be the correct answer actually. So, we need to rethink and/or rephrase questions and answers in this section. Overall, the goal is a good one, revisiting concepts and so on... -->
 >
 > What would happen if we ran `FindVariableFeatures` after `ScaleData`?
 >
