@@ -113,13 +113,22 @@ Especially for Seurat, there is one outstanding cheat sheet which should help yo
 
 # Loo Data
 
-The analysis of Loo *et al.* highlighted the role of `Neurod2`, `Gad2`, `Eomes`, and `Mki67.` - Prepare the data for dimensional reduction (filtering, normalization, PCA) - Check a suitable number of principal components to keep - Play around with different values of `n.neighbors` on UMAP algorithm - Plot the normalized expression of the aforementioned genes of interest
+The analysis of Loo *et al.* highlighted the role of `Neurod2`, `Gad2`, `Eomes`, and `Mki67.` 
+
+- Prepare the data for dimensional reduction (filtering, normalization, PCA) 
+- Check a suitable number of principal components to keep 
+- Play around with different values of `n.neighbors` on UMAP algorithm 
+- Plot the normalized expression of the aforementioned genes of interest
 
 Should you be more interested in data structures, you could also check the Seurat data object with `View()` or `dplyr::glimpse()`; it's huge and has many `slots` that will be updated as the analysis proceeds.
 
 *Notice:* Here we only use the data for E14.5 (not P0)
 
-`loo_alone <- ...`
+**TIP**: You might want to create and work with a new Seurat Object e.g. `loo_alone` since we will return to the original data `loo` in the second part.
+
+```{r init_process, eval=FALSE}
+# loo_alone <- ...
+```
 
 ## Finding Clusters
 
@@ -132,7 +141,8 @@ Use variable resolution parameters and inspect the results - which resolution (=
 **TIP**: the same `SeuratObj` may hold multiple clustering results.
 By default, the column `seurat_clusters` in our `meta.data` slot will point to the last run.
 
-<code> \# FindNeighbors(...)
+```{r find_clusters, eval=FALSE} 
+# FindNeighbors(...)
 
 # Define Resolutions, e.g. res=c(0.1, 0.25, 0.5, 0.75, 1.0)
 
@@ -142,7 +152,7 @@ By default, the column `seurat_clusters` in our `meta.data` slot will point to t
 
 # Plot UMAP for different resolutions (hint: change group.by= ...)
 
-</code>
+```
 
 1.  Explore the different cluster solutions with respect to their sizes and pairwise relationships (hint: table).
 
