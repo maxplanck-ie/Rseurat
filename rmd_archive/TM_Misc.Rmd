@@ -1,0 +1,201 @@
+---
+title: "Misc"
+author: "Thomas Manke"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: spacelab
+    highlight: pygments
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    df_print: paged
+---
+This is a collection of code snippets to go with the RSeurat course.
+They all assume that the respective Seurat object is loaded.
+
+# Data Inspection
+
+... from overall metadata info
+```{r}
+panc_sub$nCount_RNA %>% hist(2000, xlim=c(0,50000))               # counts per cell distribution
+panc_sub$nCount_RNA %>% sort() %>% rev() %>% log10() %>% plot()   # rank plot  
+```
+
+```{r}
+# illustrate count differences
+counts <- GetAssayData(panc_sub, slot = "counts")
+hist(counts["ACTB",], 5000, xlim=c(0,200))  # highly expressed, most cells + dropouts
+hist(counts["CD4",], 5000, ylim=c(0,20))    # weak expressed, few cell types
+```
+
+# Batch testing
+Here I wanted to illustrate the effect of batch effect "removal" (with Seurat:CCA)
+on the correlation of the batch variable with the leading PC components
+(c.f lecture rmd/30..)
+
+```{r R2}
+b <- panc_sub$dataset %>% as.factor() # batch variable
+
+myR2 <- function(y){ summary(lm(y ~ b))$r.squared }
+
+
+# get PCA embeddings for the initial data "panc_sub" and batch controlled integration "panc_combined"
+R2 <- data.frame(
+  merged= apply(Embeddings(panc_sub),2,myR2)[1:30],          # simple merge - no batch correction
+  integrated = apply(Embeddings(panc.combined),2,myR2)       # integrated data - with batch correction
+)
+
+R2 %>%
+  rownames_to_column(var = "PC") %>%
+  mutate(PC=as.factor(as.integer(gsub("PC_","",PC)))) %>%
+  gather(status, "R2", -PC ) %>%
+  ggplot(aes(x=PC,y=R2, fill=status)) +
+  geom_bar(stat = "identity", position = 'dodge') +
+  theme(
+    axis.text = element_text(size=8)
+  )
+```
+### Multiple Multivariate Regression
+```{r multiple_reg}
+pca <- Embeddings(panc_sub)      # score matrix
+b <- as.factor(panc_sub$dataset) # batch variable
+
+#fit1 <- lm(pca[,1] ~ b )    # regression of PC_1 ~ b
+fit <-  lm(pca ~ b )        # multiple regression all PC_i ~ b
+
+# fit is a list of fits and summary a list of summaries
+ls <- summary(fit)
+# return r.squared from each summary s
+r2 <- lapply(ls, function(s) { s$r.squared}) %>% unlist()
+# trim names for easier plotting
+names(r2) <- sub('Response ','', names(r2))
+
+barplot(r2, las=2, cex.axis = 0.6)
+
+# canonical correlation coefficients are only defined for numeric X,Y
+# forcing b --> 0,1 is poor style
+
+#cancor(pca[,1], as.numeric(b))$cor
+cancor(pca, as.numeric(b))$cor
+```
+
+### Canonical Correlation
+```{r canonical_corr}
+pca1 <- Embeddings(panc_sub)        # score matrix
+pca2 <- Embeddings(panc.combined)
+
+x <- panc_sub$nCount_RNA         # batch variable: sequencing depth
+cancor(pca1, x)$cor
+cancor(pca2, x)$cor
+```
+
+## Variance explained 
+Identify any variable in metadata that has an impact on variance (biological or technical)
+```{r}
+myR2 <- function(y){ summary(lm(y ~ b))$r.squared }
+
+pca <- Embeddings(panc_sub)[,1:30]
+
+vars <- panc_sub@meta.data %>% colnames() # list of all vars to consider
+
+df <- data.frame()
+
+for (v in vars) {
+
+  b <- panc_sub@meta.data %>% pull(v) 
+  if (!is.numeric(b)) { 
+      b <- as.factor(b) 
+      if (nlevels(b) < 2) { next }
+  } 
+
+  if (v == "tech") { next }  # redundant with "dataset"
+  print(v, str(b))
+  
+  r2s = apply(pca,2,myR2)
+  
+  # convert to data frame
+  add = data.frame(R2=r2s, v=v) %>%  
+    rownames_to_column(var = "PC") %>%
+    mutate(PC=as.factor(as.integer(gsub("PC_","",PC))))
+  
+  df = rbind(df, add) # append
+}
+ 
+ggplot(df, aes(x=PC,y=R2, fill=v)) +
+  geom_bar(stat = "identity", position = 'dodge') +
+  facet_wrap(~v) + 
+  ggtitle("Test") +
+  theme(
+    axis.text = element_text(size=8)
+    )
+
+```
+## Distribution in UMAP
+
+How different metadata is distributed in UMAP
+```{r}
+vars <- panc_sub@meta.data %>% colnames()                    # list of all vars to consider
+num_vars <- panc_sub@meta.data %>% select(where(is.numeric)) %>% colnames()
+cat_vars <- c("orig.ident","celltype","dataset")
+
+panc_sub@meta.data %>% select_if(negate(is.numeric)) %>% colnames()
+
+FeaturePlot(panc_sub, features = num_vars)
+
+DimPlot(panc_sub, group.by=cat_vars)  & NoLegend()
+
+```
+
+
+# Compare scree plots before and after integration
+
+Somewhere I read that we could/should _use_ more components _after_ integration.
+```{r}
+var_1 <- Stdev(panc_sub, reduction = "pca")^2
+var_2 <- Stdev(panc.combined, reduction = "pca")^2
+
+plot(var_1/sum(var_1))
+points(var_2/sum(var_2), col="red")
+```
+
+
+
+Comparing counts, data, scale.data in Seurat object for given gene 
+
+```{r}
+g = "ACTB" # highly expressed across cell types
+g = "CD14" # lowly expressed, cell-type specific
+g = "HMGB2"
+g = "GAPDH"
+df_c <- GetAssayData(panc_sub, slot = "counts")[g,] %>% 
+  data.frame() %>% rownames_to_column('cell') %>% mutate(slot="counts")
+df_d <- GetAssayData(panc_sub, slot = "data")[g,] %>% 
+  data.frame() %>% rownames_to_column('cell') %>% mutate(slot="data")
+df_s <- GetAssayData(panc_sub, slot = "scale.data")[g,] %>% 
+  data.frame() %>% rownames_to_column('cell') %>% mutate(slot="scale.data")
+
+bind_rows(df_c, df_d, df_s) %>% 
+  ggplot(aes(x=., fill=slot)) + 
+  geom_histogram() + 
+  facet_wrap(~slot, scales="free")
+```
+
+Signal, Noise and Signal-Noise
+```{r}
+counts = GetAssayData(panc_sub, slot = "counts")
+mu = apply(counts, 1, mean)
+std = apply(counts, 1, sd)
+
+smoothScatter(log(mu), log(std))
+smoothScatter(log(mu), log(mu/std))
+smoothScatter(log(mu), mu/std)
+smoothScatter(sqrt(mu), mu/std)
+```
+
+
+
+
+ 
+
