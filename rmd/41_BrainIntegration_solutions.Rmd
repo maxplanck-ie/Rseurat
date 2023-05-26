@@ -103,7 +103,7 @@ Especially for Seurat, there is one outstanding cheat sheet which should help yo
 
 # Loo Data
 The analysis of Loo *et al.* highlighted the role of Neurod2, Gad2, Eomes, and Mki67.
-- Prepare the data for dimensional reduction 
+- Prepare the data for dimensional reduction (filter, transformations, ...)
 - Check a suitable number of principal components to keep)
 - Plot the normalized expression of these important genes on a UMAP.
 
@@ -111,9 +111,20 @@ Should you be more interested in data structures, you could also check the Seura
 with `View()` - it's huge and has many `slots` that will be changing as the analysis proceeds.
 
 *Notice:* Here we only use the data for E14.5 (not P0)
+
+```{r get_mt}
+loo[["percent.mt"]] <- PercentageFeatureSet(loo, pattern = "^mt-")
+loo@meta.data %>% head()
+VlnPlot(
+  loo,
+  features = c("nFeature_RNA", "nCount_RNA", "percent.mt"),
+  ncol = 3
+)
+```
+
 ```{r loo_prep}
 loo_alone <- loo %>% 
-  subset(nFeature_RNA > 200 & nFeature_RNA < 3000) %>%
+  subset(nFeature_RNA > 200 & nFeature_RNA < 3000 & percent.mt < 5) %>%
   mySCT() %>% 
   RunPCA(verbose=FALSE) %>% 
   RunUMAP(reduction = "pca", dims = 1:30, verbose=FALSE)
