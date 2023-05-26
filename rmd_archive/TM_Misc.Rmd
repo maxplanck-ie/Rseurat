@@ -12,8 +12,69 @@ output:
     toc_depth: 2
     df_print: paged
 ---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+> This markdown will not run on its own !!!
+
 This is a collection of code snippets to go with the RSeurat course.
-They all assume that the respective Seurat object is loaded.
+They all assume that the respective Seurat objects are loaded.
+
+# Top expressed genes
+```{r top_genes}
+top20 <- pbmc.data %>% rowSums() %>% sort() %>% tail(20) %>% rev() %>% names()
+mat <- pbmc.data[top20,] %>% as.matrix() %>% t()
+
+mat %>%
+  as.data.frame() %>%
+  gather("name","count") %>% 
+  ggplot(aes(x=name,y=count, col=name)) +
+  geom_point() + 
+  coord_flip() +
+  NoLegend()
+
+RidgePlot(pbmc, features = top20[1:6], col=3) + NoLegend()
+```
+
+Messages:
+
+- ribosomes are most abundant: healthy cells have plenty of ribosomes
+- still the counts per cell are small (<100) compared to bulk RNA
+- not seen here: distributions over cells can be very complex and multi-modal (diff. cell types)
+
+## Ribosomes and Mitochondria
+```{r}
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+pbmc[["percent.rp"]] <- PercentageFeatureSet(pbmc, pattern = "^RP[SL]")
+FeatureScatter(pbmc, feature1 = "percent.rp", feature2 = "percent.mt")
+
+pbmc@meta.data %>%
+  ggplot(aes(x=percent.rp, y=percent.mt, col=log(nCount_RNA+1))) +
+  geom_point() +
+  scale_color_gradient(low="lightblue", high="red")
+```
+
+# Cell-cell correlation
+```{r}
+# two cell with large count
+top2 <- pbmc.data %>% colSums() %>% sort() %>% rev() %>% tail(2) %>% names()
+pbmc.data[,top2] %>% as.data.frame() %>%
+  ggplot(aes(.data[[top2[1]]], .data[[top2[2]]])) +
+  geom_point()
+  
+# two cells from same cluster1
+(top2_1 <- pbmc@meta.data %>% filter(seurat_clusters==1) %>% arrange(-nCount_RNA) %>% head(2) %>% rownames())
+lookup <- c(cell1 = "AACCTACTGTGAGG-1", cell2 = "ACCCAGCTGTTAGC-1")
+
+pbmc.data[,top2_1] %>% as.data.frame() %>%
+  rename(all_of(lookup)) %>%
+  ggplot(aes(x=cell1,y=cell2)) +
+  geom_point()
+```
+
+
 
 # Data Inspection
 
