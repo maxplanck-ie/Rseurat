@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: MicromambaCreateEnv
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@main
         with:
           environment-name: Rseurat
           environment-file: configs/conda.yml
