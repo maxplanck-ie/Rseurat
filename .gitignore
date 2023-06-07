@@ -3,12 +3,12 @@
 .RData
 .Ruserdata
 *.log
+*.html
 rmd/*.html
 rmd/*_files/
 rmd/site/
 rmd/site_libs/
-rmd/datasets/preprocessed_rds/*.rds
-rmd/datasets/preprocessed_rds/*.RDS
+rmd/datasets/
 *.gz
 *.RDS
 *.rds
