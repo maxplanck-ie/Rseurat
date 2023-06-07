@@ -29,11 +29,11 @@ knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = 
 
 -   Also, we may have skipped part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
 
--   It's a new framework, bringing `SingleCellExperiment` (not `SeuratObject`!) to the tidyverse idioms.
+-   It's a new framework, bringing `SingleCellExperiment` and `SeuratObject` to the tidyverse idioms.
     Websites to explore:
 
-    -   [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/)
     -   [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
+    -   [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/) for tidy manipulation of Bioconductor's SCE objects
     -   [tidybulk](https://stemangiola.github.io/tidybulk/) for tidy bulk RNA-seq data analysis
     -   [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
     -   [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
