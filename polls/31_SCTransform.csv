@@ -1,4 +1,4 @@
 Activity,Type,Title,Option,Option,Option,Option,Option
-Poll,Multiple choice,Which cell population has the highest total counts?,"CD14Mono","CD4 Memory","DC","Eryth","NK"
+Poll,Multiple choice,Which cell population has the highest total counts?,"CD14Mono","CD4 Memory","DC","Eryth","NK",
 Poll,Multiple choice,What amount of standard deviation does PC1 explain after sc-transform?,"about 2.5","about 8","about 12.9","about 16.7",,
 Poll,Multiple choice,What amount of standard deviation does the first PC explain after applying sc-transform to the stimulated dataset?,"about 8.3","about 14.6","about 18","about 22.5",,
