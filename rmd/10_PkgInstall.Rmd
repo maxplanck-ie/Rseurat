@@ -44,7 +44,7 @@ On Workbench, you may skip all the package installation by loading from a common
 For that matter, you'll need to run the following line of code at the start of any R session (e.g. each morning when the course starts).
 
 ```{r}
-.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.1.3")
+.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
 ```
 
 If you choose this route, then you can execute that line now and move forward to the 'Check Installation' section below.
@@ -63,7 +63,7 @@ If all goes well, and you're working with our Workbench, it could be \~10 minute
 
 ### Important Notes
 
--   Ensure you're running R `4.1.3`. The following procedure wasn't tested with recent versions.
+-   Ensure you're running R `4.2.3`. The following procedure wasn't tested with recent versions.
 -   Run each of the code blocks manually, and ensure there were no errors before moving forward.
 -   Watch out for possible errors. It would be wise to keep an eye on the text output at all time.
 -   To emphasize the last item, let's rephrase it: shouldn't be a surprise if you have a compilation error message in the middle of the whole text output.
@@ -80,7 +80,7 @@ We'll put this in the default library location (`libPaths()`.)
 
 Run this in a Terminal **inside the server** (on RStudio IDE, you can open this using the 'Tools' menu).
 
-`cp -r /scratch/local/rseurat/pkg-lib-4.1.3 /rstudio/${USER}/rstudio/R/workbench-library/4.1`
+`cp -r /scratch/local/rseurat/pkg-lib-4.2.3 /rstudio/${USER}/rstudio/R/workbench-library/4.2`
 
 The package library you just copied over is a snapshot taken the 15th of May 2023.
 
@@ -114,9 +114,9 @@ The difference is that instead of GNU Public License, Bioc packages are under a 
 if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
 ```
 
-With `BiocManager`, we can install Bioconductor `3.14`.
-If you are using R 4.2 or 4.3, then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version.
-If you really need it, you may use bioconductor `3.16`, but these lectures were only tested with the versions we are recommending (4.1.3 & 3.14).
+With `BiocManager`, we can install Bioconductor `3.16`.
+If you are using R 4.4 or newer(?), then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version.
+If you really need it, you may the latest R with bioconductor `3.18`, but these lectures were only tested with the versions we are recommending (4.2.3 & 3.16).
 
 ```{r bioc314}
 BiocManager::install(version = "3.14")
@@ -203,8 +203,8 @@ Installing 10-20 packages may look as a simple activity, but that's not the case
 On workbench, after a couple of re-runs, we needed to remove locks manually, you may do so from your Terminal:
 
 ```{bash, eval=FALSE}
-rm -rf /rstudio/${USER}/rstudio/R/workbench-library/4.1/00LOCK-*
-rm -rf /rstudio/${USER}/.rstudio/R/workbench-library/4.1/00LOCK-*
+rm -rf /rstudio/${USER}/rstudio/R/workbench-library/4.2/00LOCK-*
+rm -rf /rstudio/${USER}/.rstudio/R/workbench-library/4.2/00LOCK-*
 ```
 
 ```{=html}

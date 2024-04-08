@@ -3,13 +3,15 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - r-base=4.1.3
+  - r-base=4.2.3
   - r-essentials
+  - r-usethis
   - r-formatR
   - r-styler
   - r-remotes
   - r-biocmanager
-  - bioconductor-BiocVersion=3.14
+  - bioconductor-BiocVersion=3.16
+  - r-matrixstats=1.1.0  # to fix sctransform, remove this line when upgrading r-base to 4.4 and bioc to 3.18 (2025?)
   - r-ggplot2
   - r-patchwork
   - r-Seurat
@@ -65,3 +67,4 @@ dependencies:
   - bioconductor-scater
   - bioconductor-glmGamPoi
   - r-gh
+  - r-presto

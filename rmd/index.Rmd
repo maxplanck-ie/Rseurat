@@ -36,7 +36,7 @@ In this course we will use R and the Seurat package to introduce the basic analy
 
 #### Requirements
 
-This is a hands-on course and requires **(1)** a WLAN-capable laptop with Internet access (your device needs to be registered with Core-IT). **(2)** An account for [Workbench](https://workbench.ie-freiburg.mpg.de). We will use the Rstudio server at the MPI-IE. If you do not have an account yet, you will need to request a 'linux' account from core-IT (please do so well before the course starts). We will be using R `4.1.3` and Bioconductor `3.14` during this course.
+This is a hands-on course and requires **(1)** a WLAN-capable laptop with Internet access (your device needs to be registered with Core-IT). **(2)** An account for [Workbench](https://workbench.ie-freiburg.mpg.de). We will use the Rstudio server at the MPI-IE. If you do not have an account yet, you will need to request a 'linux' account from core-IT (please do so well before the course starts). We will be using R `4.2.3`, Bioconductor `3.16`, and Seurat `5.0.2` during this course.
 
 Even though a simple laptop may not be powerful enough to handle larger analysis, you can use a local installation of R as well. Download it from here for your platform: [Linux](https://cran.rstudio.com/bin/linux/), [Mac](https://cran.rstudio.com/bin/macosx/base/), [Windows](https://cran.rstudio.com/bin/windows/base/old/).
 

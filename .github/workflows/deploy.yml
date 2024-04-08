@@ -36,7 +36,7 @@ jobs:
       - name: RemoteInstallGH
         run: |
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
-          Rscript -e "SeuratData::InstallData('ifnb')"
+          Rscript -e "SeuratData::InstallData('ifnb')"  # if this fails, download file.tar.gz w/ cURL, then install.packages('file.tar.gz', repos=NULL, type='source')
           Rscript -e "SeuratData::InstallData('pbmc3k')"
       - name: DownloadZenodo
         working-directory: ./rmd
