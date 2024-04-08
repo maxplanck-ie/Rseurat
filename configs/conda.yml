@@ -67,4 +67,4 @@ dependencies:
   - bioconductor-scater
   - bioconductor-glmGamPoi
   - r-gh
-  - r-presto
+  # r-presto  ## this speeds-up DE tests, but it's only compat with R >=4.3 (& <4.4 ATM)
