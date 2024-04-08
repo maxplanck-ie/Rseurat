@@ -118,11 +118,11 @@ With `BiocManager`, we can install Bioconductor `3.16`.
 If you are using R 4.4 or newer(?), then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version.
 If you really need it, you may the latest R with bioconductor `3.18`, but these lectures were only tested with the versions we are recommending (4.2.3 & 3.16).
 
-```{r bioc314}
-BiocManager::install(version = "3.14")
+```{r biocInstall}
+BiocManager::install(version = "3.16")
 ```
 
-> You can ignore the message:
+> You can ignore the following message (it will also show different version numbers and dates to you, but the important bit is 'path not writeable'):
 >
 >     Bioconductor version 3.14 (BiocManager
 >       1.30.20), R 4.1.3 (2022-03-10)
