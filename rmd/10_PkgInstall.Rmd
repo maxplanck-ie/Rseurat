@@ -203,8 +203,7 @@ Installing 10-20 packages may look as a simple activity, but that's not the case
 On workbench, after a couple of re-runs, we needed to remove locks manually, you may do so from your Terminal:
 
 ```{bash, eval=FALSE}
-rm -rf /rstudio/${USER}/rstudio/R/workbench-library/4.2/00LOCK-*
-rm -rf /rstudio/${USER}/.rstudio/R/workbench-library/4.2/00LOCK-*
+rm -rf /rstudio/${USER}/{.,}rstudio/R/workbench-library/**/00LOCK-*
 ```
 
 ```{=html}
