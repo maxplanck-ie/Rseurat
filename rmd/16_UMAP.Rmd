@@ -209,6 +209,7 @@ For further details, see some of these resources:
 -   [McInnes et al. 2018](https://arxiv.org/pdf/1802.03426)
 -   [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
 -   [StatQuest video](https://www.youtube.com/watch?v=eN0wFzBA4Sc), the screenshot above comes from this one.
+-   [Parameter Tuning Tutorial](https://umap-learn.readthedocs.io/en/latest/parameters.html) on the official Python Implementation (McInnes et al.)
 
 One of the key differences with t-SNE, is that instead of starting from a completely random projection, UMAP starts with an 'Spectral Embedding'.
 That's a whole another Manifold learning algorithm, but what's important is that this is going to be a better approximation than just using a random setting.
