@@ -118,9 +118,9 @@ For this and the following to work you need a working internet connection.
 
 ```{r dbs}
 dbs <- c(
-  "GO_Biological_Process_2021",
-  "GO_Cellular_Component_2021",
-  "GO_Molecular_Function_2021"
+  "GO_Biological_Process_2023",
+  "GO_Cellular_Component_2023",
+  "GO_Molecular_Function_2023"
 )
 ```
 
