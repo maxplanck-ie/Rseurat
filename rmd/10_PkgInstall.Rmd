@@ -21,61 +21,43 @@ options(warn = -1)
 
 > Thanks for taking the time to do this before the course!
 
-We'll be downloading the source of this text you're reading now.
-The first time you open this on RStudio IDE, a yellow sign will tell ask you to install some packages.
-This is a very smart feature, and convenient.
-But before going forward with it, please keep reading... just leave the yellow sign opened over there...
-
-# Working Directory
-
-Download all the course RMarkdown documents in a zip file from [the repository at GitHub](https://github.com/maxplanck-ie/Rseurat/archive/refs/heads/main.zip).
-Put it in a folder, any folder but outside the `/home` partition!
-You will find all the lectures under `rmd/` subfolder.
-On the root you'll find an `Rproj` file, so you should **open the corresponding path as an existing project folder** in RStudio IDE. You should follow the next instructions using the 'raw' `./rmd/10_PkgInstall.Rmd` file now.
-Remember to READ ALL THE INSTRUCTIONS, the following installation steps are rather sensitive.
-So, unfortunately, it's not a matter of going ahead clicking the `Run` button in each RMarkdown code block and just get all the process done.
-Expect to see error messages!
-
 # Installation
+
+There are two options, "skip" or "not to skip".
+The latter, would be the preferred way for students to whom analyzing single-cell datasets is a core part of their research project(s).
 
 ## Skip
 
-On Workbench, you may skip all the package installation by loading from a common package library we have provided.
+On Workbench, you may skip all the package installation by loading from a common package library we provide.
 For that matter, you'll need to run the following line of code at the start of any R session (e.g. each morning when the course starts).
 
 ```{r}
 .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
 ```
 
-If you choose this route, then you can execute that line now and move forward to the 'Check Installation' section below.
-If all went well, you're ready to get into downloading the datasets (section that comes after checking, so keep reading from there).
+If you chose this route, then you can execute that line now and move forward to the ['Check Installation' section below](#check-installation). If all went well, you're ready to get into downloading the **datasets** (that section comes last, so keep reading after 'Checking Installation').
 
 ## Or not to skip
 
-Of course, even if you were to use Workbench, having your own package installation is highly recommended.
-Specially if you know are going to have a single cell dataset of your own in the upcoming weeks or months.
+Having your own package installation is highly recommended since it enables you to keep updating the libraries to use the latest versions with all their enhancements and bug fixes. This is strategic if you know are going to have a single cell dataset of your own in the upcoming weeks or months.
 
-If you choose this path, please make sure you allow for \~45 minutes to complete all the steps.
-The exact time will depend on network performance, and the current state of your package library (e.g., previous packages installed).
-If all goes well, and you're working with our Workbench, it could be \~10 minutes.
+If you choose this path, please make sure you allow for \~40 minutes to complete all the steps. If all goes well, and you're working on our Workbench, it could be \~10 minutes. The exact time will depend on network performance, and the current state of your package library (e.g., previous old packages that were already installed).
 
-## Steps
+## Steps to Package Installation
 
 ### Important Notes
 
--   Ensure you're running R `4.2.3`. The following procedure wasn't tested with recent versions.
+-   Ensure you're running R `4.2.3`. The following procedure wasn't tested with most recent versions.
 -   Run each of the code blocks manually, and ensure there were no errors before moving forward.
--   Watch out for possible errors. It would be wise to keep an eye on the text output at all time.
--   To emphasize the last item, let's rephrase it: shouldn't be a surprise if you have a compilation error message in the middle of the whole text output.
--   If asked to update packages, answer 'none'. We'll take care of package updates near the end.
--   If asked to compile packages, answer 'no'.
--   All code blocks may be executed more than once, if the packages are installed, there's no increase in the total duration of this whole process. So, do run them a couple of times before moving forward to the next block.
+-   Watch out for possible errors. It would be wise to keep an eye on the text output at all time. It shouldn't be a surprise if you have a compilation error message in the middle of the whole text output. Be prepared to scroll the walls of text.
+-   If asked to update packages, **answer 'none'**. We'll take care of package updates near the end.
+-   If asked to compile packages, **answer 'no'**.
+-   All code blocks may be executed more than once, if some _-but not all-_ packages were installed, there's no increase in the total duration of this process.
 -   If you see errors, re-run the code block again.
 
-#### Important note exclusive to Workbench users
+#### NOT SKIPPING BUT STILL ACCELERATING
 
-So, you chose not to skip.
-But you may still accelerate the package installation process by A LOT with the following shell command that will copy the same package library that was offered for skipping.
+So, you chose not to skip. You may still accelerate the package installation process by A LOT with the following shell command that will copy the same package library that was offered for skipping.
 We'll put this in the default library location (`libPaths()`.)
 
 Run this in a Terminal **inside the server** (on RStudio IDE, you can open this using the 'Tools' menu).
@@ -84,8 +66,7 @@ Run this in a Terminal **inside the server** (on RStudio IDE, you can open this 
 
 The package library you just copied over is a snapshot taken just before the course.
 
-For safety, **you should still run the code blocks**, since we're using conditionals anyway.
-Only missing packages are really downloaded, compiled (sometimes), and installed.
+For safety, **you should still run the code blocks**. Only missing packages are really downloaded, compiled (sometimes), and installed.
 
 ```{=html}
 <!--
@@ -95,15 +76,7 @@ TODO: explain setting RSTUDIO_WHICH_R=... R_LIBS=...
 
 If you don't know Conda, just ignore this. If you do have it set up, and have a bare minimum experience with it, you may go ahead and create an environment using the YAML file under the `configs/` subfolder of this repo. -->
 ```
-### Package Installation per-se
 
-Now would be a good time to click the 'Install' button in the yellow bar on top of this Rmarkdown file, if opened on Rstudio.
-This will install some of the auto-detected packages (BiocManager, knitr, remotes, Seurat, among other.)
-
-Wait until this process finishes completely before moving forward.
-On the following steps, we'd be 're-installing' some of these packages.
-You can go ahead and run the code cells anyway, we'd rather you do that instead of guessing and skipping... which could be prone to errors.
-Also, the functions (unless explicitly told) won't re-install if the pkg is already there...
 
 ### Bioconductor
 
@@ -115,8 +88,8 @@ if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
 ```
 
 With `BiocManager`, we can install Bioconductor `3.16`.
-If you are using R 4.4 or newer(?), then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version.
-If you really need it, you may the latest R with bioconductor `3.18`, but these lectures were only tested with the versions we are recommending (4.2.3 & 3.16).
+If you are using R 4.4 or higher, then you'd be looking for a newest release, see the [official release announcements](https://bioconductor.org/about/release-announcements/) to find your matching version.
+If you really need it, you may try the latest R with bioconductor `3.18`, but these lectures were only tested with the versions we are recommending (4.2.3 & 3.16).
 
 ```{r biocInstall}
 BiocManager::install(version = "3.16")
@@ -124,79 +97,67 @@ BiocManager::install(version = "3.16")
 
 > You can ignore the following message (it will also show different version numbers and dates to you, but the important bit is 'path not writeable'):
 >
->     Bioconductor version 3.14 (BiocManager
->       1.30.20), R 4.1.3 (2022-03-10)
->     Installation paths not writeable, unable to
->       update packages
->       path: /opt/R/4.1.3/lib/R/library
->       packages:
->         boot, class, cluster, codetools, foreign,
->         MASS, Matrix, mgcv, nlme, nnet, rpart,
->         spatial, survival
+> ```         
+> Bioconductor version 3.14 (BiocManager
+>   1.30.20), R 4.1.3 (2022-03-10)
+> Installation paths not writeable, unable to
+>   update packages
+>   path: /opt/R/4.1.3/lib/R/library
+>   packages:
+>     boot, class, cluster, codetools, foreign,
+>     MASS, Matrix, mgcv, nlme, nnet, rpart,
+>     spatial, survival
+> ```
 
 ### Core & Dependencies
 
 The next code block defines a function, `retrieve_namespaces()`, that takes a character vector with package names, to be installed.
-If the execution of the whole function is not interrupted by an error, it will simply return `TRUE`.
+If the execution of the whole function is not interrupted by an error, it will simply return `TRUE`. This is convenient, as it provides a checkpoint that we'll be using soon...
 
 ```{r retrieve_namespaces}
 retrieve_namespaces <- function(list_of_packages) {
-  lapply(
-    list_of_packages,
-    function(x) {
-      if (!x %in% installed.packages()) {
-        suppressMessages(
-          BiocManager::install(x,
-            ask = FALSE, update = FALSE
-          )
-        )
-      }
-    }
-  )
+  lapply(list_of_packages,
+         function(x) {
+           if (!x %in% installed.packages()) {
+             suppressMessages(BiocManager::install(
+               x, ask = FALSE, update = FALSE))
+           }
+         })
   TRUE
 }
 ```
 
-Let's use it.
-We are going to install [Seurat](https://satijalab.org/seurat/) as well as many other tools and dependencies that we will need throughout this course.
+Once the function is defined, we can use it. We are going to install [Seurat](https://satijalab.org/seurat/) as well as many other tools and dependencies that we will need throughout this course.
 The whole process is going to take 10-15 minutes... and, most probably, more than just one single execution.
 
 ```{r}
 retrieve_namespaces(
   list_of_packages = c(
     # Core
-    "Seurat",
+    "remotes",
     "tidyverse",
     "future",
+    "Seurat",
+    "sctransform",
     # DE
-    "enrichR",
+    "metap",
+    "multtest",
     "glmGamPoi",
     "DESeq2",
     "limma",
     "MAST",
-    "multtest",
-    "metap",
+    "enrichR",
     # Viz
-    "Nebulosa",
     "RColorBrewer",
     "patchwork",
-    "pheatmap",
-    # Utilities
-    "shiny",
-    "remotes",
-    # Rendering to HTML/ Site
-    "knitr",
-    "rmarkdown",
-    "markdown",
-    "styler",
-    "formatR"
+    "pheatmap"
   )
 )
 ```
 
 Sometimes, there are errors while installing packages in bulk that are easily solved by re-iterating the command.
 These error messages are difficult to track, since we get so much output from the ongoing process.
-Installing 10-20 packages may look as a simple activity, but that's not the case when we consider all the dependencies between them.
+Installing 10-20 packages may look as a simple activity, but that's not the case when we consider all the dependencies among them.
 
 **Re-run the previous code block 2-3 times until its only output is: `TRUE`.**
 
@@ -205,6 +166,10 @@ On workbench, after a couple of re-runs, we needed to remove locks manually, you
 ```{bash, eval=FALSE}
 rm -rf /rstudio/${USER}/{.,}rstudio/R/workbench-library/**/00LOCK-*
 ```
+
+**It may be that re-running the retrieve_namespaces function only returns `TRUE` after using this Linux shell command.** This is detailed on [our FAQ](http://wiki.immunbio.mpg.de/wiki/index.php/Rstudio#Package_installation_fails_with_.22.2A_had_non-zero_exit_status.22_errors) too!
+
+> Remember the above command is for the **Linux Terminal**, and not the _R Console_ (to further complicate things, is common to use terminal and console without any disambiguation, as if the terms were 1oo% interchangeable). These are two different 'Tabs' in the Rstudio IDE. Go to the menu "View" and select "Move Focus to Terminal". Over there you can run this `rm` Linux shell command.
 
 ```{=html}
 <!-- SKIP
@@ -226,14 +191,12 @@ BiocManager::valid()
 If the above code block outputs anything different to `TRUE`, it's because according to BiocManager our current state is not valid.
 To fix it, you should run the `BiocManager::install()` command as it's stated in the output message.
 
-## Check Installation
+## Check Installation {#check-installation}
 
 ```{r}
 library(Seurat)
 packageVersion("Seurat")
 ```
-
-We'll be working with Seurat version 4.
 
 # Datasets
 
@@ -260,6 +223,7 @@ if (!"scRNAseq" %in% installed.packages()) {
 }
 `` -->
 ```
+
 ## Download preprocessed datasets from zenodo
 
 For the later part of the course, we have preprocessed a couple of large datasets.
@@ -297,7 +261,7 @@ It may be the case that we give you a matrix in the H5 file format.
 To load this, you will need to install `hdf5r` package.
 
 For this package, you will need a system dependency, that is a software library that needs to be installed on your Operative System.
-Again, workbench users have an advantage because the system has be carefully tuned already.
+Again, workbench users have an advantage because the system has been carefully tuned already.
 
 In any case, don't sweat it.
 Following instructions are not mandatory, and in the case of OSX or Windows users, they're mostly recommended as a way to handle the difficulty (installing system dependencies) that will probably come up multiple times during your work.
@@ -313,4 +277,3 @@ On Windows, there are two options: one would be installing miniconda.
 Or, the most straightforward would probably be using [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about), and then following instructions for Ubuntu Linux (you may choose another distro, but we recommend you start with Ubuntu).
 
 <!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/rseurat/datasets/preprocessed_rds/ -->
-

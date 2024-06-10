@@ -5,14 +5,6 @@ include: ["images"]
 # get icon labels from here, https://fontawesome.com/v4/icons/
 
 
-## 2024 schedule
-# June 24th - 27th
-#
-# Mon: lecture hall 9.30 - 17 || Grosschedl 9 - 13.30
-# Tue: l.h. 13.30 - 17.30 || G. 9 - 13.30
-# Wed: l.h. 12.30 - 16.30 || G. 9 - 13.30
-# Thu: l.h. 10.30 - 17 || G. 9 - 13.30
-
 navbar:
   title: "Rseurat - Single Cell RNA-seq"
 
