@@ -146,7 +146,7 @@ plotEnrich(result.1[[1]], showTerms = 10, numChar = 40, y = "Count", orderBy = "
 Also, we may customize the selection and subsetting of top ranking categories that are visualized:
 
 ```{r plotenrich_finetuning}
-result.1$GO_Cellular_Component_2021 %>%
+result.1$GO_Cellular_Component_2023 %>%
   filter(
     Adjusted.P.value < 5e-2,
     Odds.Ratio != 1
