@@ -14,7 +14,7 @@ output:
 
 <link rel="stylesheet" href="headers.css">
 
-```{r setup}
+```{r setup, echo=FALSE}
 knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
 ```
