@@ -14,7 +14,7 @@ dependencies:
   - r-matrixstats=1.1.0  # to fix sctransform, remove this line when upgrading r-base to 4.4 and bioc to 3.18 (2025?)
   - r-ggplot2
   - r-patchwork
-  - r-Seurat=4.3.0
+  - r-Seurat
   - r-tidyverse
   - r-pheatmap
   - r-ashr

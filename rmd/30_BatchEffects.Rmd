@@ -78,7 +78,7 @@ fdest <- "datasets/preprocessed_rds/panc_sub_processed.RDS"
 if (!file.exists(fdest)) {
   utils::download.file(forig, destfile = fdest, method = "curl")
 }
-# panc_sub <- UpdateSeuratObject(readRDS(fdest))  ## Seurat v5 would require this
+panc_sub <- UpdateSeuratObject(readRDS(fdest))  ## Seurat v5 would require this
 ```
 
 > 🧭✨ Poll:
