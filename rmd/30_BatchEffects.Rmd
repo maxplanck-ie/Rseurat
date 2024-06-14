@@ -12,14 +12,8 @@ output:
     df_print: paged
 ---
 
-## Outline
+> Slides are [here](https://docs.google.com/presentation/d/1cdeiIY2I7lXwYYJOyUYViOZkv3BRQ2PTfrmwKYMD6Jc/edit?usp=sharing).
 
--   Setup
--   Sources of batch effects
--   Dataset
--   Observing batch effects
--   Mitigating batch effects
--   SessionInfo
 
 ## Setup
 
