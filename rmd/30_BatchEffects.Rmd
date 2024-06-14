@@ -201,7 +201,7 @@ DefaultAssay(panc.combined) <- "integrated"
 
 # Run the standard workflow for visualization and clustering
 panc.combined <- ScaleData(panc.combined, verbose = FALSE)
-panc.combined <- RunPCA(panc.combined, npcs = 30, verbose = FALSE)
+panc.combined <- RunPCA(panc.combined, verbose = FALSE)
 panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 ```
 
