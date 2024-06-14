@@ -188,8 +188,7 @@ gc()
 
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
-> 🧭✨ Poll: What is the new assay called?]
-> (<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
+> 🧭✨ Poll: What is the new assay called?](<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
 
 ## Process the newly integrated dataset
 
