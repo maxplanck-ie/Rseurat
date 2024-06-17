@@ -17,6 +17,7 @@ output:
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
+## NOTE TO INSTRUCTOR: check the script ../rmd_archive/installation_scRNA.R
 ```
 
 > Thanks for taking the time to do this before the course!

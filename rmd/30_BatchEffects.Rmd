@@ -12,14 +12,8 @@ output:
     df_print: paged
 ---
 
-## Outline
+> Slides are [here](https://docs.google.com/presentation/d/1cdeiIY2I7lXwYYJOyUYViOZkv3BRQ2PTfrmwKYMD6Jc/edit?usp=sharing).
 
--   Setup
--   Sources of batch effects
--   Dataset
--   Observing batch effects
--   Mitigating batch effects
--   SessionInfo
 
 ## Setup
 
@@ -188,8 +182,7 @@ gc()
 
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
-> 🧭✨ Poll: What is the new assay called?]
-> (<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
+> 🧭✨ Poll: What is the new assay called?](<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
 
 ## Process the newly integrated dataset
 
@@ -202,7 +195,7 @@ DefaultAssay(panc.combined) <- "integrated"
 
 # Run the standard workflow for visualization and clustering
 panc.combined <- ScaleData(panc.combined, verbose = FALSE)
-panc.combined <- RunPCA(panc.combined, npcs = 30, verbose = FALSE)
+panc.combined <- RunPCA(panc.combined, verbose = FALSE)
 panc.combined <- RunUMAP(panc.combined, reduction = "pca", dims = 1:30)
 ```
 

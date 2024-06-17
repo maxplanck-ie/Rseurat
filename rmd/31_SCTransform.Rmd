@@ -12,15 +12,8 @@ output:
     df_print: paged
 ---
 
-## Outline
+> Slides are [here](https://docs.google.com/presentation/d/1p8WURZMwSoW1Ih56BgtnDAcMYGkHZuSrYQmve1nswic/edit?usp=sharing).
 
--   Setup
--   Dataset
--   Standard normalization
--   SCTransform
--   Seurat Integrate
--   DGE
--   SessionInfo
 
 ## Setup
 
