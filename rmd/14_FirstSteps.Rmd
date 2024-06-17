@@ -60,7 +60,7 @@ eval_scratch<-dir.exists("/scratch/local")
 
 ```
 
-# ```{r run-mpi, echo=FALSE,eval=eval_scratch}
+ ```{r run-mpi, echo=FALSE,eval=eval_scratch}
 wdir<-paste0("/scratch/local/",system('echo $USER',intern=TRUE),"/Rseurat/")
 system(paste0('mkdir -p ',wdir))
 setwd(wdir)
