@@ -148,7 +148,6 @@ On RStudio, you can use `View(pbmc)` to inspect all the slots.
 > 🧭✨ Poll:
 >
 > In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
-> Hint: subset the assay data, `pbmc@assays$RNA`.
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively.
 The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
@@ -225,7 +224,7 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-> 🧭✨ Poll: How many cells have less than 2000 counts in total (summed over all genes)?
+> 🧭✨ Poll: How many cells have equal or less than 2000 counts in total (summed over all genes)?
 > Hint: use `colSums`.
 
 Individually these variables may not fully discriminate dead cells, but could also reflect real biological properties (e.g. higher mitochondrial count).

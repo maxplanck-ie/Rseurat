@@ -160,7 +160,7 @@ For further details, see some of these resources:
 -   [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
 
 The technical details may be challenging, but the execution in Seurat is straightforward.
-Keep in mind that this algorithm has many parameters that can be adjusted, the most relevant is probably the **perplexity** (see `?Rtsne::Rtsne` for further details.) This value is our way of telling to the algorithm (loosely) how to balance attention between local and global aspects of your data.
+Keep in mind that this algorithm has many parameters that can be adjusted, one of the most relevant is  **perplexity** (see `?Rtsne::Rtsne` for further details.) This value is our way of telling to the algorithm (loosely) how to balance attention between local and global aspects of your data.
 The parameter is, in a sense, a guess about the number of close neighbors each point has.
 
 ```{r tsne}
@@ -177,7 +177,7 @@ DimPlot(pbmc, reduction = "tsne")
 >
 > According to the docs, perplexity should always follow: `3 * perplexity < nrow(X) -1`.
 >
-> Are the rows referring to genes or cells?
+> Is nrow(X) the number of genes or cells?
 > Hint: see description of the matrix `X` in the help of `Rtsne()`...
 
 ```{r tsne_stochastic, eval=FALSE}
@@ -265,4 +265,4 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 > Would decreasing the number of PCs fed to the UMAP algorithm change our visualization?
 > Would you say the results are 'better'?
 >
-> Could you have the UMAP projection onto 3 axis instead of 2?
+> Could you have the UMAP projection onto 3 axes instead of 2?
