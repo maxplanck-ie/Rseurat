@@ -27,7 +27,7 @@ output:
 <link rel="stylesheet" href="headers.css">
 
 ```{r, setup, include=FALSE}
-.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
+#.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
 .libPaths()
 library(formatR)
 library(knitr)
