@@ -12,7 +12,13 @@ This is the `source code`, see the _rendered_ website at:
 
 <br />
 
-If, at any time you have Questions or Feedback, the Seurat package authors have [an online forum available here](https://github.com/satijalab/seurat/discussions).
+> If, at any time, you have Questions or Feedback, send us a message via Slack.
+> There's this channel where you can find us,
+> [#r-elated](https://mpi-iebioinfo.slack.com/archives/C4Q0M651Q) _(account
+> registration on Slack will be automatically approved when using your
+> `@ie-freiburg.mpg.de` e-mail address!)_
+>
+> Also, the Seurat package authors have [an online forum available here](https://github.com/satijalab/seurat/discussions).
 
 <br /><br />
 
