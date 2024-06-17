@@ -36,7 +36,7 @@ Try this: restart R (<code>Ctrl+Shift+F10</code>), and then execute in the Conso
 :::
 
 ```{r setup}
-# .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
+#.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
 
 suppressMessages({
   library(tidyverse)
@@ -58,9 +58,14 @@ plan("multicore", workers = 8) # function made available by SeuratObj automatica
 ```
 
 ```{r useful-information, echo=FALSE}
+wdir<-paste0("/scratch/local/",system('echo $USER',intern=TRUE),"/Rseurat/")
+system(paste0('mkdir -p ',wdir))
+setwd(wdir)
+knitr::opts_knit$set(root.dir = wdir)
 cat("work directory: ", getwd())
 cat("\n")
 cat("library path(s): ", .libPaths())
+system('mkdir -p datasets/preprocessed_rds')
 ```
 
 # Load Data
