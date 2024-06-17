@@ -66,11 +66,11 @@ We have subset and pre-processed the full dataset for you.
 You can download it from `zenodo`.
 
 ```{r load_subset}
-forig <- "https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1"
 fdest <- "datasets/preprocessed_rds/panc_sub_processed.RDS"
 
 if (!file.exists(fdest)) {
-  utils::download.file(forig, destfile = fdest, method = "curl")
+  # utils::download.file("https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1", destfile = fdest, method = "curl")
+  file.copy("/scratch/local/rseurat/datasets/preprocessed_rds/panc_sub_processed.RDS", fdest, overwrite = FALSE)
 }
 panc_sub <- UpdateSeuratObject(readRDS(fdest))  ## Seurat v5 would require this
 ```
