@@ -60,7 +60,7 @@ eval_scratch<-dir.exists("/scratch/local")
 
 ```
 
-```{r run-mpi, echo=FALSE,eval=eval_scratch}
+ ```{r run-mpi, echo=FALSE,eval=eval_scratch}
 wdir<-paste0("/scratch/local/",system('echo $USER',intern=TRUE),"/Rseurat/")
 system(paste0('mkdir -p ',wdir))
 setwd(wdir)
@@ -158,7 +158,9 @@ On RStudio, you can use `View(pbmc)` to inspect all the slots.
 
 > 🧭✨ Poll:
 >
-> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
+> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? https://PollEv.com/multiple_choice_polls/ALEQy4aTk6YCvdvQMnCbg/respond
+> Hint: subset the assay data, `pbmc@assays$RNA`.
+
 
 At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively.
 The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
