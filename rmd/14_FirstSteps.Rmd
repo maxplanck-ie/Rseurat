@@ -55,13 +55,19 @@ options(
 )
 
 plan("multicore", workers = 8) # function made available by SeuratObj automatically.
+
+eval_scratch<-dir.exists("/scratch/local")
+
 ```
 
-```{r useful-information, echo=FALSE}
+```{r run-mpi, echo=FALSE,eval=eval_scratch}
 wdir<-paste0("/scratch/local/",system('echo $USER',intern=TRUE),"/Rseurat/")
 system(paste0('mkdir -p ',wdir))
 setwd(wdir)
 knitr::opts_knit$set(root.dir = wdir)
+```
+
+```{r run-anycase}
 cat("work directory: ", getwd())
 cat("\n")
 cat("library path(s): ", .libPaths())
@@ -112,12 +118,12 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
 
 > 🧭✨ Polls:
 >
-> How many genes and cells does this dataset have?
+> How many genes and cells does this dataset have? https://PollEv.com/multiple_choice_polls/SUGa0Gd6arc2yN03oGsW6/respond
 >
-> How many genes are not expressed in any cell?
+> How many genes are not expressed in any cell? https://PollEv.com/multiple_choice_polls/7eG9v27igQJ4q3YXkEC9n/respond
 > Hint: subset genes with `rowSums()`.
 >
-> Which are the top 3 genes with the highest total count?
+> Which are the top 3 genes with the highest total count? https://PollEv.com/multiple_choice_polls/N95CXZgAjezf5VQlH8QO7/respond
 > Hint: `rowSums()` and `sort`.
 
 > ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
