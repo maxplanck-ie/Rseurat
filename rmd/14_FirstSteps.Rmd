@@ -170,6 +170,21 @@ For class-specific details, including more in depth description of the layers (s
 
 -   [`Seurat Documentation`](https://satijalab.org/seurat/articles/essential_commands#seurat-object-data-access)
 
+# Cell identities
+
+For each cell, Seurat stores an identity label that gets updated throughout the processing steps. At any point, user may set cell identities as desired. Identities are mainly used in plotting functions, or in differential gene expression analysis.
+It is good practice to keep track of active (current) identities.
+
+
+
+```{r idents_intro}
+head(Idents(pbmc))
+table(Idents(pbmc))
+
+```
+On a freshly initiated seurat object, identity names are derived from the project name and all cells have the same identity. If several seurat objects are merged, the original object name can be stored as identity. These original identities are stored in `pbmc@meta.data$orig.ident` slot.
+
+
 # Quality Control
 
 One of our first goals is to identify (and filter) dead cells that could be the results of a harsh experimental protocol.
