@@ -20,10 +20,9 @@ output:
 <link rel="stylesheet" href="headers.css">
 
 ```{r, setup, include=FALSE}
-#.libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
+# .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
 .libPaths()
-library(formatR)
-library(knitr)
+remotes::install_version("matrixStats", version="1.1.0")
 library(magrittr)
 knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = FALSE, tidy = TRUE, tidy.opts = list(width.cutoff = 70))
 ```
@@ -33,51 +32,6 @@ library(ggplot2)
 library(Seurat)
 packageVersion("Seurat")
 ```
-
-## SCTransform: theory
-
--   Default log-normalization:
-
-    -   `@counts`: read count matrix e.g. from STARsolo ("raw counts")
-    -   `@data`: `log1p(counts/sum(counts)*scale_factor)`
-    -   `@scale.data`: `scale(data, scale=TRUE, center=TRUE)`
-
--   SCTransform
-
-    -   `@scale.data`: Pearson residuals from glm(raw_counts\~log_umi_per_cell; error_model="NB")
-    -   `@counts`: "corrected" counts back-calculated from `@scale.data`
-    -   `@data`: `log1p(counts)`
-
-## SCTransform: gene counts \~ total UMI per cell
-
-It was observed that observed gene expression in a single cell RNAseq dataset is correlated with the total UMI count per cell.
-This holds true for different gene expression tiers (from highly to lowly expressed genes.)
-
-![Before](images/SCTransform.F1C.png) A single scaling factor (as in standard log-norm workflow) does not effectively normalize both lowly and highly expressed genes.
-Genes with different overall abundances exhibited distinct patterns after log-normalization, and only low/medium-abundance genes in the bottom three tiers were effectively normalized.
-Gene variance was also confounded with sequencing depth.
-
-In the `sctransform` approach, total UMI counts per cell are regressed out in different gene tiers, and the scaled residuals from the regression are treated as `scaled data`.
-A variance-stabilizing transformation is applied, too.
-
-Some of the underlying math can be expressed as:
-
-$$
-\begin{array}{*{20}l} x_{gc} &\sim \text{NB}(\mu_{gc}, \theta_{g})\\ \ln \mu_{gc} &= \beta_{g0} + \ln n_{c}, \end{array} 
-$$ After applying the transformation, the relation between the scaled residuals ("Pearson residuals") and the total UMI counts per cell is flattened out for most gene tiers.
-The most highly expressed genes remain difficult to normalize.
-
-![After](images/SCTransform.F3A.png)
-
-Some of the advantages are: - improved UMAP embedding - reduction in FDR in differential gene expression analysis - improved normalization of shallow- and deep-sequenced datasets - improved variance estimation for lowly expressed genes
-
-## SCTransform: long story short
-
--   Requires UMIs
--   One function replaces three steps in standard log-normalization workflow: normalization + regressing out nuissance variables + identifying variable features
--   Removes the effect of sequencing depth through regression
--   Optional: regress other confounding variables out (e.g. perct. MT)
--   Corrected counts are obtained by setting the sequencing depth for all the cells to a fixed value and reversing the learned regularized negative-binomial regression model.
 
 ## SeuratData
 
