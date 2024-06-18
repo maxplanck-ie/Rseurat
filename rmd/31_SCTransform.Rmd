@@ -22,7 +22,6 @@ output:
 ```{r, setup, include=FALSE}
 # .libPaths(new = "/scratch/local/rseurat/pkg-lib-4.2.3")
 .libPaths()
-remotes::install_version("matrixStats", version="1.1.0")
 library(magrittr)
 knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = FALSE, tidy = TRUE, tidy.opts = list(width.cutoff = 70))
 ```
@@ -88,6 +87,16 @@ The `SCTransform` function performs normalization, regressing out of nuissance v
 By default, total UMI count per cell are regressed out, but it's possible to add other variables to the model, e.g. mitochondrial gene content.
 
 We're going to use the SCTransform function with some more recent implementations of NB modelling and variance stabilizing transformation.
+
+
+```{r dependency_downgrade, eval=FALSE}
+# This is only needed for those students that run the installation script as it was sent out by email.
+remotes::install_version("matrixStats", version="1.1.0")
+
+# another (better?) option would've been updating this one:
+# remotes::install_github("Bioconductor/MatrixGenerics@RELEASE_3_18")
+```
+
 
 ```{r seurat_sctransform1}
 library(sctransform)
