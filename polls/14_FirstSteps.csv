@@ -3,7 +3,7 @@ Poll,Multiple choice,How many genes and cells does this dataset have?,"32738 gen
 Poll,Multiple choice,How many genes are not expressed in any cell?,0,16634,32738,16104,
 Poll,Multiple choice,Which are the top 3 genes with the highest total count?,"MALAT1, TMSB4X, B2M","MALAT1, RPL10, B2M","TMSB4X, B2M, RPL13A",,
 Poll,Multiple choice,"In cell ""AAATTCGATTCTCA-1"", how many reads map to gene ""ACTB""?",3.66,0,9,10,
-Poll,Multiple choice,How many cells have equal or less than 2000 counts?,1026,1025,1674,,
+Poll,Multiple choice,How many cells have equal or less than 2000 counts?,975,976,977,,
 Poll,Multiple choice,What's the current number of cells after this step?,2583,2638,2385,,
 Poll,Multiple choice,Which are the 3 most highly variable genes?,"LYZ, S100A9, IGLL5","LYZ, S100A9, PPBP","MALAT1, TMSB4X, B2M",,
 Poll,Multiple choice,What's the variance of the gene PYCARD?,5.45,5.05,2.01,,
