@@ -296,6 +296,7 @@ https://PollEv.com/multiple_choice_polls/K3MKnt5OsuhryxPCb4J1I/respond
 > Hint: use `VariableFeatures()`.
 >
 > What's the variance of the gene `PYCARD`?
+https://PollEv.com/multiple_choice_polls/awTn4BDUkLDbWKofpLqHZ/respond
 > hint: use `HVFInfo()`.
 
 Plot variable features:
