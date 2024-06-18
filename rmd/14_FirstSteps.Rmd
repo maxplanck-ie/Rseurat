@@ -170,6 +170,31 @@ For class-specific details, including more in depth description of the layers (s
 
 -   [`Seurat Documentation`](https://satijalab.org/seurat/articles/essential_commands#seurat-object-data-access)
 
+# Cell identities
+
+For each cell, Seurat stores an identity label that gets updated throughout the processing steps. At any point, user may set cell identities as desired. Identities are mainly used in plotting functions, or in differential gene expression analysis.
+It is good practice to keep track of active (current) identities.
+
+
+
+```{r idents_intro}
+head(Idents(pbmc))
+table(Idents(pbmc))
+
+```
+On a freshly initiated seurat object, identity names are derived from the project name and all cells have the same identity. If several seurat objects are merged, the original object name can be stored as identity. These original identities are stored in `pbmc@meta.data$orig.ident` slot.
+
+To set cell identities to a custom string:
+
+```{r custom_idents}
+Idents(pbmc) <- "mysupercells"
+table(Idents(pbmc))
+
+```
+
+In the same way, user may map identity labels to an existing meta data column. 
+
+
 # Quality Control
 
 One of our first goals is to identify (and filter) dead cells that could be the results of a harsh experimental protocol.
@@ -292,9 +317,11 @@ pbmc <- FindVariableFeatures(pbmc)
 > 🧭✨ Polls:
 >
 > Which are the 3 most highly variable genes?
+https://PollEv.com/multiple_choice_polls/K3MKnt5OsuhryxPCb4J1I/respond
 > Hint: use `VariableFeatures()`.
 >
 > What's the variance of the gene `PYCARD`?
+https://PollEv.com/multiple_choice_polls/awTn4BDUkLDbWKofpLqHZ/respond
 > hint: use `HVFInfo()`.
 
 Plot variable features:
@@ -375,6 +402,7 @@ ElbowPlot(pbmc)
 ```
 
 > 🧭✨ Poll: How many components should we choose to include?
+https://PollEv.com/multiple_choice_polls/fi9Z4jqXU22sFf2P0SDeq/respond
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 Also, if your research questions aim towards rare celltypes, you may definitely include more PCs (think about it in terms of the variance in gene expression values).
@@ -417,31 +445,12 @@ VlnPlot(pbmc,
   ggtitle(NULL) + NoLegend()
 ```
 
-Finally, we are able to plot PCA, and have shape by these categories:
+Finally, we are able to plot PCA, and have the cells coloured by these categories:
 
 ```{r}
-DimPlot(pbmc, shape.by = "mt.categories")
+DimPlot(pbmc, group.by = "mt.categories")
 ```
 
-What about using colors?
-
-To do that, we need to 'speak' to the Seurat function (`DimPlot`) through the `SeuratObj`.
-There is a variable (actually, it's a layer (slot)) inside it, called `active.ident`.
-To access or set this to different values (e.g. metadata columns) we use the `Idents()` function:
-
-```{r}
-Idents(pbmc) %>% head(3)
-```
-
-By default, all our cells have one single value, that was set while creating the Seurat object in our early steps.
-
-Let's set our new metadata column as the new active identity, and let `DimPlot` play out it's straightforward behavior:
-
-```{r}
-Idents(pbmc) <- "mt.categories"
-
-DimPlot(pbmc)
-```
 
 **It's important that we keep track of our active identity.**
 
@@ -477,6 +486,7 @@ All the process described before, including the use of Jaccard Similarity Index 
 So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
 > 🧭✨ Poll: Which is the default value of the parameter `K` that Seurat uses?
+https://PollEv.com/multiple_choice_polls/mb6W3JcgNnHmh3fllFhQ7/respond
 > Hint: `help` yourselves by reading the docs!
 
 ```{r findneighbours}
@@ -500,9 +510,15 @@ pbmc <- FindClusters(pbmc, resolution = 0.5)
 After this process, we have a new `seurat_clusters` column in our `meta.data` layer (slot).
 Also, this is our new active identity!
 
-> 🧭✨ Poll: How many clusters did we find?
+```{r ident_clu}
+head(Idents(pbmc))
+```
 
-> ⌨🔥 Exercise: Plot the PC1 vs. PC2 again, with the newest identities.
+
+> 🧭✨ Poll: How many clusters did we find?
+https://PollEv.com/multiple_choice_polls/NgrSgdYpoUBVZ2qInZeGW/respond
+
+> ⌨🔥 Exercise: Plot the Dimplot of PC1 and PC2 again. What are the points coloured by now?
 
 <!-- NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html) -->
 
