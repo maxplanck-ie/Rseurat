@@ -5,6 +5,7 @@ options(
   BioC_mirror = "https://rspm.ie-freiburg.mpg.de/bioconductor"
 )
 
+
 retrieve_namespaces <- function(list_of_packages) {
   lapply(list_of_packages,
          function(x) {
@@ -43,9 +44,15 @@ retrieve_namespaces(
   )
 )
 
+
 ## This one failed on the first try... re-run:
 #BiocManager::install("glmGamPoi", ask=FALSE)
 ## same with quantreg? check.
+
+
+# Oops! We require this for SCTransform/ glmGamPoi to work
+remotes::install_github("Bioconductor/MatrixGenerics@RELEASE_3_18")
+## This is replicated in `dependency_downgrade` code block at 31 Rmd
 
 
 if (!"SeuratData" %in% installed.packages()) remotes::install_github("satijalab/seurat-data")
