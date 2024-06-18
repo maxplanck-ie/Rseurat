@@ -377,6 +377,7 @@ ElbowPlot(pbmc)
 ```
 
 > 🧭✨ Poll: How many components should we choose to include?
+https://PollEv.com/multiple_choice_polls/fi9Z4jqXU22sFf2P0SDeq/respond
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 Also, if your research questions aim towards rare celltypes, you may definitely include more PCs (think about it in terms of the variance in gene expression values).
@@ -419,31 +420,12 @@ VlnPlot(pbmc,
   ggtitle(NULL) + NoLegend()
 ```
 
-Finally, we are able to plot PCA, and have shape by these categories:
+Finally, we are able to plot PCA, and have the cells coloured by these categories:
 
 ```{r}
-DimPlot(pbmc, shape.by = "mt.categories")
+DimPlot(pbmc, group.by = "mt.categories")
 ```
 
-What about using colors?
-
-To do that, we need to 'speak' to the Seurat function (`DimPlot`) through the `SeuratObj`.
-There is a variable (actually, it's a layer (slot)) inside it, called `active.ident`.
-To access or set this to different values (e.g. metadata columns) we use the `Idents()` function:
-
-```{r}
-Idents(pbmc) %>% head(3)
-```
-
-By default, all our cells have one single value, that was set while creating the Seurat object in our early steps.
-
-Let's set our new metadata column as the new active identity, and let `DimPlot` play out it's straightforward behavior:
-
-```{r}
-Idents(pbmc) <- "mt.categories"
-
-DimPlot(pbmc)
-```
 
 **It's important that we keep track of our active identity.**
 
