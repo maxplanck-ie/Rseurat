@@ -153,7 +153,7 @@ We are only loading cells with at least 200 genes detected, and we are only incl
 With these filters in this particular dataset, we are reducing the number of genes from `33000` to `14000`.
 
 The `SeuratObject` serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset.
-<!-- For example, the count matrix can be accessed as `LayerData(pbmc,assay="RNA",layer="counts")`. -->
+<!-- For example, the count matrix can be accessed as pbmc[["RNA"]]@layers$counts or `LayerData(pbmc,assay="RNA",layer="counts")`. -->
 On RStudio, you can use `View(pbmc)` to inspect all the layers (slots).
 
 > 🧭✨ Poll:
@@ -255,12 +255,14 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
 ```
 
 > 🧭✨ Poll: What's the current number of cells after this step?
+https://PollEv.com/multiple_choice_polls/RWw3CYiBqEzp0E0VII8P5/respond
+
 
 ## Normalization
 
 After removing unwanted cells from the dataset, the next step is to normalize the data.
 By default, we employ a global-scaling normalization method "LogNormalize" that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10000 by default), and log-transforms the result.
-Normalized values are stored in `pbmc[["RNA"]]@data`.
+Normalized values are stored in `pbmc[["RNA"]]@layers$data`.
 
 ```{r norm}
 pbmc <- NormalizeData(pbmc)
@@ -320,7 +322,7 @@ The `ScaleData()` function:
 -   Shifts the expression of each gene, so that the mean expression across cells is `0`
 -   Scales the expression of each gene, so that the variance across cells is `1`. This step gives equal weight in downstream analyses, so that highly-expressed genes do not dominate.
 -   more generally one can also model the mean expression as a function of other variables from the metadata, i.e. *regress them out* before scaling the residuals (see: `vars.to.regress`)
--   The results of this are stored in `pbmc[["RNA"]]@scale.data`
+-   The results of this are stored in `pbmc[["RNA"]]@layers$scale.data`
 
 ```{r scaledata}
 pbmc <- ScaleData(pbmc, features = rownames(pbmc))
