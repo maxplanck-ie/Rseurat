@@ -184,6 +184,16 @@ table(Idents(pbmc))
 ```
 On a freshly initiated seurat object, identity names are derived from the project name and all cells have the same identity. If several seurat objects are merged, the original object name can be stored as identity. These original identities are stored in `pbmc@meta.data$orig.ident` slot.
 
+To set cell identities to a custom string:
+
+```{r custom_idents}
+Idents(pbmc) <- "mysupercells"
+table(Idents(pbmc))
+
+```
+
+In the same way, user may map identity labels to an existing meta data column. 
+
 
 # Quality Control
 
@@ -500,10 +510,15 @@ pbmc <- FindClusters(pbmc, resolution = 0.5)
 After this process, we have a new `seurat_clusters` column in our `meta.data` layer (slot).
 Also, this is our new active identity!
 
+```{r ident_clu}
+head(Idents(pbmc))
+```
+
+
 > 🧭✨ Poll: How many clusters did we find?
 https://PollEv.com/multiple_choice_polls/NgrSgdYpoUBVZ2qInZeGW/respond
 
-> ⌨🔥 Exercise: Plot the PC1 vs. PC2 again, with the newest identities.
+> ⌨🔥 Exercise: Plot the Dimplot of PC1 and PC2 again. What are the points coloured by now?
 
 <!-- NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html) -->
 
