@@ -101,10 +101,16 @@ We're going to use the SCTransform function with some more recent implementation
 library(sctransform)
 library(glmGamPoi)
 ctrl <- SCTransform(ctrl, method = "glmGamPoi", vst.flavor = "v2", verbose = FALSE)
-# store mitochondrial percentage in object meta data
-# ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
-# ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
 ```
+
+We could've also regressed out covariates during this process.
+
+```{r, eval=FALSE}
+# store mitochondrial percentage in object meta data
+ctrl <- PercentageFeatureSet(ctrl, pattern = "^MT-", col.name = "percent.mt")
+ctrl <- SCTransform(ctrl, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
+```
+
 
 ## Recalculate Dimensional Reductions
 
@@ -113,7 +119,7 @@ All we need to do now is to run PCA and UMAP for visualization in lowD.
 We're also going to save the elbow plot for comparison with the log-normed dataset.
 
 ```{r sct_umap_calc}
-DefaultAssay(ctrl) <- "SCT" # explain
+stopifnot(DefaultAssay(ctrl) == "SCT")
 ctrl <- RunPCA(ctrl, verbose = FALSE)
 ctrl_sct <- ElbowPlot(ctrl, ndims = "30")
 ```
@@ -127,7 +133,9 @@ ctrl_ln + ctrl_sct
 What has changed and what hasn't?
 
 > 🧭✨ Poll: [What amount of standard deviation does PC1 explain after sc-transform?](https://PollEv.com/multiple_choice_polls/AQwroH3oNpZ2uQRcly2eO/respond)
-> Hint: if you'd like to determine it numerically, you can use the `Stdev` accessor function to access the standard deviations for PC components in a Seurat object.
+> Hint: Function `Stdev(object)` returns the absolute values of standard deviations for principal components. It's the analogous to `object@reductions$pca@stdev`.
+
+
 
 ## Revisit UMAP
 
@@ -235,7 +243,7 @@ head(b.interferon.response, n = 10)
 ```{r DE_plot,fig.height=4, fig.width=8}
 Idents(immune.combined.sct) <- "seurat_annotations"
 inf_genes <- rownames(b.interferon.response)
-DefaultAssay(immune.combined.sct) <- "SCT"
+DefaultAssay(immune.combined.sct) == "SCT"  # integrated
 FeaturePlot(immune.combined.sct,
   features = inf_genes[1], split.by = "stim",
   cols = c("grey", "red")
