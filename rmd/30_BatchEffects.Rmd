@@ -203,9 +203,7 @@ Let's have a brief look at the panc.combined dataset - a new Assay has been crea
 After the integration, data scaling on the new assay is necessary, as well as calculation of PCA and UMAP embeddings.
 
 ```{r process_integrated}
-# specify that we will perform downstream analysis on the corrected data note that the
-# original unmodified data still resides in the 'RNA' assay
-DefaultAssay(panc.combined) <- "integrated"
+stopifnot(DefaultAssay(panc.combined) == "integrated")
 
 # Run the standard workflow for visualization and clustering
 panc.combined <- ScaleData(panc.combined, verbose = FALSE)
