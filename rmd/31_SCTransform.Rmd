@@ -49,7 +49,7 @@ stim <- ifnb.list[["STIM"]]
 
 Let's remove some redundant objects from memory:
 
-```{r cleanup}
+```{r cleanup, eval=FALSE}
 rm(list = c("ifnb", "ifnb_sub", "ifnb.list"))
 gc()
 ```
@@ -182,7 +182,7 @@ immune.combined.sct <- IntegrateData(anchorset = immune.anchors, normalization.m
 
 Let's cleanup again:
 
-```{r cleanup2}
+```{r cleanup2, eval=FALSE}
 rm(list = c("ctrl", "stim", "ifnb.list", "features", "all.genes", "immune.anchors"))
 gc()
 ```
