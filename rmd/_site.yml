@@ -18,12 +18,16 @@ navbar:
         icon: fa-download
         href: 10_PkgInstall.html
 
+      - text: New Project
+        icon: fa-folder-open
+        href: 11_StartProject.html
+
       - text: Introduction
-        icon: fa-handshake-o
+        icon: fa-heart
         href: 12_Intro.html
 
       - text: Parallelization
-        icon: fa-clock-o
+        icon: fa-hourglass
         href: 13_FutureArrivedLongAgo.html
 
       - text: First steps
