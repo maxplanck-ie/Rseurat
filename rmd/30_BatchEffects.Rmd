@@ -263,11 +263,6 @@ p2 <- DimPlot(panc.combined, reduction = "umap", group.by = "celltype")
 p1 + p2
 ```
 
-## Outlook
-
--   Verify that expected marker genes are expressed per cell population
--   Note: Seurat v5 has additional modalities of integrating cells: (Harmony and scVI, bridge integration across modalities)
-
 ## SessionInfo
 
 ```{r sessionInfo}
