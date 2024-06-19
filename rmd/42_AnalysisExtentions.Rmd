@@ -15,26 +15,20 @@ knitr::opts_chunk$set(fig.width = 6, fig.height = 4, message = FALSE, warning = 
 ## What else is out there in the scRNAseq analysis
 
 -   We have been looking mostly to what's available within the R-language in general, and Seurat in particular.
-    That means we skipped the Python alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure, ([AnnData](http://anndata.org/).)
-
--   Monocle3: trajectory analysis -> <https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/>
-
--   Integration of scRNAseq and ATACseq data (Seurat) -> <https://satijalab.org/seurat/articles/atacseq_integration_vignette.html>
+    That means we skipped the Python's alternative for SC analysis, [Scanpy](https://scanpy.readthedocs.io/); and its underlying data structure ([AnnData](http://anndata.org/).) Together with their [variational inference framework](https://scvi-tools.org/).
+    
+There are many other tools, it's good you keep them in your radar in case the need arises...
 
 -   Spatial RNAseq analysis (Seurat) -> <https://satijalab.org/seurat/articles/spatial_vignette.html>
 
+-   Integration of scRNAseq and ATACseq data (Seurat) -> <https://satijalab.org/seurat/articles/atacseq_integration_vignette.html>
+
 -   sc-verse: python packages for scRNA/chromatin or spatial seq -> <https://scverse.org/>
+
+-   Monocle3: trajectory analysis -> <https://cole-trapnell-lab.github.io/monocle3/docs/trajectories/>
 
 -   RNA velocity analysis -> <http://velocyto.org/>, <https://scvelo.readthedocs.io/en/stable/> (python)
 
--   Also, we may have skipped part of the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
+-   Also, worth to take a look at the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
 
--   It's a new framework, bringing `SingleCellExperiment` and `SeuratObject` to the tidyverse idioms.
-    Websites to explore:
-
-    -   [tidyseurat](https://stemangiola.github.io/tidyseurat/) for tidy manipulation of Seurat objects
-    -   [tidySingleCellExperiment](https://stemangiola.github.io/tidySingleCellExperiment/) for tidy manipulation of Bioconductor's SCE objects
-    -   [tidybulk](https://stemangiola.github.io/tidybulk/) for tidy bulk RNA-seq data analysis
-    -   [nanny](https://github.com/stemangiola/nanny) for tidy high-level data analysis and manipulation
-    -   [tidygate](https://github.com/stemangiola/tidygate) for adding custom gate information to your tibble
-    -   [tidyHeatmap](https://stemangiola.github.io/tidyHeatmap/) for heatmaps produced with tidy principles
+-   **Tidyomics**, is [a new ecosystem](https://github.com/tidyomics/tidyomics#the-tidyomics-ecosystem) bringing `SingleCellExperiment` and `SeuratObject` to the tidyverse idioms. Have a look at their [manifesto](https://tidyomics.github.io/tidyomicsBlog/post/2021-07-07-tidy-transcriptomics-manifesto/) for a brief overview, and a neat presentation.

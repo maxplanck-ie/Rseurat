@@ -273,7 +273,7 @@ In this case, based on the previous Violin plots, we'll use the following criter
 -   Unique feature counts over 2500 or below 200.
 -   $>5%$ mitochondrial counts.
 
-```{r filter, echo=FALSE}
+```{r filter}
 pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
   nFeature_RNA < 2500 &
   percent.mt < 5)
@@ -496,7 +496,7 @@ pbmc <- FindNeighbors(pbmc, dims = seq_len(10))
 We want to keep our clusters looking natural.
 That is, we want to have a modularity optimization on top of all.
 For that, we'll use the community search algorithm for graphs called Louvain.
-You can read more about it [here](https://scribe.froth.zone/louvain-algorithm-93fde589f58c?gi=8dce35ee2f75), or to read about it being applied to the biological problem at hand look into [this research paper](http://dx.doi.org/10.1088/1742-5468/2008/10/P10008).
+You can read more about it and it's improved version ("Leiden") [here](https://www.nature.com/articles/s41598-019-41695-z).
 
 The `FindClusters()` function implements this procedure, and contains a `resolution` parameter that sets the 'granularity' of the downstream clustering, with increased values leading to a greater number of clusters.
 Usually, setting this parameter between `0.4` and `1.2` returns good results for single-cell datasets of around 3K cells.

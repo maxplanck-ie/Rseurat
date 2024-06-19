@@ -1,0 +1,47 @@
+---
+title: "Comfy RStudio IDE"
+
+output:
+  html_document:
+    theme: spacelab
+---
+
+<link rel="stylesheet" href="headers.css">
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
+```
+
+## Workbench users
+
+> ⌨🔥 Exercise: Create a new project and clone the source files we will be using, from GitHub.
+
+If you are using Workbench, start a new session. Then, go to the Menu:
+
+* `File` -> `New project...` -> `Version Control` -> `Git`
+
+> Repository URL: https://github.com/maxplanck-ie/Rseurat  
+> Project directory name: chose a folder name  (e.g. MYFOLDER)
+
+* create the project as a subdirectory under your group volume (e.g. /data/PI/group/MYFOLDER), or a processing volume (/data/processing/MYFOLDER), or the scratch space (/scratch/local/MYFOLDER)
+
+## Local users
+
+Go to <https://github.com/maxplanck-ie/Rseurat> , click on the green `< > Code` dropdown button and select `Download ZIP`.
+Save the file to an appropriate location and extract its content.
+
+Now open your Rstudio IDE, and set the working directory to the folder you have just extracted.
+
+## Verification
+
+If it worked, you should have a new session, and in your console you will retrieve your chosen project directory:
+
+ > getwd()
+
+and you should be able to see the documents:
+
+ > list.files('rmd')
+
+which should contain subfolders 'datasets' and 'images', along with a bunch of RMarkdown documents. The latter, is the "raw" content of what you find online at <http://maxplanck-ie.github.io/Rseurat>.
+
+Our filenames start with two digits (e.g. `14_FirstSteps.Rmd`) to set the correct ordering while using alphabetical criteria, e.g. all that's in the range 10-19 goes into Day `#1`. The file `_site.yml` is an index (it defines the "Modules" menu on the website).
