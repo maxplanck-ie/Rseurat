@@ -132,11 +132,28 @@ p1 + p2
 Let's now explore some options of mitigating batch effects:
 
 -   Seurat Integration
--   Seurat SCTransform
--   Conos
 -   Harmony
+-   SCTransform
+-   kBET
+-   Conos
 -   ComBat/SVA
 -   ...
+
+# Harmony
+
+This method is quite straightforward. It will account for batch effects by correcting our principal components, its functionality is conveniently wrapped under function `RunHarmony`. Just keep in mind that it will create a new 'harmony' reduction that's the one you want to use downstream...
+
+
+```{r, eval=FALSE}
+# ...
+harmony::RunHarmony(object, h.group.by.vars = "orig.ident")
+FindNeighbors(object, reduction = 'harmony')
+FindClusters(object)
+RunUMAP(object, reduction = 'harmony')
+# ...
+```
+
+For further details, [check their vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/Seurat.html)
 
 # Seurat Integration
 
@@ -179,7 +196,7 @@ gc()
 
 Let's have a brief look at the panc.combined dataset - a new Assay has been created by the integration procedure.
 
-> 🧭✨ Poll: What is the new assay called?](<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
+> 🧭✨ Poll: [What is the new assay called?](<https://PollEv.com/multiple_choice_polls/4ArWqQjwtyVafBYCiaqbr/respond>) Hint: you can access assays of a Seurat object with `Assays()`.
 
 ## Process the newly integrated dataset
 
