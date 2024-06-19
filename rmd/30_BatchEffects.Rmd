@@ -138,11 +138,9 @@ Let's now explore some options of mitigating batch effects:
 -   ComBat/SVA
 -   ...
 
-## Seurat Integration: theory
+# Seurat Integration
 
-![Seurat](images/fx1_lrg.jpg){width="70%,height=70%"}
-
-Seurat authors developed a strategy to "anchor" diverse datasets together: - Joint dimentional reduction - Mutual nearest neighbours ("anchors") - Filter for high-scoring anchors - Known bottleneck: rare cell types
+> There's a few more slides, [here](https://docs.google.com/presentation/d/1cdeiIY2I7lXwYYJOyUYViOZkv3BRQ2PTfrmwKYMD6Jc/edit?usp=sharing).
 
 ## Seurat Integration: prep datasets
 
