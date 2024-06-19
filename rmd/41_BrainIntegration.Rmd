@@ -151,7 +151,6 @@ By default, the column `seurat_clusters` in our `meta.data` slot will point to t
 # Inspect Metadata
 
 # Plot UMAP for different resolutions (hint: change group.by= ...)
-
 ```
 
 1.  Explore the different cluster solutions with respect to their sizes and pairwise relationships (hint: table).

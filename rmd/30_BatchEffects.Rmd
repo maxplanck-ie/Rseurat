@@ -72,7 +72,7 @@ if (!file.exists(fdest)) {
   # utils::download.file("https://zenodo.org/record/7891484/files/panc_sub_processed.RDS?download=1", destfile = fdest, method = "curl")
   file.copy("/scratch/local/rseurat/datasets/preprocessed_rds/panc_sub_processed.RDS", fdest, overwrite = FALSE)
 }
-panc_sub <- UpdateSeuratObject(readRDS(fdest))  ## Seurat v5 would require this
+panc_sub <- UpdateSeuratObject(readRDS(fdest)) ## Seurat v5 would require this
 ```
 
 > 🧭✨ Poll:
