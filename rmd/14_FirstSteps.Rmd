@@ -273,7 +273,7 @@ In this case, based on the previous Violin plots, we'll use the following criter
 -   Unique feature counts over 2500 or below 200.
 -   $>5%$ mitochondrial counts.
 
-```{r filter, echo=FALSE}
+```{r filter}
 pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
   nFeature_RNA < 2500 &
   percent.mt < 5)
