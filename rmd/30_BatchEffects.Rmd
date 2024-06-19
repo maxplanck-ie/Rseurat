@@ -140,11 +140,11 @@ Let's now explore some options of mitigating batch effects:
 
 # Seurat Integration
 
-> There's a few more slides, [here](https://docs.google.com/presentation/d/1cdeiIY2I7lXwYYJOyUYViOZkv3BRQ2PTfrmwKYMD6Jc/edit?usp=sharing).
+> There's a few more slides, [here](https://docs.google.com/presentation/d/1cdeiIY2I7lXwYYJOyUYViOZkv3BRQ2PTfrmwKYMD6Jc/edit?usp=sharing). For further details, check the [original article](https://www.sciencedirect.com/science/article/pii/S0092867419305598).
 
 ## Seurat Integration: prep datasets
 
-Prior to the integration, we want to normalize each dataset to be integrated separately.
+Prior to the integration, we want to normalize each dataset separately to be integrated.
 
 ```{r seurat_integrate1}
 # split the dataset into a list of seurat objects
@@ -159,7 +159,6 @@ panc.list <- lapply(X = panc.list, FUN = function(x) {
 
 ## Seurat Integration
 
-In this paragraph, we're going to run the three functions key to Seurat Integration.
 
 ```{r seurat_integrate2}
 # select features that are repeatedly variable across datasets for integration
