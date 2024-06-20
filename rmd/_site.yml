@@ -27,7 +27,7 @@ navbar:
         href: 12_Intro.html
 
       - text: Parallelization
-        icon: fa-hourglass
+        icon: fa-gears
         href: 13_FutureArrivedLongAgo.html
 
       - text: First steps
