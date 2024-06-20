@@ -131,9 +131,9 @@ p1 + p2
 
 Let's now explore some options of mitigating batch effects:
 
--   Seurat Integration
--   Harmony
--   SCTransform
+-   Harmony (briefly shown here)
+-   Seurat Integration (we'll do this next)
+-   SCTransform (we'll see tomorrow)
 -   kBET
 -   Conos
 -   ComBat/SVA
@@ -143,17 +143,35 @@ Let's now explore some options of mitigating batch effects:
 
 This method is quite straightforward. It will account for batch effects by correcting our principal components, its functionality is conveniently wrapped under function `RunHarmony`. Just keep in mind that it will create a new 'harmony' reduction that's the one you want to use downstream...
 
+The next code block illustrates the process. Unfortunately, we won't apply this methodology here. But it should be straightforward for you to use it when/ if the need arises. For further details, [check the package vignette (tutorial)](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/Seurat.html).
+
 
 ```{r, eval=FALSE}
-# ...
+# Load DATA
+obj.Name1 <-
+  CreateSeuratObject(counts = counts.Name1, project = "Name1")
+obj.Name2 <-
+  CreateSeuratObject(counts = counts.Name2, project = "Name2")
+
+# Merge DATA
+object <-
+  merge(
+    x = obj.Name1,
+    y = obj.Name2,
+    add.cell.ids = c("Name1", "Name2"),
+    merge.data = F
+  )
+
+## This will give you a "orig.ident" meta-data column with 'Name1' or 'Name2', allowing you to know from which experiment came each cell.
+
+# ... QC, etc.
 harmony::RunHarmony(object, h.group.by.vars = "orig.ident")
 FindNeighbors(object, reduction = 'harmony')
 FindClusters(object)
 RunUMAP(object, reduction = 'harmony')
-# ...
+# ... DE, etc.
 ```
 
-For further details, [check their vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/Seurat.html)
 
 # Seurat Integration
 
