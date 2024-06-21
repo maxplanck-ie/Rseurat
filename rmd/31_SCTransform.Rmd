@@ -77,7 +77,7 @@ p2 <- FeaturePlot(ctrl, features = "nCount_RNA") + theme(legend.position = "righ
 p1 + p2
 ```
 
-> 🧭✨ Poll: [Which cell population has the highest total counts?](https://PollEv.com/multiple_choice_polls/jHulGlJWYI49AaEVkAbxm/respond)
+> 🧭✨ Poll: Which cell population has the highest total counts?
 > Hint: use the `FetchData` to retrieve variables `nCounts` and `seurat_annotations` to a data frame. Process it further with Dplyr functions: `group_by`, `summarize(total_counts = sum(nCount_RNA))`, and `arrange`.
 
 ## Seurat SCTransform
@@ -131,7 +131,7 @@ ctrl_ln + ctrl_sct
 
 What has changed and what hasn't?
 
-> 🧭✨ Poll: [What amount of standard deviation does PC1 explain after sc-transform?](https://PollEv.com/multiple_choice_polls/AQwroH3oNpZ2uQRcly2eO/respond)
+> 🧭✨ Poll: What amount of standard deviation does PC1 explain after sc-transform?
 > Hint: Function `Stdev(object)` returns the absolute values of standard deviations for principal components. It's the analogous to `object@reductions$pca@stdev`.
 
 
@@ -154,7 +154,7 @@ What has changed and what hasn't ?
 
 > ⌨🔥 Exercise: Apply SCTransform to the IfnB-stimulated dataset as well.
 
-> 🧭✨ Poll: [What amount of standard deviation does the first PC explain after applying sc-transform to the stimulated dataset?](https://PollEv.com/multiple_choice_polls/coHM0QIGIgmNdcxkYIb0i/respond)
+> 🧭✨ Poll: What amount of standard deviation does the first PC explain after applying sc-transform to the stimulated dataset?
 
 ## Prepare both datasets for integration
 
