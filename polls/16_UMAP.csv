@@ -1,6 +1,6 @@
 Activity,Type,Title,Option,Option,Option,Option,Option
 Poll,Multiple choice,Is t-SNE affected by the seed?,Yes,No,Sometimes?,Only if it’s not set!,
-Poll,Multiple choice,Is nrow(X) the number of genes or cells?,Genes,Cells,Degrees of Freedom,,
+Poll,Multiple choice,(perplexity constraint) Is nrow(X) the number of genes or cells?,Genes,Cells,Degrees of Freedom,,
 Poll,Multiple choice,Is UMAP affected more than t-SNE by the seed? Or less?,"UMAP is more sensitive, plot has changed drastically",t-SNE is more sensitive. UMAP emphasis on global structure helps.,Both are equally sensitive,"Being stochastic means that any behaviour can be expected, depends on the seed…",
 Poll,Multiple choice,Would decreasing the number of PCs fed to the UMAP algorithm change our visualization? Would you say the results are 'better'?,"No, it didn’t change at all","Yes, and it’s better with few PCs","Yes, and it’s worst if we have too few PCs!",,
 Poll,Multiple choice,Could you have the UMAP projection onto 3 axes instead of 2?,Sure,Why would I?,No,Yeah!! Awesome!!!,
