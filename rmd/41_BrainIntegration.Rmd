@@ -33,8 +33,10 @@ For details and conclusions driven from these results please consult the origina
 knitr::opts_chunk$set(eval = FALSE, echo = TRUE, format = TRUE, out.width = "100%")
 ```
 
-```{r hdf5r}
-if (!"hdf5r" %in% installed.packages()) BiocManager::install("hdf5r")
+```{r dependencies}
+installed_packages <- installed.packages()
+if (!"hdf5r" %in% installed_packages) BiocManager::install("hdf5r")
+if (!"presto" %in% installed_packages) remotes::install_github('immunogenomics/presto')
 ```
 
 ```{r setup, echo=TRUE}
