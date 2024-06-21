@@ -215,7 +215,7 @@ How would you go about checking the percentages of cells from each condition in 
 
 ## DE genes
 
-We're now going to run DGE analysis on the SCT assay, witht he goal of getting a list of top 10 DE genes between stimulated and unstimulated B cells.
+We're now going to run DGE analysis on the SCT assay, with the goal of getting a list of top 10 DE genes between stimulated and unstimulated B cells.
 First, we're going to rename cell identities to a concatenation of celltype and condition.
 
 As we're going to test across conditions, the datasets for which have been sc-transformed separately (multiple SCT models), we'll have to invoke `PrepSCTFindMarkers` before we can run the `FindMarkers` function.

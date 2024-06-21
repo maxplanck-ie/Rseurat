@@ -90,7 +90,7 @@ Among other parameters, it takes:
 -   `ident.1`, and `ident.2`: typically these denote specific cluster numbers ("identities") of cells, but any other annotation from the metadata will work as well.
 -   `test.use`: select from a wide range of statistical models and/ or methodologies (we use ["MAST"](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-015-0844-5))
 
-**MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression.
+**MAST controls for the proportion of genes detected in each cell,** this acts as a proxy for both technical (e.g., dropout, amplification efficiency) and biological factors (e.g., cell volume and extrinsic factors other than treatment of interest) that globally influence gene expression. It is a two-part generalized linear model that simultaneously models the rate of expression over the background of various transcripts, and the positive expression mean.
 Another popular option is `DESeq2`, with [plenty of caveats](https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#recommendations-for-single-cell-analysis) that the Seurat authors may have addressed.
 
 <!-- This research article that compares different DE testing methodologies/ package libraries for single-cell datasets: <https://www.nature.com/articles/nmeth.4612> -->
@@ -140,8 +140,8 @@ There are different flavors of these `Find*` functions.
 -   `FindAllMarkers` will find markers differentially expressed in each identity group by comparing it to all of the others - you don't have to manually define anything.
     Note that markers may bleed over between closely-related groups - they are not forced to be specific to only one group.
 
--   `FindConservedMarkers` will find markers that are conserved between two groups - this can be useful if you want to find markers that are conserved between a treated and untreated condition, for a specific cell type or group of cells.
-    **It means they are differentially expressed compared to other groups, but have similar expression between the two groups you're actually comparing.**
+-   `FindConservedMarkers` will find markers that are conserved between two groups of cells, across different conditions (for example, a treated and control). `FindConservedMarkers` has a mandatory argument, the grouping variable (`grouping.var`), and the function is used to compare across groups (conditions), it will combine p-values of running `FindMarkers` for the two groups of cells (`idents`), in each condition.
+    **It means they are differentially expressed compared to other groups in the respective conditions, but have differential expression between the those two groups across the conditions.**
 
 ## Graphical Exploration
 
