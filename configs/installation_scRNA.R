@@ -40,7 +40,10 @@ retrieve_namespaces(
     # Viz
     "RColorBrewer",
     "patchwork",
-    "pheatmap"
+    "pheatmap",
+    # Day 4
+    "presto",
+    "hdf5r"
   )
 )
 
