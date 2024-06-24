@@ -12,6 +12,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE, out.width = "100%")
 ```
 
+<br />
+
 ## Workbench users
 
 > ⌨🔥 Exercise: Create a new project and clone the source files we will be using, from GitHub.
@@ -23,7 +25,9 @@ If you are using Workbench, start a new session. Then, go to the Menu:
 > Repository URL: https://github.com/maxplanck-ie/Rseurat  
 > Project directory name: chose a folder name  (e.g. MYFOLDER)
 
-* create the project as a subdirectory under your group volume (e.g. /data/PI/group/MYFOLDER), or a processing volume (/data/processing/MYFOLDER), or the scratch space (/scratch/local/MYFOLDER)
+* create the project as a subdirectory under one of your group volumes (e.g. `/data/PI/group/MYFOLDER`), a processing volume (e.g. `/data/processing/MYFOLDER`), or the scratch space (e.g. `/scratch/local/MYFOLDER`).
+
+<br />
 
 ## Local users
 
