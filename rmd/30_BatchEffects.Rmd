@@ -35,23 +35,6 @@ options(Seurat.object.assay.version = "v5")
 packageVersion("Seurat")
 ```
 
-## Sources of batch effects
-
-Multiple steps in sample preparation introduce changes to measured gene expression.
-Some of these are:
-
--   Cell/RNA isolation (e.g. FACS)
--   Library construction
--   Sequencing run
--   Sequencing technology
--   Individual (patient sample)
--   The person performing the experiment
-
-## Problem description
-
-We're going to work with a dataset comprised of pancreatic cells sequenced with 4 different single cell technologies, with various numbers of replicates.
-We're first going to inspect the lowD embedding of the full dataset, and then we're going to work with a subset of the full dataset.
-We're going to inspect and attempt to mitigate known batch effects in the subset dataset.
 
 ## What does the data look like out of the box?
 
@@ -79,7 +62,7 @@ panc_sub <- UpdateSeuratObject(readRDS(fdest)) ## Seurat v5 would require this
 >
 > Which sequencing technologies are retained in the subset dataset?
 >
-> How many cells were sequenced in each experiment?
+> How many cells were sequenced with smartseq2?
 
 ## Revisit UMAP
 
