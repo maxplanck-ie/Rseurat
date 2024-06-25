@@ -1,0 +1,374 @@
+---
+title: 'Practical Exploration: Brain Integration'
+output:
+  
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+    code_folding: hide
+  pdf_document: default
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+    number_sections: yes
+    code_folding: hide
+---
+
+> This days is meant for **free data exploration** ! 
+
+We suggest two data sets from the following publications and their corresponding data repositories.
+
+- [Loo et al.](https://www.nature.com/articles/s41467-018-08079-9) - [GSE123335](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123335) E14 data **with celltype information**
+- [DiBella et al.](https://www.nature.com/articles/s41586-021-03670-5) - [GSM4635075](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM4635075) E14 data **without celltype information**
+- DiBella celltype information can be pulled from [here](https://singlecell.broadinstitute.org/single_cell/study/SCP1290/molecular-logic-of-cellular-diversification-in-the-mammalian-cerebral-cortex).
+
+Both analyses are centered around mouse brain development. 
+For details and results consult the papers. 
+
+The only steps given below are:
+
+1. setups, libraries and convenience functions.
+2. data loading
+
+Please make sure to run the two code blocks below!
+We made it easy here, but in the real world this may take a substantial amount of time.
+Also notice that there can be various data formats in which to obtain scRNA data.
+
+
+# Setup
+```{r setup, echo=TRUE}
+set.seed(123)
+# necessary because of the read-in of the Loo et al matrix
+Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 5)
+
+suppressMessages({
+  library(tidyverse)
+  library(Seurat)
+  library(patchwork)
+  library(pheatmap)
+})
+
+## convenience functions
+mySCT <- function(x){
+  # x <- SCTransform()                                                           # older, slower
+  x <- SCTransform(x, method = "glmGamPoi",vst.flavor = "v2", verbose = FALSE)  # faster
+} 
+
+options(parallelly.fork.enable = FALSE,
+        future.globals.maxSize = 8 * 1024 ^ 2 * 1000)
+
+# plan("multicore", workers = 8) # future doesn't work for me with a couple of commands
+
+cat("work directory: ", getwd())
+cat("\n")
+cat("library path(s): ", .libPaths())
+
+```
+
+# Read data
+```{r ReadData, echo=TRUE}
+# runs ~5min
+dir <- "/scratch/local/rseurat/datasets/mouse_brain/"
+mat_name <- paste0(dir,"Loo/GSE123335_E14_combined_matrix.txt.gz")
+ann_name <- paste0(dir,"Loo/GSE123335_E14_combined_matrix_ClusterAnnotations.txt.gz")
+loo_mat  <- read.delim(mat_name, row.names = 1)
+loo_meta <- read.delim(ann_name, row.names = 1) # with cluster annotation (Cluster)
+loo <- CreateSeuratObject(counts = loo_mat, meta.data = loo_meta)  # 488 MB
+loo$source <- 'Loo'
+dim(loo)
+
+h5_name <- paste0(dir,"DiBella/GSM4635075_E14_5_filtered_gene_bc_matrices_h5.h5")
+db_mat <- Read10X_h5(filename = h5_name)
+db <- CreateSeuratObject(counts = db_mat)  # 222 MB
+db$source <- 'DiBella'
+dim(db)
+
+# clean-up
+rm(loo_mat, loo_meta, db_mat)
+
+# in case there are problems with hd5
+# saveRDS(db, file='DiBella_SeuratObj.rds') # 
+# rds_name <- paste0(dir,"DiBella/DiBella_SeuratObj.rds")
+# db <- readRDS(rds_name)
+```
+
+# Totally on your own ...
+
+...just kidding. Apart from our lecture material and general R/Google help there are excellent resources available. 
+
+Especially for Seurat, there is one outstanding cheat sheet which should help you with most of the tasks below: https://satijalab.org/seurat/articles/essential_commands.html
+
+
+# Loo Data
+The analysis of Loo *et al.* highlighted the role of Neurod2, Gad2, Eomes, and Mki67.
+- Prepare the data for dimensional reduction 
+- Check a suitable number of principal components to keep)
+- Plot the normalized expression of these important genes on a UMAP.
+
+Should you be more interested in data structures, you could also check the Seurat data object
+with `View()` - it's huge and has many `slots` that will be changing as the analysis proceeds.
+
+*Notice:* Here we only use the data for E14.5 (not P0)
+```{r loo_prep}
+loo_alone <- loo %>% 
+  subset(nFeature_RNA > 200 & nFeature_RNA < 3000) %>%
+  mySCT() %>% 
+  RunPCA(verbose=FALSE) %>% 
+  RunUMAP(reduction = "pca", dims = 1:30, verbose=FALSE)
+```
+
+
+```{r loo_viz1}
+loo_alone
+ElbowPlot(loo_alone, ndims=50)
+DimPlot(loo_alone)
+FeaturePlot(loo_alone, features=c("Neurod2", "Gad2", "Eomes", "Mki67"))
+```
+
+
+## Finding Clusters
+Apart from yielding suggestive plots, the main reason for dimensionality reduction was `feature selection`,
+i.e. the selection of informative genes (and PCA components) that will enable clustering.
+
+In fact, the authors invested much effort to identify a proper number of clusters and subclusters.
+
+Use variable resolution parameters and inspect the results - which resolution (=number of clusters) would you choose?
+```{r loo_cluster}
+loo_alone <- FindNeighbors(loo_alone, reduction = "pca", dims = 1:30)
+
+res=c(0.1, 0.25, 0.5, 0.75, 1.0)
+loo_alone <- FindClusters(loo_alone, resolution = res, verbose=FALSE)
+
+loo_alone@meta.data %>% select(starts_with("SCT")) %>% sapply(n_distinct)
+```
+
+```{r plot}
+my_theme <- theme(legend.position = "bottom", legend.text=element_text(size=8), legend.key.size = unit(0.3, 'line'))
+p1 <- DimPlot(loo_alone, group.by = 'SCT_snn_res.0.1')  + my_theme
+p2 <- DimPlot(loo_alone, group.by = 'SCT_snn_res.0.75') + my_theme
+p3 <- DimPlot(loo_alone, group.by = 'SCT_snn_res.1')    + my_theme
+p1+p2+p3
+```
+
+1. Explore the different cluster solutions with respect to their sizes and pairwise relationships (hint: table).
+
+2. Similarly, compare a given cluster solution with the authors solution - the later is provided as 
+metadata column 'Cluster'.
+
+3. **Subset** the Seurat object to visualize only specific clusters more closely un a UMAP.
+
+*Notice:* per default the clusters are sorted by their sizes and the largest one has index 0 !
+```{r explore_clusters}
+loo_alone$cell_type <- str_remove(loo_alone$Cluster, pattern = ' \\[.*')    # cell types in the Loo annotation have a cluster added which needs to be cleaned
+loo_alone@meta.data %>% select(starts_with("SCT")) %>% lapply(table)       # cluster sizes for all resolutions
+loo_alone@meta.data %>% select(starts_with("SCT")) %>% select(4,5) %>% table() %>% pheatmap()  # pairwise cluster comparisons
+loo_alone@meta.data %>% select(c("cell_type","SCT_snn_res.0.75")) %>% table() %>% pheatmap()     # compare cluster solution with previous annotation
+loo_alone %>% subset(idents=0:2) %>% DimPlot()                                                 # cluster selection
+```
+
+If you have more time and energy, try changing the number of PCA components and consider how this will affect the clusters.
+
+**Message:** Choosing a satisfying cluster solution is an art - it requires checks, iterations and biological insight!
+
+## Save your work
+This was quite expensive. Make sure to **save** your valuable Seurat object with all
+the calculated slots inside. 
+
+This will be an important checkpoint for future exploration;  try to read it to make sure it works.
+
+Keep track on **where** you are writing and reading from:
+```{r checkpoint1}
+getwd()                                  # for me: /scratch/local/manke/Rseurat/rmd
+saveRDS(loo_alone, file='loo_alone.rds') # ???writing >30s for 360 MB???
+loo_alone <- readRDS('loo_alone.rds')
+```
+
+
+## Marker Genes
+Ultimately we will need marker genes to give names and meaning to clusters.
+To keep things simple, find the top 10 marker genes for a cluster of your choice. 
+
+Make sure you first decide on a specific cluster solution from above. Per default this is the last one you calculated, but you can overwrite this by assigning new *identities* to cells: `?Idents()`.
+To this end you can use suitable colnames from the metadata of the Seurat object.
+
+If you plan a really long coffee break, you can also try to find **all markers** for all clusters.
+
+```{r markers}
+# default identity = 'seurat_cluster' (after clustering)
+c_choice <- 'SCT_snn_res.0.75'      # explicit choice of cluster solution
+Idents(loo_alone) <- c_choice       # redefines identity --> slot `active.ident`
+
+loo_alone %>% Idents %>% table()  %>% barplot()   # number of cells per cluster
+m_9 <- FindMarkers(loo_alone, ident.1 = 9)        # `Eomes` cluster 9: takes ~30s 
+
+( top_10 <- m_9 %>% head(10) %>% rownames() )
+
+#Only for long breaks:
+#m_all <- FindAllMarkers(loo_alone)   # very long: ~24 x 20s
+```
+## Heatmaps and Dotplots
+The authors like to present their results as heatmaps of clusters and marker genes - you can can do this too! 
+Try plotting a heatmap (?DoHeatmap) over all cells, but only for the 10  markers you have defined above.
+You may also filter out the smaller clusters (index>10) as they disturb the pretty plots
+
+Another question about markers is whether most cells in a cluster express them,
+and if their expression is strong (the papers motivates subclustering based on these observations). 
+We have a powerful tool to visualize this issue: ?DotPlot. Try it out.
+
+```{r marker_vis}
+#loo_alone %>% DimHeatmap()  # this is for PCA, with an implicit choice on high-load genes
+
+so <- loo_alone %>% subset(idents=0:10)   # temporary, small Seurat object (for big clusters only)
+
+DoHeatmap(so, features=top_10, size=3, angle=0)
+
+DotPlot(so, features=top_10) + theme(axis.text.x = element_text(angle = 90))
+
+## Appendix ############
+# my pheatmap attempt for prettier colors, but pheatmap clustering is too simple (vs. Louvain) 
+# use previous cluster assignment of cells and sort them
+sorted_cells <- so@meta.data %>% arrange(!!sym(c_choice)) %>% rownames()  # rownames sorted by cluster_id
+cols <- colorRampPalette(c("white", "red"))(100)                          # 100 useful colors
+
+GetAssayData(so, slot='scale.data') %>% 
+  as.data.frame() %>%
+  filter(rownames(.) %in% top_10) %>%
+  select(all_of(sorted_cells)) %>%
+  pheatmap(cluster_col=FALSE, show_colnames = FALSE, color = cols)
+#########################
+```
+
+## Writing to file
+Do you remember how to send a figure to file? 
+
+1. Pick one of the plots above and `ggsave` it. Make sure you know into which directory you will be writing.
+2. Since this part of the analysis is done, let's be kind to RAM and remove large temporary objects
+
+```{r doHeatmap}
+DoHeatmap(so, features=top_10, size=3, angle=0)
+ggsave("images/my_DoHeatmap.png",width=12,height=5)
+
+rm(so) 
+```
+
+> PS> Have a look at https://github.com/jeremymsimon/MouseCortex/blob/master/E14_processing.R
+and appreciate how much software has developed since 2019 - and simplified analyses.
+
+
+# Integration
+
+Loo et al. (2019) are not the only lab to be interested in brain development.
+A more recent work by DiBella et al. (2021) has different data. Try to integrate these two datasets.
+
+## Subsample
+In addition to the usual filtering of low and highly abundant genes,
+you might also want to downsample the data sets to ~3000 cells (for simple speed benefits).
+
+Be aware that the Loo dataset incorporates 6 replicates (identities) and Seurat downsampling is done per identity. 
+If you have more time you can also skip the downsampling.
+```{r subsample}
+# subsampling is per identity: loo has 6
+db  <- db %>% subset(nFeature_RNA > 200 & nFeature_RNA < 3000) %>% subset(downsample = 3000) 
+loo <- loo %>% subset(nFeature_RNA > 200 & nFeature_RNA < 3000) %>% subset(downsample = 500)
+```
+
+## Simple merge
+When reading the data, we assigned a `source` label to all cells from those two studies.
+Use `merge()` to merge these two similar datasets, process the merged data as usual, 
+and plot a UMAP to show that there is a strong batch effect.
+```{r merge}
+merged <- merge(loo, db)
+
+# simple processing with default choices of parameters
+merged <- merged %>% 
+  mySCT() %>%
+  RunPCA(verbose=FALSE) %>%
+  RunUMAP(reduction = "pca", dims = 1:30, verbose=FALSE)
+
+DimPlot(merged, group.by = 'source')
+
+rm(merged)     # will not return to this 
+```
+
+**Message:** Simple merge is too simple! There should be more commonalities in those 2 datasets.
+
+## SCT integration
+Try to account for batch effects using anchors
+```{r SCT_integration}
+sl <- c(loo, db)                            # list of individual datasets
+sl <- lapply(sl, mySCT)                     # individual normalizations
+
+int_feat <- SelectIntegrationFeatures(sl)   # select variable genes across datasets: "integration features"
+
+sl <- PrepSCTIntegration(sl, anchor.features = int_feat)  # more preparations
+
+anchors <- FindIntegrationAnchors(sl, anchor.features = int_feat, normalization.method = "SCT")  # find anchors
+int     <- IntegrateData(anchorset = anchors,  normalization.method = "SCT")              # define integrated data set based on anchors
+
+# checkpoint: good work, time to save the object
+# saveRDS(int, file='int.rds')
+```
+
+## Joint Analysis
+Before you continue: have a look at your newly integrated dataset (e.g. with `View()`). 
+It has grown in size and it contains additional assays. 
+
+For further analysis, make sure that in the following you are using the assay `integrated`, like so: 
+
+> DefaultAssay( _your_integrated_serat_object_) <- "integrated"
+
+Of course you understand that each of the following processing steps requires careful checking, 
+but for now just get going with the default pipeline:transformations, PCA, UMAP. 
+Also defining cell neighbourhoods, and clustering.
+
+For the last step just assume some typical resolution; e.g. `resolution=0.5` for simplicity (not because it is the best).
+
+This will take a while. So again it is a good idea to save the seurat object after you are done
+
+```{r analyse_int}
+DefaultAssay(int) <- "integrated"   # set default assay
+vf <- FALSE                         # verbose flag
+
+int <- RunPCA(int, npcs = 30, verbose = vf) 
+int <- RunUMAP(int, reduction = "pca", dims = 1:30, verbose = vf) 
+int <- FindNeighbors(int, reduction = "pca", dims = 1:30, verbose = vf) 
+int <- FindClusters(int, resolution = 0.5)
+
+# checkpoint: 5 min later
+# saveRDS(int, file='int_processed.rds')
+```
+
+## Joint Visualization
+
+You are almost done. Time to make a few more UMAPs in which you label
+
+- the data source
+- cell type (as from annotations by Loo)
+- cluster ID (as obtained from simple clustering of the integrated set)
+```{r int_viz, fig.width=18, fig.height=6}
+
+int$cell_type <- str_remove(int$Cluster, pattern = ' \\[.*') # need to capture the space before the square brackets, not spaces in cell types
+col = alpha(c('lightgrey', 'darkblue'), 0.5)
+
+p1 <- DimPlot(int, group.by = "source", cols = col, pt.size = 0.8)
+p2 <- DimPlot(int, group.by = 'cell_type', pt.size = 0.8, label = T) + theme(legend.position = 'none')
+p3 <- DimPlot(int, group.by = 'seurat_clusters', pt.size = 0.8)
+p1 + p2 + p3
+```
+
+With some luck we should be able to draw a correspondence of the annotated cell type (only defined for the Loo data)
+and our cluster ID (defined for all cells in the integrated dataset).
+
+```{r cluster_mapping}
+int@meta.data %>% select(c("cell_type","seurat_clusters")) %>% table() %>% sweep(2, colSums(.), FUN="/") %>% pheatmap() # added per cplumn normalization for better interpretation
+```
+
+# SessionInfo
+
+Are you really done? Don't forget to print the sessionInfo()!
+```{r sessioninfo}
+sessionInfo()
+```
+
