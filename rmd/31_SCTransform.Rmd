@@ -97,8 +97,6 @@ We're going to use the SCTransform function with some more recent implementation
 
 
 ```{r seurat_sctransform1}
-library(sctransform)
-library(glmGamPoi)
 ctrl <- SCTransform(ctrl, method = "glmGamPoi", vst.flavor = "v2", verbose = FALSE)
 ```
 
