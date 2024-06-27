@@ -75,15 +75,27 @@ For further details on the primary analysis pipeline that gives you the count da
 The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
 This dataset consists of 3 files:
 
--   `matrix.mtx`: **count matrix** represents the number of molecules for each gene (row) that are detected in each cell (column).
 -   `genes.tsv`: a list of ENSEMBL-IDs and their corresponding gene symbol
 -   `barcodes.tsv`: a list of molecular barcodes that identifies each cell uniquely
+-   `matrix.mtx`: **count matrix** once loaded together with the next files, this will be easily represented as a table with the number of molecules for each gene (rows) that are detected in each cell (columns)
 
-For now we assume that this data resides in a directory `datasets/filtered_gene_bc_matrices/hg19` (relative to this current markdown file).
+This data resides in a directory `datasets/filtered_gene_bc_matrices/hg19` (relative to this current markdown file). Let's see the first lines of each file.
+
+```{r checkPlainTxt}
+data_dir <- "./datasets/filtered_gene_bc_matrices/hg19/"
+read.delim2(file.path(data_dir, "genes.tsv"), header = FALSE) %>% head()
+read.delim2(file.path(data_dir, "barcodes.tsv"),
+            header = FALSE,
+            sep = " ") %>% head()
+read.delim2(file.path(data_dir, "matrix.mtx"), sep = " ") %>% head()
+```
+
+
+
 We can read this with a single command:
 
 ```{r read10x}
-pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = data_dir)
 ```
 
 This data is extremely big and sparse, this variable is now an object of type `dgCMatrix`.
