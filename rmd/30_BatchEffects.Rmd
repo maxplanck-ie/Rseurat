@@ -264,11 +264,7 @@ p2 <- DimPlot(panc.combined, reduction = "umap", group.by = "celltype")
 p1 + p2
 ```
 
-## SessionInfo
-
-```{r sessionInfo}
-sessionInfo()
-```
+# End
 
 ## Citations
 

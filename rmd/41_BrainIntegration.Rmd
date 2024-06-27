@@ -343,7 +343,3 @@ Time to make a few more UMAPs in which you'd label:
 With some luck we should be able to draw a correspondence of the annotated cell type (only defined for the Loo data) and our cluster ID (defined for all cells in the integrated dataset).
 
 # End
-
-```{r sessioninfo}
-sessionInfo()
-```

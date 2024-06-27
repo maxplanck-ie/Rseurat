@@ -253,11 +253,7 @@ You may also want to identify markers that are DE between identities *independen
 For that purpose, you can make use of the `FindConservedMarkers` function.
 The `PrepSCTFindMarkers` command does not to be rerun here.
 
-## SessionInfo
-
-```{r sessionInfo}
-sessionInfo()
-```
+# End
 
 ## Citations
 
