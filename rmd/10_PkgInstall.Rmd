@@ -305,3 +305,14 @@ On Windows, there are two options: one would be installing miniconda.
 Or, the most straightforward would probably be using [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about), and then following instructions for Ubuntu Linux (you may choose another distro, but we recommend you start with Ubuntu).
 
 <!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/rseurat/datasets/preprocessed_rds/ -->
+
+
+# End
+
+### sessionInfo
+
+It's common practice in the R-lang communities to include a `sessionInfo` for the means of debugging and reproducibility. You can safely ignore the following.
+
+```{r sessionInfo}
+sessionInfo()
+```
