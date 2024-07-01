@@ -17,14 +17,41 @@ output:
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(eval = FALSE, format = TRUE)
 options(warn = -1)
-## NOTE TO INSTRUCTOR: check the script ../rmd_archive/installation_scRNA.R
 ```
 
-> Thanks for taking the time to do this before the course!
+<link rel="stylesheet" href="headers.css">
 
-# Installation
+::: {.alert .alert-dismissible .alert-info}
+<h4 class="alert-heading">
 
-There are two options, "skip" or "not to skip".
+Note for Workbench users
+
+</h4>
+
+<p class="mb-0">
+
+Thanks for taking the time to do this before the course!
+<br />
+This document means to be an extended version of our installation script located at
+`configs/installation_scRNA.R`. Feel free to just run this, and only come back here if any issues arise.
+<br />
+If, at any time, you have Questions or Feedback, send us a message via Slack.
+There's this channel where you can find us,
+[#r-elated](https://mpi-iebioinfo.slack.com/archives/C4Q0M651Q) _(account
+registration on Slack will be automatically approved when using your
+`@ie-freiburg.mpg.de` e-mail address!)_
+
+:::
+
+
+```{r script, eval=FALSE}
+source("../configs/installation_scRNA.R")
+```
+
+
+# In-depth Installation Instrucctions
+
+There are two options, **"skip"** or **"not to skip"**.
 The latter, would be the preferred way for students to whom analyzing single-cell datasets is a core part of their research project(s).
 
 ## Skip
@@ -199,6 +226,20 @@ library(Seurat)
 packageVersion("Seurat")
 ```
 
+
+::: {.alert .alert-dismissible .alert-success}
+<h4 class="alert-heading">
+
+Congrats!
+
+</h4>
+
+<p class="mb-0">
+
+You made it. One last thing, we'll be using some educational datasets. The next part is also required, but way more simpler
+
+:::
+
 # Datasets
 
 R packages bundle data with them, usually for testing purposes.
@@ -278,3 +319,14 @@ On Windows, there are two options: one would be installing miniconda.
 Or, the most straightforward would probably be using [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about), and then following instructions for Ubuntu Linux (you may choose another distro, but we recommend you start with Ubuntu).
 
 <!-- Note to teachers: be sure to keep up to date the zenodo links in here + in deploy.yml + the files at deep19:/scratch/local/rseurat/datasets/preprocessed_rds/ -->
+
+
+# End
+
+### sessionInfo
+
+It's common practice in the R-lang communities to include a `sessionInfo` for the means of debugging and reproducibility. You can safely ignore the following.
+
+```{r sessionInfo}
+sessionInfo()
+```

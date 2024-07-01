@@ -32,3 +32,4 @@ There are many other tools, it's good you keep them in your radar in case the ne
 -   Also, worth to take a look at the [Bioconductor set of packages for SC Analysis](http://bioconductor.org/books/release/OSCA).
 
 -   **Tidyomics**, is [a new ecosystem](https://github.com/tidyomics/tidyomics#the-tidyomics-ecosystem) bringing `SingleCellExperiment` and `SeuratObject` to the tidyverse idioms. Have a look at their [manifesto](https://tidyomics.github.io/tidyomicsBlog/post/2021-07-07-tidy-transcriptomics-manifesto/) for a brief overview, and a neat presentation.
+

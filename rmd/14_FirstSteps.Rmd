@@ -75,15 +75,27 @@ For further details on the primary analysis pipeline that gives you the count da
 The raw data can be found [here](https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz), and you have already downloaded it with the repository Zip file.
 This dataset consists of 3 files:
 
--   `matrix.mtx`: **count matrix** represents the number of molecules for each gene (row) that are detected in each cell (column).
 -   `genes.tsv`: a list of ENSEMBL-IDs and their corresponding gene symbol
 -   `barcodes.tsv`: a list of molecular barcodes that identifies each cell uniquely
+-   `matrix.mtx`: **count matrix** once loaded together with the next files, this will be easily represented as a table with the number of molecules for each gene (rows) that are detected in each cell (columns)
 
-For now we assume that this data resides in a directory `datasets/filtered_gene_bc_matrices/hg19` (relative to this current markdown file).
+This data resides in a directory `datasets/filtered_gene_bc_matrices/hg19` (relative to this current markdown file). Let's see the first lines of each file.
+
+```{r checkPlainTxt}
+data_dir <- "./datasets/filtered_gene_bc_matrices/hg19/"
+read.delim2(file.path(data_dir, "genes.tsv"), header = FALSE) %>% head()
+read.delim2(file.path(data_dir, "barcodes.tsv"),
+            header = FALSE,
+            sep = " ") %>% head()
+read.delim2(file.path(data_dir, "matrix.mtx"), sep = " ") %>% head()
+```
+
+
+
 We can read this with a single command:
 
 ```{r read10x}
-pbmc.data <- Read10X(data.dir = "./datasets/filtered_gene_bc_matrices/hg19/")
+pbmc.data <- Read10X(data.dir = data_dir)
 ```
 
 This data is extremely big and sparse, this variable is now an object of type `dgCMatrix`.
@@ -109,12 +121,12 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
 
 > 🧭✨ Polls:
 >
-> How many genes and cells does this dataset have? https://PollEv.com/multiple_choice_polls/SUGa0Gd6arc2yN03oGsW6/respond
+> How many genes and cells does this dataset have?
 >
-> How many genes are not expressed in any cell? https://PollEv.com/multiple_choice_polls/7eG9v27igQJ4q3YXkEC9n/respond
+> How many genes are not expressed in any cell?
 > Hint: subset genes with `rowSums()`.
 >
-> Which are the top 3 genes with the highest total count? https://PollEv.com/multiple_choice_polls/N95CXZgAjezf5VQlH8QO7/respond
+> Which are the top 3 genes with the highest total count?
 > Hint: `rowSums()` and `sort`.
 
 > ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
@@ -149,7 +161,7 @@ On RStudio, you can use `View(pbmc)` to inspect all the layers (slots).
 
 > 🧭✨ Poll:
 >
-> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? https://PollEv.com/multiple_choice_polls/ALEQy4aTk6YCvdvQMnCbg/respond
+> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
 > Hint: subset the assay data, `pbmc@assays$RNA` or use the [`FetchData()`](https://satijalab.github.io/seurat-object/reference/FetchData.html) function.
 
 
@@ -238,7 +250,6 @@ VlnPlot(
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
 > 🧭✨ Poll: How many cells have equal or less than 2000 counts in total (summed over all genes)?
-https://PollEv.com/multiple_choice_polls/YPYGTUEew6Y4XcqrqObxX/respond
 > Hint: you can use `colSums` on the countdata layer or take advantage of the meta.data metrics calculated by Seurat and stored in the object.
 
 Individually these variables may not fully discriminate dead cells, but could also reflect real biological properties (e.g. higher mitochondrial count).
@@ -271,7 +282,6 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
 ```
 
 > 🧭✨ Poll: What's the current number of cells after this step?
-https://PollEv.com/multiple_choice_polls/RWw3CYiBqEzp0E0VII8P5/respond
 
 
 ## Normalization
@@ -308,11 +318,9 @@ pbmc <- FindVariableFeatures(pbmc)
 > 🧭✨ Polls:
 >
 > Which are the 3 most highly variable genes?
-https://PollEv.com/multiple_choice_polls/K3MKnt5OsuhryxPCb4J1I/respond
 > Hint: use `VariableFeatures()`.
 >
 > What's the variance of the gene `PYCARD`?
-https://PollEv.com/multiple_choice_polls/awTn4BDUkLDbWKofpLqHZ/respond
 > hint: use `HVFInfo()`.
 
 Plot variable features:
@@ -393,7 +401,6 @@ ElbowPlot(pbmc)
 ```
 
 > 🧭✨ Poll: How many components should we choose to include?
-https://PollEv.com/multiple_choice_polls/fi9Z4jqXU22sFf2P0SDeq/respond
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 Also, if your research questions aim towards rare celltypes, you may definitely include more PCs (think about it in terms of the variance in gene expression values).
@@ -442,79 +449,4 @@ Finally, we are able to plot PCA, and have the cells coloured by these categorie
 DimPlot(pbmc, group.by = "mt.categories")
 ```
 
-
-**It's important that we keep track of our active identity.**
-
-# Clustering
-
-The next step follow the work pioneered by `PhenoGraph`, a robust computational method that partitions high-dimensional single-cell data into subpopulations.
-Building on these subpopulations, `PhenoGraph` authors developed additional methods to extract high-dimensional signaling phenotypes and infer differences in functional potential between subpopulations.
-<!-- For details, be sure to check the [research paper](http://www.ncbi.nlm.nih.gov/pubmed/26095251) cited by seurat developers. -->
-
-This subpopulations *could* be of biological relevance, retrieving these is our goal.
-The definition of such groupings depend upon the parameters.
-This algorithm in particular is the K Nearest Neighbors (KNN) graph that is constructed based on the euclidean distance in PCA space.
-For an example of building such a graph, imagine we took only two PCs (principal components) and had such an arrangement of cells like these dots in a 2D plane...
-
-```{r, echo=FALSE}
-knitr::include_graphics("./images/KnnClassification.png")
-```
-
-On our example of k-NN classification for a cell highlighted in green color, the test sample (green dot) should be classified either to the group made of blue squares or to the subpopulation of cells here represented in red triangles.
-If k = 3 (solid line circle) it is assigned to the red triangles because there are 2 triangles and only 1 square inside the inner circle.
-If k = 5 (dashed line circle) it is assigned to the blue squares (3 squares vs. 2 triangles inside the outer circle).
-
-There's a drawback with the 'majority voting' scheme, the assignment of such clusters is biased towards the clusters that have greater number of members (especially when ties start appearing).
-For that reason, we'll refine the process by using a graph, where edge weights between any two cells is based on the shared overlap in their local neighborhoods (Jaccard similarity).
-
-$$
-J(A,B) = \frac{Intersect(A,B)}{Union(A,B)} = J(B,A)
-$$
-
-**If two datasets share the exact same members, their Jaccard Similarity Index will be 1. Conversely, if they have no members in common then their similarity will be 0.**
-
-All the process described before, including the use of Jaccard Similarity Index is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).
-So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
-
-> 🧭✨ Poll: Which is the default value of the parameter `K` that Seurat uses?
-https://PollEv.com/multiple_choice_polls/mb6W3JcgNnHmh3fllFhQ7/respond
-> Hint: `help` yourselves by reading the docs!
-
-```{r findneighbours}
-pbmc <- FindNeighbors(pbmc, dims = seq_len(10))
-```
-
-We want to keep our clusters looking natural.
-That is, we want to have a modularity optimization on top of all.
-For that, we'll use the community search algorithm for graphs called Louvain.
-You can read more about it and it's improved version ("Leiden") [here](https://www.nature.com/articles/s41598-019-41695-z).
-
-The `FindClusters()` function implements this procedure, and contains a `resolution` parameter that sets the 'granularity' of the downstream clustering, with increased values leading to a greater number of clusters.
-Usually, setting this parameter between `0.4` and `1.2` returns good results for single-cell datasets of around 3K cells.
-You can easily try various values and see how it performs.
-Optimal resolution often increases for larger datasets.
-
-```{r findclusters}
-pbmc <- FindClusters(pbmc, resolution = 0.5)
-```
-
-After this process, we have a new `seurat_clusters` column in our `meta.data` layer (slot).
-Also, this is our new active identity!
-
-```{r ident_clu}
-head(Idents(pbmc))
-```
-
-
-> 🧭✨ Poll: How many clusters did we find?
-https://PollEv.com/multiple_choice_polls/NgrSgdYpoUBVZ2qInZeGW/respond
-
-> ⌨🔥 Exercise: Plot the Dimplot of PC1 and PC2 again. What are the points coloured by now?
-
-<!-- NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html) -->
-
 # End
-
-```{r sessionInfo}
-sessionInfo()
-```

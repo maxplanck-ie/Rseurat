@@ -1,4 +1,5 @@
 Activity,Type,Title,Option,Option,Option,Option,Option
 Poll,Multiple choice,Which sequencing technologies are retained in the subset dataset?,"celseq","fluidigm","10x","inDrop","smartseq2"
+Poll,Multiple choice,How many cells were sequenced with smartseq2?,"335","761","798"
 Poll,Multiple choice,What is the name of the top DE gene?,"ERCC-00002","HNRPDL","LRRC75A-AS1","MAB21L3","ZFAS1"
 Poll,Multiple choice,What is the new assay called?,"integration","integrated.RNA","integrated",,

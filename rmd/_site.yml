@@ -34,11 +34,11 @@ navbar:
         icon: fa-users
         href: 14_FirstSteps.html
 
-      - text: Embeddings
-        icon: fa-question-circle
-        href: 16_UMAP.html
-
       # Day 2
+      - text: Network, Clusters, and Manifolds
+        icon: fa-question-circle
+        href: 20_NetworkClustersManifolds.html
+
       - text: Data viz + DE
         icon: fa-map-marker
         href: 21_DE.html
@@ -46,6 +46,7 @@ navbar:
       - text: Ontologies Enrichment
         icon: fa-arrows-alt
         href: 23_Enrich.html
+        # This we can accomodate on Day 3 or 4 too. Don't rush!
 
       # Day 3
       - text: Batch Effects

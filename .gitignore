@@ -4,6 +4,7 @@
 .Ruserdata
 *.log
 *.html
+rmd/images/my_*
 rmd/*.html
 rmd/*_files/
 rmd/site/
