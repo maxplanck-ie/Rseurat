@@ -105,7 +105,6 @@ All the process described before, including the use of Jaccard Similarity Index 
 So the KNN is build using multidimensional space, but the rules we just saw for 2D still apply.
 
 > 🧭✨ Poll: Which is the default value of the parameter `K` that Seurat uses?
-https://PollEv.com/multiple_choice_polls/mb6W3JcgNnHmh3fllFhQ7/respond
 > Hint: `help` yourselves by reading the docs!
 
 ```{r findneighbours}
@@ -135,7 +134,6 @@ head(Idents(pbmc))
 
 
 > 🧭✨ Poll: How many clusters did we find?
-https://PollEv.com/multiple_choice_polls/NgrSgdYpoUBVZ2qInZeGW/respond
 
 > ⌨🔥 Exercise: Plot the Dimplot of PC1 and PC2 again. What are the points coloured by now?
 

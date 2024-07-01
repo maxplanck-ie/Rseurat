@@ -121,12 +121,12 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
 
 > 🧭✨ Polls:
 >
-> How many genes and cells does this dataset have? https://PollEv.com/multiple_choice_polls/SUGa0Gd6arc2yN03oGsW6/respond
+> How many genes and cells does this dataset have?
 >
-> How many genes are not expressed in any cell? https://PollEv.com/multiple_choice_polls/7eG9v27igQJ4q3YXkEC9n/respond
+> How many genes are not expressed in any cell?
 > Hint: subset genes with `rowSums()`.
 >
-> Which are the top 3 genes with the highest total count? https://PollEv.com/multiple_choice_polls/N95CXZgAjezf5VQlH8QO7/respond
+> Which are the top 3 genes with the highest total count?
 > Hint: `rowSums()` and `sort`.
 
 > ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
@@ -161,7 +161,7 @@ On RStudio, you can use `View(pbmc)` to inspect all the layers (slots).
 
 > 🧭✨ Poll:
 >
-> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"? https://PollEv.com/multiple_choice_polls/ALEQy4aTk6YCvdvQMnCbg/respond
+> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
 > Hint: subset the assay data, `pbmc@assays$RNA` or use the [`FetchData()`](https://satijalab.github.io/seurat-object/reference/FetchData.html) function.
 
 
@@ -250,7 +250,6 @@ VlnPlot(
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
 > 🧭✨ Poll: How many cells have equal or less than 2000 counts in total (summed over all genes)?
-https://PollEv.com/multiple_choice_polls/YPYGTUEew6Y4XcqrqObxX/respond
 > Hint: you can use `colSums` on the countdata layer or take advantage of the meta.data metrics calculated by Seurat and stored in the object.
 
 Individually these variables may not fully discriminate dead cells, but could also reflect real biological properties (e.g. higher mitochondrial count).
@@ -283,7 +282,6 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
 ```
 
 > 🧭✨ Poll: What's the current number of cells after this step?
-https://PollEv.com/multiple_choice_polls/RWw3CYiBqEzp0E0VII8P5/respond
 
 
 ## Normalization
@@ -320,11 +318,9 @@ pbmc <- FindVariableFeatures(pbmc)
 > 🧭✨ Polls:
 >
 > Which are the 3 most highly variable genes?
-https://PollEv.com/multiple_choice_polls/K3MKnt5OsuhryxPCb4J1I/respond
 > Hint: use `VariableFeatures()`.
 >
 > What's the variance of the gene `PYCARD`?
-https://PollEv.com/multiple_choice_polls/awTn4BDUkLDbWKofpLqHZ/respond
 > hint: use `HVFInfo()`.
 
 Plot variable features:
@@ -405,7 +401,6 @@ ElbowPlot(pbmc)
 ```
 
 > 🧭✨ Poll: How many components should we choose to include?
-https://PollEv.com/multiple_choice_polls/fi9Z4jqXU22sFf2P0SDeq/respond
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 Also, if your research questions aim towards rare celltypes, you may definitely include more PCs (think about it in terms of the variance in gene expression values).
