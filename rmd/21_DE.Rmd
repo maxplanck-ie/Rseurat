@@ -127,7 +127,8 @@ You may inspect the results with either `View()` or `head()`.
 
 **Notice**:
 
--   if `ident.2=NULL` (default), then `FindMarkers()` will run a test between the group `ident.1` and **all other** cells
+-   Regarding the 'double-dipping' issue asked in the first question above, there's this [statistical method](https://www.tandfonline.com/doi/full/10.1080/01621459.2022.2116331) but it's not implemented (yet, afaik.)
+-   If `ident.2=NULL` (default), then `FindMarkers()` will run a test between the group `ident.1` and **all other** cells
 -   You may also use a vector (e.g. `c(1,3)`) as `ident.2` to compare against all the cells of clusters one and three, pooled together.
 -   to increase the speed and relevance of marker discovery, Seurat allows for pre-filtering of features or cells. For example, genes that are very infrequently detected in either group of cells, or genes that are expressed at similar average levels, are unlikely to be differentially expressed, so we can exclude those: `?FindMarkers`
 
