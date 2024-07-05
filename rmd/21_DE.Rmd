@@ -195,7 +195,8 @@ DotPlot(pbmc_small, features = rownames(markers.between.clusters)[1:10]) + Rotat
 markers.between.clusters %>% head()
 ```
 
-> 🧭✨ Polls: How would you extract the 'gene signature' of a given cluster?
+> 🧭✨ Polls: How would you extract the 'gene programme' of a given cluster?
+> A 'gene programme' would be the group of genes that are characteristic and could serve the purpose of defining such a cluster as a given celltype.
 
 > ⌨🔥 Exercise: We'll distribute the room in groups again (N\<=9), and assign a cluster to each.
 > Get the "gene signature" of your assigned cluster, see if you can assign the correct celltypes by using the following list of gene markers.
