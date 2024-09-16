@@ -25,6 +25,7 @@ dependencies:
   - r-markdown
   - r-readr
   - r-dplyr
+  - r-stringi
   - r-RColorBrewer
   - r-future
   - r-reticulate
