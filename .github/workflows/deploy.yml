@@ -33,6 +33,9 @@ jobs:
           #cache-env: true
       - name: MicromambaActivateEnv
         run: micromamba activate Rseurat
+      - name: TidyverseDependencies
+        run: |
+          sudo apt update && sudo apt install -y libicu-dev make libcurl4-openssl-dev libssl-dev zlib1g-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev libjpeg-dev libpng-dev libtiff-dev pandoc libxml2-dev
       - name: InstallSeuratDatasets
         run: |
           Rscript -e "install.packages(pkgs='ifnb.SeuratData', repos='https://seurat.nygenome.org/', type='source')"
