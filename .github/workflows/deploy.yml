@@ -33,12 +33,10 @@ jobs:
           #cache-env: true
       - name: MicromambaActivateEnv
         run: micromamba activate Rseurat
-      - name: RemoteInstallGH
+      - name: InstallSeuratDatasets
         run: |
-          apt update && apt install -y libicu-dev libicu58
-          Rscript -e "remotes::install_github('satijalab/seurat-data')"
-          Rscript -e "SeuratData::InstallData('ifnb')"  # if this fails, download file.tar.gz w/ cURL, then install.packages('file.tar.gz', repos=NULL, type='source')
-          Rscript -e "SeuratData::InstallData('pbmc3k')"
+          Rscript -e "install.packages(pkgs='ifnb.SeuratData', repos='https://seurat.nygenome.org/', type='source')"
+          Rscript -e "install.packages(pkgs='pbmc3k.SeuratData', repos='https://seurat.nygenome.org/', type='source')"
       - name: DownloadZenodo
         working-directory: ./rmd
         run: |
