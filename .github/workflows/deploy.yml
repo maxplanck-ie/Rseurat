@@ -35,7 +35,7 @@ jobs:
         run: micromamba activate Rseurat
       - name: RemoteInstallGH
         run: |
-          apt update && apt install -y libicu-dev
+          apt update && apt install -y libicu-dev libicu66
           Rscript -e "remotes::install_github('satijalab/seurat-data')"
           Rscript -e "SeuratData::InstallData('ifnb')"  # if this fails, download file.tar.gz w/ cURL, then install.packages('file.tar.gz', repos=NULL, type='source')
           Rscript -e "SeuratData::InstallData('pbmc3k')"
