@@ -449,4 +449,12 @@ Finally, we are able to plot PCA, and have the cells coloured by these categorie
 DimPlot(pbmc, group.by = "mt.categories")
 ```
 
+> 🧭✨ Polls (or not. Let's just discuss these answers):
+>
+> What would happen if we ran `FindVariableFeatures` after `ScaleData`?
+> - Nothing, the resulting list of genes would be the same. Data scaling is important for ML (e.g. dim reduc); the method(s) to finding variable features are more akin to 'classic' statistical modelling techniques (e.g. regression).
+>
+> What would happen if we skip `ScaleData`? Would PCA be affected?
+> - The resulting PCA has biases introduced by the absolute values of our count matrix. Genes with higher counts would rule the components, even if their variability is not big.
+
 # End
