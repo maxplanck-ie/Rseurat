@@ -35,8 +35,8 @@ jobs:
         run: micromamba activate Rseurat
       - name: InstallSeuratDatasets
         run: |
-          Rscript -e "install.packages(pkgs='ifnb.SeuratData', repos='https://seurat.nygenome.org/', type='source')"
-          Rscript -e "install.packages(pkgs='pbmc3k.SeuratData', repos='https://seurat.nygenome.org/', type='source')"
+          Rscript -e "options(timeout = 600); install.packages(pkgs='ifnb.SeuratData', repos='https://seurat.nygenome.org/', type='source')"  # 394 MiB
+          Rscript -e "options(timeout = 150); install.packages(pkgs='pbmc3k.SeuratData', repos='https://seurat.nygenome.org/', type='source')"  # 89 MiB
       - name: DownloadZenodo
         working-directory: ./rmd
         run: |
