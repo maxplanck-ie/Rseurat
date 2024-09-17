@@ -3,6 +3,23 @@ channels:
   - bioconda
 dependencies:
   - r-base=4.2.3
+  ## tidyverse system-dependencies
+  - icu
+  - make
+  - curl
+  - openssl
+  - zlib
+  - fontconfig
+  - freetype
+  - fribidi
+  - harfbuzz
+  - jpeg
+  - libpng
+  - libtiff
+  - pandoc
+  - libxml2
+  ## for ubuntu 24.04, retrieved from https://packagemanager.rstudio.com/
+  - r-tidyverse
   - r-essentials
   - r-usethis
   - r-formatR
@@ -14,7 +31,6 @@ dependencies:
   - r-ggplot2
   - r-patchwork
   - r-Seurat
-  - r-tidyverse
   - r-pheatmap
   - r-ashr
   - r-ggrepel
