@@ -37,8 +37,8 @@ packageVersion("Seurat")
 We're going to work with IFNB-Stimulated and Control human PBMCs and downsample the datasets for the purpose of the exercise.
 
 ```{r SeuratData}
-library(SeuratData)
-ifnb <- LoadData("ifnb")
+data(list = "ifnb", package = "ifnb.SeuratData")
+ifnb <- UpdateSeuratObject(ifnb)
 ifnb_sub <- subset(x = ifnb, downsample = 1000)
 table(ifnb_sub$stim)
 ifnb.list <- SplitObject(ifnb_sub, split.by = "stim")
