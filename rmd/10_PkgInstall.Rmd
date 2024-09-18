@@ -219,18 +219,9 @@ library(Seurat)
 packageVersion("Seurat")
 ```
 
-
 ::: {.alert .alert-dismissible .alert-success}
-<h4 class="alert-heading">
-
-Congrats!
-
-</h4>
-
-<p class="mb-0">
-
-You made it. One last thing, we'll be using some educational datasets. The next part is also required, but way more simpler
-
+<h4 class="alert-heading">Congrats!</h4>
+<p class="mb-0">You made it. One last thing, we'll be using some educational datasets. The next part is also required, but way more simpler</p>
 :::
 
 # Datasets
