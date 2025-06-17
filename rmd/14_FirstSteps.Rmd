@@ -422,3 +422,21 @@ DimPlot(pbmc, group.by = "mt.categories")
 ```
 
 # End
+
+> Optional excercise 1: annotate the cells in the dataset with percentage expression of the apoptotic signature, and colour cells by this value on a dimentional reduction plot. You can find the file with genes annotated with GO term GO0006915 "apoptotic process" in "datasets/GOterms/GO0006915.tsv" .
+
+> Optional excercise 2: correlate values of PC1 and/or PC2 and number of expressed genes or any other meta.data column of your choice. FeatureScatter() could be helpful.
+
+> Optional excercise 3: grab another example dataset from SeuratData and process it in a similar way. Some help:
+
+
+```{r seuratData,eval=FALSE}
+library(SeuratData)
+AvailableData()
+InstallData("panc8")
+data("panc8")
+panc8_old<-panc8
+panc8<-UpdateSeuratObject(panc8)
+panc8_celseq2<-subset(panc8,dataset=="celseq2")
+#this is where you take over
+```
