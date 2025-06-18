@@ -3,11 +3,16 @@ on:
   workflow_dispatch:
   pull_request:
     types:
+      - opened
       - closed
+    branches:
+      - main
+      - develop
 defaults:
   run:
     shell: bash -l {0}
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -44,9 +49,11 @@ jobs:
       - name: RmarkdownRenderSite
         run: Rscript -e "rmarkdown::render_site('rmd')"
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./rmd/site
+          name: github-pages
+          overwrite: True
   deploy:
     needs: build
     environment:
@@ -54,6 +61,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4

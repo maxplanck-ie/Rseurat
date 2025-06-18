@@ -119,17 +119,7 @@ pheatmap::pheatmap(log10(pbmc.data[1:500, 1:200] + 1),
 ) # note: colorRampPalette returns another function.
 ```
 
-> 🧭✨ Polls:
->
-> How many genes and cells does this dataset have?
->
-> How many genes are not expressed in any cell?
-> Hint: subset genes with `rowSums()`.
->
-> Which are the top 3 genes with the highest total count?
-> Hint: `rowSums()` and `sort`.
 
-> ⌨🔥 Exercise: Plot the histogram of counts for the previous top gene over all cells
 
 # Seurat Object
 
@@ -147,8 +137,7 @@ Initialize the Seurat object with the raw (non-normalized data):
 ) # extra outer pair of parenthesis mean 'print()'
 ```
 
-> **Note:** usually on any data science context, we refer to our columns as features.
-> This is not the case for the count matrix.
+> **Note:**  Features refer to genes and are stored in rows of the matrix. Cells are stored in columns of the matrix.
 
 The `min.cells` and `min.features` arguments are first low-stringency **filters**.
 We are only loading cells with at least 200 genes detected, and we are only including those genes (features) that were detected in at least 3 cells.
@@ -159,16 +148,11 @@ The `SeuratObject` serves as a container that contains both data (like the count
 <!-- For example, the count matrix can be accessed as pbmc[["RNA"]]@layers$counts or `LayerData(pbmc,assay="RNA",layer="counts")`. -->
 On RStudio, you can use `View(pbmc)` to inspect all the layers (slots).
 
-> 🧭✨ Poll:
->
-> In cell "AAATTCGATTCTCA-1", how many reads map to gene "ACTB"?
-> Hint: subset the assay data, `pbmc@assays$RNA` or use the [`FetchData()`](https://satijalab.github.io/seurat-object/reference/FetchData.html) function.
 
+At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` layers, representing expression data and dimensional reductions of the expression data, respectively.
+The `Assay` slots are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
 
-At the top level, `SeuratObject` serves as a collection of `Assay` and `DimReduc` objects, representing expression data and dimensional reductions of the expression data, respectively.
-The `Assay` objects are designed to hold expression data of a single type, such as RNA-seq gene expression, CITE-seq ADTs, cell hashtags, or imputed gene values.
-
-On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay object(s) via various dimensional reduction techniques such as PCA.
+On the other hand, `DimReduc` objects represent transformations of the data contained within the Assay slots via various dimensional reduction techniques such as PCA.
 For class-specific details, including more in depth description of the layers (slots), please see the documentation sections for each class:
 
 -   [`Seurat Documentation`](https://satijalab.org/seurat/articles/essential_commands#seurat-object-data-access)
@@ -249,8 +233,6 @@ VlnPlot(
 
 The `VlnPlot()` function plots the probability density function for all the specified variables (features).
 
-> 🧭✨ Poll: How many cells have equal or less than 2000 counts in total (summed over all genes)?
-> Hint: you can use `colSums` on the countdata layer or take advantage of the meta.data metrics calculated by Seurat and stored in the object.
 
 Individually these variables may not fully discriminate dead cells, but could also reflect real biological properties (e.g. higher mitochondrial count).
 Therefore it is useful to look a relationship between these variables.
@@ -280,8 +262,6 @@ pbmc <- pbmc %>% subset(nFeature_RNA > 200 &
   nFeature_RNA < 2500 &
   percent.mt < 5)
 ```
-
-> 🧭✨ Poll: What's the current number of cells after this step?
 
 
 ## Normalization
@@ -314,14 +294,6 @@ pbmc <- FindVariableFeatures(pbmc)
 ```
 
 <!--Note that there's also the `selection.method = "mvp"` that identifies variable features while controlling for the strong relationship between variability and average expression.-->
-
-> 🧭✨ Polls:
->
-> Which are the 3 most highly variable genes?
-> Hint: use `VariableFeatures()`.
->
-> What's the variance of the gene `PYCARD`?
-> hint: use `HVFInfo()`.
 
 Plot variable features:
 
@@ -400,7 +372,7 @@ One quick way to determine the 'dimensionality' of the dataset is by eyeballing 
 ElbowPlot(pbmc)
 ```
 
-> 🧭✨ Poll: How many components should we choose to include?
+
 
 When picking the 'elbow' point, remember that **it's better to err on the higher side**!
 Also, if your research questions aim towards rare celltypes, you may definitely include more PCs (think about it in terms of the variance in gene expression values).
@@ -449,12 +421,22 @@ Finally, we are able to plot PCA, and have the cells coloured by these categorie
 DimPlot(pbmc, group.by = "mt.categories")
 ```
 
-> 🧭✨ Polls (or not. Let's just discuss these answers):
->
-> What would happen if we ran `FindVariableFeatures` after `ScaleData`?
-> - Nothing, the resulting list of genes would be the same. Data scaling is important for ML (e.g. dim reduc); the method(s) to finding variable features are more akin to 'classic' statistical modelling techniques (e.g. regression).
->
-> What would happen if we skip `ScaleData`? Would PCA be affected?
-> - The resulting PCA has biases introduced by the absolute values of our count matrix. Genes with higher counts would rule the components, even if their variability is not big.
-
 # End
+
+> Optional excercise 1: annotate the cells in the dataset with percentage expression of the apoptotic signature, and colour cells by this value on a dimentional reduction plot. You can find the file with genes annotated with GO term GO0006915 "apoptotic process" in "datasets/GOterms/GO0006915.tsv" .
+
+> Optional excercise 2: correlate values of PC1 and/or PC2 and number of expressed genes or any other meta.data column of your choice. FeatureScatter() could be helpful.
+
+> Optional excercise 3: grab another example dataset from SeuratData and process it in a similar way. Some help:
+
+
+```{r seuratData,eval=FALSE}
+library(SeuratData)
+AvailableData()
+InstallData("panc8")
+data("panc8")
+panc8_old<-panc8
+panc8<-UpdateSeuratObject(panc8)
+panc8_celseq2<-subset(panc8,dataset=="celseq2")
+#this is where you take over
+```
