@@ -174,19 +174,17 @@ The second one was developed 10 years later, and it adds a bunch of advantages.
 
 ## t-SNE: t-distributed stochastic neighbor embedding
 
-```{r sq_tsne, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
-knitr::include_graphics("images/tsne01.png")
-knitr::include_graphics("images/tsne02.png")
+```{r sq_tsne, echo=FALSE, out.width="100%", out.height="100%", fig.show='hold', fig.align="center"}
+knitr::include_graphics("images/tSNE.png")
 ```
 
-Here the key idea is to first map distances between cells/ samples, $i$ and $j$, to probabilities
 
--   in high dimensions: $d_{ij} \to p_{ij}$,
--   in low dimensions (2D): $\delta_{ij} \to q_{ij}$
+1. Measure pairwise similarities: First, t-SNE calculates how similar each pair of cells is to each other. It does this by looking at the “distance” between them, often using a method like Gaussian (normal) distribution. The idea is that if two cells have very similar gene expression profiles, they should have a high similarity score, and if they’re far apart, the similarity should be low.
+2. Create probabilities: These similarities are turned into probabilities (think of it like a “likelihood” that two cells are close neighbours). The closer two points are, the higher the probability that they are neighbours.
+3. Map to lower dimensions: Now, t-SNE creates a new 2D space and tries to position the data points there. The goal is to place points so that similar cells in the original space are still close together in the new space, and dissimilar cells are far apart.
+4. Optimize the layout: This is where the “stochastic” part comes in. t-SNE uses a technique called gradient descent, which is a way of adjusting the positions of the points in the lower-dimensional space step by step, trying to make the distribution of similarities in the lower space match the original distribution as closely as possible.
 
-Cells are then iteratively moved around in 2D until $q_{ij} \approx p_{ij}$.
 
-The t- in t-SNE just corresponds to a specific choice of the map $\delta_{ij} \to q_{ij}$ which has proved useful for a wide range of applications.
 For further details, see some of these resources:
 
 -   [Google TechTalk](https://www.youtube.com/watch?v=RJVL80Gg3lA&list=UUtXKDgv1AVoG88PLl8nGXmw) (Duration 55 min.)
@@ -194,6 +192,7 @@ For further details, see some of these resources:
 -   [Article at Distill](https://distill.pub/2016/misread-tsne/) on the effects of parameters.
 -   [2019 paper](https://www.nature.com/articles/s41467-019-13056-x) summarizing the challenges of t-SNE for scRNA-seq data.
 -   [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
+-   [biostatsquid](https://biostatsquid.com/easy-t-sne-explained-with-an-example/)
 
 The technical details may be challenging, but the execution in Seurat is straightforward.
 Keep in mind that this algorithm has many parameters that can be adjusted, one of the most relevant is  **perplexity** (see `?Rtsne::Rtsne` for further details.) This value is our way of telling to the algorithm (loosely) how to balance attention between local and global aspects of your data.
@@ -223,14 +222,21 @@ p1 + p2
 
 ## UMAP: Uniform Manifold Approximation and Projection
 
-t-SNE and UMAP have the same principle and workflow: create a high dimensional graph, then reconstruct it in a lower dimensional space while retaining the structure.
-
-One of the differences between UMAP and t-SNE is that instead of using the Normal Probability Density Function (Gaussian bell depicted in the pictures above), we'll be using an asymmetric function: the base-2 logarithm of a given integer.
-This integer is one of our biggest parameter to explore: number of neighbors.
-
 ```{r sq_umap, echo=FALSE, fig.align="center"}
-knitr::include_graphics("images/umap.png")
+knitr::include_graphics("images/UMAP.png")
 ```
+
+
+1. Manifold Learning:
+UMAP is based on the idea that high-dimensional data often lies on a lower-dimensional “manifold” (like a curved surface). For example, a 3D object might look like a 2D surface if we zoom in close enough. UMAP tries to learn this manifold structure, but instead of doing it from 3 dimensions to 2, it does it from 10.000 genes to 2 UMAP projections. But the idea is the same.
+2. Constructing a high-dimensional graph:
+UMAP starts by creating a “fuzzy graph” which is a high dimensional graph where each data point (in this case, each cell) is connected to its nearest neighbours.
+So how does UMAP decide whether two cells are connected? We’ll talk about this high dimensional fuzzy graph in just a bit. But for now, just know that with this multi-dimensional graph, UMAP ensures that local structure is preserved in balance with global structure. This is a key difference and advantage over t-SNE.
+Ok, but this fuzzy graph is still highly dimensional, we need to bring it down to 2D.
+3. Optimizing the Graph in Low Dimensions:
+Again, like t-SNE, there’s an optimization step where UMAP optimizes the layout of a 2D graph trying to keep the connections it computed in the multi-D fuzzy graph. Mathematically it is different to t-SNE: t-SNE uses probability distributions, UMAP uses a technique from topology (the study of shapes) to optimize the graph in a lower-dimensional space.
+The idea of this step is to keep the local neighbourhood relationships, the connections between cells, while also trying to preserve the broader, global relationships in the data.
+
 
 For further details, see some of these resources:
 
@@ -238,9 +244,11 @@ For further details, see some of these resources:
 -   [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
 -   [StatQuest video](https://www.youtube.com/watch?v=eN0wFzBA4Sc), the screenshot above comes from this one.
 -   [Parameter Tuning Tutorial](https://umap-learn.readthedocs.io/en/latest/parameters.html) on the official Python Implementation (McInnes et al.)
+-   [biostatsquid](https://biostatsquid.com/umap-simply-explained/)
 
-One of the key differences with t-SNE, is that instead of starting from a completely random projection, UMAP starts with an 'Spectral Embedding'.
-That's a whole another Manifold learning algorithm, but what's important is that this is going to be a better approximation than just using a random setting.
+UMAP's hyperparameters:   
+- n_neighbours controls how much of the local vs global structure is preserved    
+- min_dist: minimum distance between points in the low-D space   
 
 UMAP has a similar goal as t-SNE; but it also tries to preserve more global aspects of the data structure.
 It has several advantages:
@@ -272,3 +280,19 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 
 
 # End
+
+> Optional excercise 1: recalculate tSNE and UMAP projections using 10 PC components. Compare to the original.
+
+> Optional excercise 2: grab another example dataset from SeuratData and process it in a similar way. Some help:
+
+
+```{r seuratData,eval=FALSE}
+library(SeuratData)
+AvailableData()
+InstallData("panc8")
+data("panc8")
+panc8_old<-panc8
+panc8<-UpdateSeuratObject(panc8)
+panc8_celseq2<-subset(panc8,dataset=="celseq2")
+#this is where you take over
+```
