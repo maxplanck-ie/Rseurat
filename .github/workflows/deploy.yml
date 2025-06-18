@@ -49,7 +49,7 @@ jobs:
       - name: RmarkdownRenderSite
         run: Rscript -e "rmarkdown::render_site('rmd')"
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./rmd/site
           name: github-pages
