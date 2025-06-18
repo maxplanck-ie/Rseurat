@@ -133,28 +133,16 @@ head(Idents(pbmc))
 
 <!-- NOTE: The [upcoming v5](https://doi.org/10.1101/2022.02.24.481684) of Seurat will include a new clustering method [(specifically designed for handling data sets with the number of cells in the order of millions.)](https://satijalab.org/seurat/articles/seurat5_sketch_analysis.html) -->
 
-# Heatmaps
+# Plot PC values per cluster
 
-Clusters can be shown on heatmaps:
+Per-cluster values can be plotted e.g. as violin plots with the Seurat function VlnPlot():
 
-```{r heatmap, echo=FALSE}
-ann <- pbmc@meta.data %>%
-  select(seurat_clusters) %>%
-  arrange(seurat_clusters)
+```{r PC_per_cluster, echo=FALSE}
 
-# extract CELL-PC matrix, subset, transpose, and plot
-pbmc@reductions$pca@cell.embeddings[rownames(ann), 1:5] %>%
-  t() %>%
-  pheatmap::pheatmap(
-    cluster_cols = FALSE,
-    cluster_rows = FALSE,
-    show_colnames = FALSE,
-    annotation_col = ann,
-    annotation_legend = FALSE
-  )
+VlnPlot(pbmc,features=paste("PC",1:5,sep="_"),group.by="seurat_clusters")
 ```
 
-# Projections
+# Embeddings in 2D space
 
 ## PCA: Principal Component Analysis
 
@@ -163,19 +151,9 @@ This is useful to identify informative directions and reduce noise (before clust
 The projection on the first two components is often visualized because those correspond to the directions of maximal variation in the data.
 And as we might expect, the different clusters can be seen as --more or less-- separating in this projection:
 
-```{r pca, echo=FALSE}
-# easier: DimPlot(pbmc, reduction = "pca")
+```{r clusters_by_pca, echo=FALSE}
+DimPlot(pbmc, reduction = "pca")
 
-ggplot(
-  pbmc@reductions$pca@cell.embeddings[, 1:2] %>% as.data.frame(),
-  aes(
-    x = PC_1,
-    y = PC_2,
-    color = pbmc@meta.data$seurat_clusters
-  )
-) +
-  geom_point() +
-  NoLegend()
 ```
 
 There are other **non-linear** projection techniques that aim specifically to preserve distances between samples in 2 dimensions.
@@ -292,10 +270,5 @@ DimPlot(pbmc, reduction = "umap") + NoLegend() |
 -   We're distorting the data to fit it into lower dimensions. Both algorithms aim to facilitate **visualization**, there is no ground truth.
 -   Parameter exploration is allowed, and **very much encouraged**.
 
-## Common Pitfalls to Avoid
-
-1.  Differences in cluster size mean nothing.
-2.  Distances between clusters might not mean anything.
-3.  You should look to more than one plot, changing its parameters.
 
 # End
