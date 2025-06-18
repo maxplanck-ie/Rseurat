@@ -175,8 +175,7 @@ The second one was developed 10 years later, and it adds a bunch of advantages.
 ## t-SNE: t-distributed stochastic neighbor embedding
 
 ```{r sq_tsne, echo=FALSE, out.width="49%", out.height="49%", fig.show='hold', fig.align="center"}
-knitr::include_graphics("images/tsne01.png")
-knitr::include_graphics("images/tsne02.png")
+knitr::include_graphics("images/tSNE.png")
 ```
 
 Here the key idea is to first map distances between cells/ samples, $i$ and $j$, to probabilities
@@ -194,6 +193,7 @@ For further details, see some of these resources:
 -   [Article at Distill](https://distill.pub/2016/misread-tsne/) on the effects of parameters.
 -   [2019 paper](https://www.nature.com/articles/s41467-019-13056-x) summarizing the challenges of t-SNE for scRNA-seq data.
 -   [original paper](https://jmlr.csail.mit.edu/papers/volume9/vandermaaten08a/vandermaaten08a.pdf) from 2008.
+-   [biostatsquid](https://biostatsquid.com/easy-t-sne-explained-with-an-example/)
 
 The technical details may be challenging, but the execution in Seurat is straightforward.
 Keep in mind that this algorithm has many parameters that can be adjusted, one of the most relevant is  **perplexity** (see `?Rtsne::Rtsne` for further details.) This value is our way of telling to the algorithm (loosely) how to balance attention between local and global aspects of your data.
@@ -229,7 +229,7 @@ One of the differences between UMAP and t-SNE is that instead of using the Norma
 This integer is one of our biggest parameter to explore: number of neighbors.
 
 ```{r sq_umap, echo=FALSE, fig.align="center"}
-knitr::include_graphics("images/umap.png")
+knitr::include_graphics("images/UMAP.png")
 ```
 
 For further details, see some of these resources:
@@ -238,6 +238,7 @@ For further details, see some of these resources:
 -   [Google PAIR](https://pair-code.github.io/understanding-umap/) from Google's People+AI Research (PAIR) initiative.
 -   [StatQuest video](https://www.youtube.com/watch?v=eN0wFzBA4Sc), the screenshot above comes from this one.
 -   [Parameter Tuning Tutorial](https://umap-learn.readthedocs.io/en/latest/parameters.html) on the official Python Implementation (McInnes et al.)
+-   [biostatsquid](https://biostatsquid.com/umap-simply-explained/)
 
 One of the key differences with t-SNE, is that instead of starting from a completely random projection, UMAP starts with an 'Spectral Embedding'.
 That's a whole another Manifold learning algorithm, but what's important is that this is going to be a better approximation than just using a random setting.
