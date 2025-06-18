@@ -12,6 +12,7 @@ defaults:
   run:
     shell: bash -l {0}
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
